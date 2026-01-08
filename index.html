@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #0b141a; color: white; text-align: center; font-family: sans-serif; margin: 0; }
+        .grid { border: 1px solid #1e2a35; height: 300px; position: relative; background-size: 40px 40px; background-image: linear-gradient(to right, #16212a 1px, transparent 1px), linear-gradient(to bottom, #16212a 1px, transparent 1px); }
+        .rocket { font-size: 50px; position: absolute; bottom: 10%; left: 10%; }
+        .mult { font-size: 40px; padding: 20px; color: #00d2ff; font-weight: bold; }
+        .btn { background: #007bff; border: none; padding: 15px; width: 90%; color: white; border-radius: 10px; font-size: 18px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content: space-around; padding: 10px;">
+        <span>👤 146</span> <span>💎 0.12 TON</span>
+    </div>
+    <div class="grid">
+        <div class="mult" id="m">1.00x</div>
+        <div class="rocket" id="r">🚀</div>
+    </div>
+    <button class="btn">Сделать ставку</button>
+    <script>
+        let m = 1.00;
+        setInterval(() => {
+            m += 0.01;
+            document.getElementById('m').innerText = m.toFixed(2) + "x";
+        }, 100);
+    </script>
+</body>
+</html>
