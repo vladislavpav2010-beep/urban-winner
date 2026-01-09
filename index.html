@@ -3,170 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Pro Ultra - GLOBAL UPDATE</title>
+    <title>Crash Pro - Realistic Economy</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --bg: #0b0e11; --card: #1e2329; --accent: #0098ea;
-            --success: #0ecb81; --danger: #f6465d; --gold: #f3ba2f;
-        }
+        :root { --bg: #0b0e11; --card: #1e2329; --accent: #0098ea; --gold: #f3ba2f; --danger: #f6465d; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        .game-container { display: flex; flex-direction: column; height: 100vh; }
         
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
-        .top-nav { display: flex; justify-content: space-between; padding: 10px; background: #161a1e; border-bottom: 1px solid #2b3139; }
-        .balance-box { display: flex; align-items: center; gap: 5px; font-weight: bold; color: var(--success); }
+        /* График */
+        .chart-area { position: relative; flex: 1; background: #0b0e11; border-bottom: 2px solid #2b3139; }
+        #multiplier { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-size: 60px; font-weight: 900; z-index: 5; }
         
-        /* ИСТОРИЯ */
-        .history { display: flex; gap: 5px; padding: 5px 10px; overflow-x: hidden; background: #0b0e11; height: 25px; }
-        .h-item { font-size: 11px; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
-        .h-low { background: rgba(246, 70, 93, 0.2); color: var(--danger); }
-        .h-high { background: rgba(14, 203, 129, 0.2); color: var(--success); }
-
-        /* ГРАФИК */
-        .game-area { position: relative; height: 35vh; background: #0b0e11; }
-        #multiplier { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-size: 50px; font-weight: 900; z-index: 10; }
-        
-        /* ПАДАЮЩИЙ ПОДАРОК (ФИШКА) */
-        .gift-drop {
-            position: absolute; background: var(--gold); color: black; padding: 10px 15px;
-            border-radius: 50px; font-weight: bold; z-index: 100; cursor: pointer;
-            box-shadow: 0 0 20px var(--gold); display: none; animation: drop 0.5s ease-out;
+        /* Кнопка подарка (теперь она часть механики) */
+        #gift-claim {
+            position: absolute; display: none; background: var(--gold); color: black;
+            padding: 12px 20px; border-radius: 10px; font-weight: bold; z-index: 10;
+            cursor: pointer; box-shadow: 0 0 20px var(--gold); border: none;
         }
-        @keyframes drop { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* УПРАВЛЕНИЕ */
-        .main-controls { padding: 15px; background: var(--card); border-radius: 20px 20px 0 0; }
-        .input-group { background: #2b3139; padding: 10px; border-radius: 12px; display: flex; align-items: center; margin-bottom: 15px; }
-        input { background: none; border: none; color: white; width: 100%; font-size: 20px; outline: none; }
-        .btn-play { width: 100%; padding: 20px; border-radius: 15px; border: none; font-size: 22px; font-weight: bold; background: var(--success); cursor: pointer; }
+        .controls { padding: 20px; background: var(--card); border-radius: 20px 20px 0 0; }
+        .btn-bet { width: 100%; padding: 20px; border-radius: 12px; border: none; font-size: 20px; font-weight: bold; background: #0ecb81; cursor: pointer; }
         
-        /* ИНВЕНТАРЬ */
-        .inventory-section { padding: 10px 15px; height: 20vh; }
-        .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; height: 100%; }
-        .inv-card { background: #2b3139; padding: 10px; border-radius: 10px; font-size: 10px; text-align: center; border: 1px solid #3e4651; }
-        .inv-card b { color: var(--gold); display: block; margin-top: 5px; }
-
-        /* ОВЕРЛЕЙ */
-        .boom { color: var(--danger) !important; animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: translate(-52%, -50%); } 50% { transform: translate(-48%, -50%); } 100% { transform: translate(-50%, -50%); } }
+        .inv-title { padding: 10px 20px; font-size: 12px; color: #9299a6; }
+        .inventory { display: flex; gap: 10px; overflow-x: auto; padding: 0 20px 20px; }
+        .gift-card { background: #2b3139; padding: 10px; border-radius: 8px; min-width: 100px; text-align: center; font-size: 11px; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <div class="balance-box"><i class="fas fa-coins"></i> <span id="balance">1000.00</span> TON</div>
-    <div style="color: var(--accent)"><i class="fas fa-user"></i> ID: 88234</div>
-</div>
-
-<div class="history" id="history"></div>
-
-<div class="game-area">
-    <div id="multiplier">x1.00</div>
-    <div id="gift-box" class="gift-drop" onclick="catchGift()">🎁 ПОЙМАТЬ ПОДАРОК!</div>
-    <canvas id="chart"></canvas>
-</div>
-
-<div class="main-controls">
-    <div class="input-group">
-        <input type="number" id="bet" value="10">
-        <span style="color: #9299a6">TON</span>
+<div class="game-container">
+    <div style="padding: 15px; font-weight: bold;">Баланс: <span id="balance" style="color:#0ecb81">1000.00</span> TON</div>
+    
+    <div class="chart-area">
+        <div id="multiplier">x1.00</div>
+        <button id="gift-claim" onclick="claimGiftAndCashout()">🎁 ЗАБРАТЬ <span id="gift-name"></span></button>
+        <canvas id="chart"></canvas>
     </div>
-    <button class="btn-play" id="btn" onclick="action()">СТАВКА</button>
-</div>
 
-<div class="inventory-section">
-    <div style="font-size: 12px; color: #9299a6; margin-bottom: 10px;">МОИ ПОДАРКИ (В ИНВЕНТАРЕ):</div>
-    <div class="inv-grid" id="inv">
-        <div style="color: #4a4f55; grid-column: 1/4; text-align: center; padding-top: 20px;">Инвентарь пуст. Поймайте подарок во время полета!</div>
+    <div class="controls">
+        <input type="number" id="betInput" value="10" style="width:100%; background:#2b3139; border:none; color:white; padding:15px; border-radius:10px; margin-bottom:15px; font-size:18px;">
+        <button class="btn-bet" id="mainBtn" onclick="handleAction()">СТАВКА</button>
     </div>
+
+    <div class="inv-title">ВАШИ ЦЕННЫЕ ПРЕДМЕТЫ:</div>
+    <div class="inventory" id="inventory"></div>
 </div>
 
 <script>
-    // ВСЕ 61 ПОДАРОК С НАЦЕНКОЙ 10%
+    // База с фильтрацией по редкости (иксу)
     const gifts = [
-        {n: "Lunar Snake", p: 3.08}, {n: "Xmas Stocking", p: 3.22}, {n: "Snake Box", p: 3.22}, {n: "Lol Pop", p: 3.23},
-        {n: "Whip Cupcake", p: 3.26}, {n: "Moon Pendant", p: 3.29}, {n: "Mousse Cake", p: 3.61}, {n: "Tama Gadget", p: 3.63},
-        {n: "Pet Snake", p: 3.64}, {n: "Pretty Posy", p: 3.72}, {n: "Spiced Wine", p: 3.73}, {n: "Money Pot", p: 3.76},
-        {n: "Star Notepad", p: 3.91}, {n: "Stellar Rocket", p: 3.94}, {n: "Winter Wreath", p: 4.07}, {n: "Party Sparkler", p: 4.40},
-        {n: "Restless Jar", p: 4.49}, {n: "Santa Hat", p: 4.62}, {n: "Swag Bag", p: 4.62}, {n: "Witch Hat", p: 4.64},
-        {n: "Lush Bouquet", p: 4.80}, {n: "Snow Mittens", p: 4.87}, {n: "Snow Globe", p: 5.05}, {n: "Light Sword", p: 5.24},
-        {n: "Joyful Bundle", p: 5.56}, {n: "Jolly Chimp", p: 6.45}, {n: "Spring Basket", p: 6.60}, {n: "Sakura Flower", p: 8.02},
-        {n: "Sleigh Bell", p: 8.36}, {n: "Love Candle", p: 9.44}, {n: "Top Hat", p: 9.57}, {n: "Valentine Box", p: 9.90},
-        {n: "Sky Stilettos", p: 10.01}, {n: "Snoop Cigar", p: 10.21}, {n: "Trapped Heart", p: 10.59}, {n: "UFC Strike", p: 12.27},
-        {n: "Mad Pumpkin", p: 13.75}, {n: "Love Potion", p: 14.30}, {n: "Khabib's Papakha", p: 22.41}, {n: "Voodoo Doll", p: 25.84},
-        {n: "Vintage Cigar", p: 30.42}, {n: "Neko Helmet", p: 31.75}, {n: "Toy Bear", p: 31.79}, {n: "Signet Ring", p: 32.34},
-        {n: "Low Rider", p: 38.27}, {n: "Sharp Tongue", p: 41.80}, {n: "Kissed Frog", p: 42.26}, {n: "Swiss Watch", p: 43.07},
-        {n: "Magic Potion", p: 72.59}, {n: "Scared Cat", p: 79.20}, {n: "Perfume Bottle", p: 84.82}, {n: "Mini Oscar", p: 87.96},
-        {n: "Loot Bag", p: 110.00}, {n: "Nail Bracelet", p: 119.79}, {n: "Heroic Helmet", p: 261.80}, {n: "Precious Peach", p: 395.99},
-        {n: "Bonded Ring", p: 440.00}, {n: "Diamond Ring", p: 605.00}, {n: "Durov’s Cap", p: 926.20}, {n: "Heart Locket", p: 1474.00},
-        {n: "Plush Pepe", p: 6033.50}
+        {n: "Lunar Snake", p: 3.08, minX: 1.5}, {n: "Pet Snake", p: 3.64, minX: 2.0},
+        {n: "Santa Hat", p: 4.62, minX: 3.0}, {n: "UFC Strike", p: 12.27, minX: 8.0},
+        {n: "Khabib's Papakha", p: 22.41, minX: 15.0}, {n: "Swiss Watch", p: 43.07, minX: 30.0},
+        {n: "Diamond Ring", p: 605.00, minX: 200.0}, {n: "Heart Locket", p: 1474.00, minX: 500.0},
+        {n: "Plush Pepe", p: 6033.50, minX: 1500.0}
     ];
 
-    let bal = 1000.0, x = 1.0, isPlay = false, loop, crash, giftX, curGift;
-    let myInv = [];
+    let bal = 1000.0, x = 1.0, isPlay = false, loop, crash, currentGift = null;
 
     const ctx = document.getElementById('chart').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'line',
-        data: { labels: [0], datasets: [{ data: [1], borderColor: '#0098ea', borderWidth: 4, fill: true, backgroundColor: 'rgba(0,152,234,0.1)', pointRadius: 0, tension: 0.4 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false, min: 1, max: 10 } }, plugins: { legend: { display: false } }, animation: false }
+        data: { labels: [0], datasets: [{ data: [1], borderColor: '#0098ea', borderWidth: 3, pointRadius: 0, fill: true, backgroundColor: 'rgba(0,152,234,0.1)' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false, min: 1, max: 10 } }, animation: false }
     });
 
-    function action() {
-        if (!isPlay) start();
-        else cash();
+    function handleAction() {
+        if (!isPlay) start(); else cashout();
     }
 
     function start() {
-        let b = parseFloat(document.getElementById('bet').value);
-        if (bal < b) return alert("Мало TON!");
+        let b = parseFloat(document.getElementById('betInput').value);
+        if (bal < b) return alert("Недостаточно TON");
+        
         bal -= b; updateUI();
-        isPlay = true; x = 1.0;
-        crash = (Math.random() * 7 + 1.1).toFixed(2);
-        giftX = (Math.random() * (crash - 1.2) + 1.2).toFixed(2);
-        curGift = gifts[Math.floor(Math.random() * gifts.length)];
+        isPlay = true; x = 1.0; currentGift = null;
         
-        document.getElementById('btn').innerText = "ВЫВЕСТИ";
-        document.getElementById('btn').style.background = "var(--accent)";
-        document.getElementById('multiplier').classList.remove('boom');
-        
-        chart.data.labels = [0]; chart.data.datasets[0].data = [1];
-        
+        // Генерация краша (реалистичная: чаще маленькие, редко — огромные)
+        crash = (1 / (1 - Math.random())).toFixed(2); 
+        if (crash > 50) crash = (Math.random() * 50 + 10).toFixed(2); // Ограничим для теста
+
+        document.getElementById('mainBtn').innerText = "ВЫВЕСТИ (CASH OUT)";
+        document.getElementById('gift-claim').style.display = 'none';
+
         loop = setInterval(() => {
-            x += 0.025;
+            x += x * 0.01; // Ускорение роста
             document.getElementById('multiplier').innerText = `x${x.toFixed(2)}`;
+            
+            // Проверка: выпадает ли подарок на этом иксе?
+            let availableGifts = gifts.filter(g => x >= g.minX && x < g.minX + 0.5);
+            if (availableGifts.length > 0 && !currentGift) {
+                currentGift = availableGifts[0];
+                showGiftButton(currentGift);
+            }
+
             chart.data.labels.push("");
             chart.data.datasets[0].data.push(x);
             chart.update();
 
-            if (x >= giftX && x < parseFloat(giftX) + 0.1) showGift();
             if (x >= crash) end(true);
         }, 100);
     }
 
-    function showGift() {
-        const g = document.getElementById('gift-box');
-        g.style.display = 'block';
-        g.style.left = '40%'; g.style.top = '20%';
-        g.innerText = `🎁 ${curGift.n}`;
+    function showGiftButton(g) {
+        const btn = document.getElementById('gift-claim');
+        btn.style.display = 'block';
+        document.getElementById('gift-name').innerText = g.n;
+        btn.style.left = '30%'; btn.style.top = '25%';
     }
 
-    function catchGift() {
-        myInv.push(curGift);
-        document.getElementById('gift-box').style.display = 'none';
-        giftX = 0; // Чтобы не ловить дважды
-        renderInv();
+    // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Если забрал подарок — ставка НЕ умножается. Ты получил вещь.
+    function claimGiftAndCashout() {
+        if (!isPlay) return;
+        addInv(currentGift);
+        alert(`Вы забрали предмет: ${currentGift.n}! Ставка закрыта.`);
+        end(false);
     }
 
-    function renderInv() {
-        const container = document.getElementById('inv');
-        if (myInv.length === 0) return;
-        container.innerHTML = myInv.map(i => `<div class="inv-card">🎁 ${i.n}<b>${i.p} TON</b></div>`).join('');
-    }
-
-    function cash() {
-        let b = parseFloat(document.getElementById('bet').value);
+    function cashout() {
+        let b = parseFloat(document.getElementById('betInput').value);
         bal += b * x;
         end(false);
     }
@@ -174,34 +129,20 @@
     function end(isCrash) {
         clearInterval(loop);
         isPlay = false;
-        document.getElementById('gift-box').style.display = 'none';
-        const m = document.getElementById('multiplier');
-        const b = document.getElementById('btn');
-        
-        if (isCrash) {
-            m.innerText = "КРАШ!";
-            m.classList.add('boom');
-            b.style.background = "var(--danger)";
-        } else {
-            b.style.background = "var(--success)";
-        }
-
-        const h = document.getElementById('history');
-        h.innerHTML = `<div class="h-item ${x > 2 ? 'h-high' : 'h-low'}">${x.toFixed(2)}x</div>` + h.innerHTML;
-
-        setTimeout(() => {
-            b.innerText = "СТАВКА";
-            b.style.background = "var(--success)";
-            updateUI();
-        }, 2000);
+        document.getElementById('gift-claim').style.display = 'none';
+        if (isCrash) document.getElementById('multiplier').innerText = "КРАШ!";
+        document.getElementById('mainBtn').innerText = "СТАВКА";
+        updateUI();
     }
 
-    function updateUI() {
-        document.getElementById('balance').innerText = bal.toFixed(2);
+    function addInv(g) {
+        const inv = document.getElementById('inventory');
+        inv.innerHTML += `<div class="gift-card">🎁 ${g.n}<br><b>${g.p} TON</b></div>`;
     }
+
+    function updateUI() { document.getElementById('balance').innerText = bal.toFixed(2); }
 </script>
 </body>
 </html>
-
 
 
