@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Pro Ultra</title>
+    <title>Crash Pro Ultra - Full Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -25,7 +25,7 @@
             user-select: none;
         }
 
-        /* --- ИСТОРИЯ СТАВОК (ВЕРХНЯЯ ЛЕНТА) --- */
+        /* ИСТОРИЯ СТАВОК */
         .history-bar {
             display: flex;
             gap: 8px;
@@ -33,6 +33,8 @@
             overflow-x: auto;
             background: #161a1e;
             border-bottom: 1px solid #2b3139;
+            height: 35px;
+            align-items: center;
         }
         .hist-item {
             padding: 4px 12px;
@@ -42,55 +44,43 @@
             white-space: nowrap;
         }
         .low { background: rgba(246, 70, 93, 0.2); color: var(--danger); }
-        .mid { background: rgba(0, 152, 234, 0.2); color: var(--accent); }
         .high { background: rgba(14, 203, 129, 0.2); color: var(--success); }
 
-        /* --- ИГРОВАЯ ЗОНА --- */
+        /* ИГРОВАЯ ЗОНА */
         .game-area {
             position: relative;
-            height: 45vh;
+            height: 40vh;
             background: radial-gradient(circle at 10% 90%, #161a1e 0%, #0b0e11 100%);
         }
-        #chart-container { width: 100%; height: 100%; }
         #multiplier {
             position: absolute;
             left: 50%;
             top: 40%;
             transform: translate(-50%, -50%);
-            font-size: 60px;
+            font-size: 55px;
             font-weight: 900;
             z-index: 10;
-        }
-        #timer-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            display: none;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* --- ПОДАРОК НА ГРАФИКЕ --- */
+        /* ПОДАРОК НА ГРАФИКЕ */
         .gift-on-chart {
             position: absolute;
             background: var(--gold);
             color: black;
-            padding: 5px 10px;
+            padding: 8px 15px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             box-shadow: 0 0 15px var(--gold);
             cursor: pointer;
             z-index: 30;
             display: none;
-            animation: pulse 1.5s infinite;
+            animation: pulse 1s infinite;
         }
-        @keyframes pulse { 0% { scale: 1; } 50% { scale: 1.1; } 100% { scale: 1; } }
+        @keyframes pulse { 0% { scale: 1; } 50% { scale: 1.05; } 100% { scale: 1; } }
 
-        /* --- УПРАВЛЕНИЕ --- */
+        /* УПРАВЛЕНИЕ */
         .controls {
             padding: 15px;
             background: var(--card);
@@ -102,228 +92,157 @@
             display: flex;
             background: #2b3139;
             border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
         }
         input { background: none; border: none; color: white; width: 100%; font-size: 18px; outline: none; }
         .btn-main {
             width: 100%;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 18px;
+            border-radius: 12px;
             border: none;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             background: var(--success);
-            color: #0b0e11;
             transition: 0.2s;
+            cursor: pointer;
         }
 
-        /* --- МЕНЮ ПРОФИЛЯ --- */
-        .side-menu {
-            position: fixed;
-            top: 0; right: -100%;
-            width: 100%; height: 100%;
-            background: var(--bg);
-            z-index: 100;
-            transition: 0.3s;
-            padding: 20px;
-            box-sizing: border-box;
+        /* ИНВЕНТАРЬ */
+        .inventory-label { font-size: 12px; color: #9299a6; margin-top: 10px; }
+        .inventory {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
         }
-        .side-menu.active { right: 0; }
-        .ref-box {
-            background: #161a1e;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px dashed var(--accent);
-            margin-top: 20px;
+        .inv-item {
+            background: #2b3139;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            min-width: 90px;
+            border: 1px solid #3e4651;
         }
-        .copy-btn { color: var(--accent); float: right; cursor: pointer; }
-
     </style>
 </head>
 <body>
 
-<div class="history-bar" id="historyBar">
-    <div class="hist-item low">1.22x</div>
-    <div class="hist-item high">5.40x</div>
-    <div class="hist-item mid">2.10x</div>
-    <div class="hist-item low">1.05x</div>
-</div>
+<div class="history-bar" id="historyBar"></div>
 
 <div class="game-area">
     <div id="multiplier">x1.00</div>
-    <div id="timer-overlay">
-        <div style="color: var(--accent); font-size: 18px;">СЛЕДУЮЩИЙ РАУНД</div>
-        <div id="countdown" style="font-size: 40px; font-weight: bold;">5</div>
-    </div>
-    <div id="chart-gift" class="gift-on-chart" onclick="collectGift()">🎁 ЗАБРАТЬ ПОДАРОК</div>
+    <div id="chart-gift" class="gift-on-chart" onclick="collectGift()">🎁 ЗАБРАТЬ</div>
     <canvas id="mainChart"></canvas>
 </div>
 
 <div class="controls">
     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="color: #9299a6">Баланс: <b id="balance" style="color: white">1000.00</b> TON</span>
-        <span onclick="toggleMenu()" style="color: var(--accent); cursor: pointer;"><i class="fas fa-user-circle"></i> Профиль</span>
+        <span>Баланс: <b id="balance">1000.00</b> TON</span>
+        <span style="color: var(--accent)"><i class="fas fa-wallet"></i> Wallet</span>
     </div>
+    
     <div class="bet-input-wrap">
         <input type="number" id="betAmount" value="10.0">
         <span style="color: #9299a6">TON</span>
     </div>
+
     <button class="btn-main" id="actionBtn" onclick="handleAction()">СТАВКА</button>
-</div>
 
-<div class="side-menu" id="sideMenu">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Мой профиль</h2>
-        <i class="fas fa-times" onclick="toggleMenu()" style="font-size: 24px;"></i>
-    </div>
-    
-    <div class="ref-box">
-        <div style="font-size: 12px; color: #9299a6; margin-bottom: 5px;">РЕФЕРАЛЬНАЯ ССЫЛКА</div>
-        <span id="refLink">ton-rocket.io/ref/u88234</span>
-        <span class="copy-btn" onclick="alert('Скопировано!')">КОПИРОВАТЬ</span>
-    </div>
-
-    <div style="margin-top: 30px;">
-        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #2b3139;">
-            <span>Друзей приглашено:</span>
-            <span style="color: var(--success)">12</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #2b3139;">
-            <span>Доход с реф:</span>
-            <span style="color: var(--success)">+45.20 TON</span>
-        </div>
-    </div>
-    
-    <button onclick="alert('Wallet soon')" style="width: 100%; margin-top: 40px; padding: 15px; border-radius: 10px; border: none; background: var(--accent); color: white;">ПОПОЛНИТЬ БАЛАНС</button>
+    <div class="inventory-label">МОИ ПОДАРКИ:</div>
+    <div class="inventory" id="inventory"></div>
 </div>
 
 <script>
-    let chart;
-    let balance = 1000.0;
-    let isPlaying = false;
-    let currentX = 1.00;
-    let crashPoint;
-    let giftPoint;
-    let gameLoop;
+    // ПОЛНАЯ БАЗА: 61 ПОДАРОК (+10%)
+    const giftDB = [
+        {n: "Lunar Snake", p: 3.08}, {n: "Xmas Stocking", p: 3.22}, {n: "Snake Box", p: 3.22},
+        {n: "Lol Pop", p: 3.23}, {n: "Whip Cupcake", p: 3.26}, {n: "Moon Pendant", p: 3.29},
+        {n: "Mousse Cake", p: 3.61}, {n: "Tama Gadget", p: 3.63}, {n: "Pet Snake", p: 3.64},
+        {n: "Pretty Posy", p: 3.72}, {n: "Spiced Wine", p: 3.73}, {n: "Money Pot", p: 3.76},
+        {n: "Star Notepad", p: 3.91}, {n: "Stellar Rocket", p: 3.94}, {n: "Winter Wreath", p: 4.07},
+        {n: "Party Sparkler", p: 4.40}, {n: "Restless Jar", p: 4.49}, {n: "Santa Hat", p: 4.62},
+        {n: "Swag Bag", p: 4.62}, {n: "Witch Hat", p: 4.64}, {n: "Lush Bouquet", p: 4.80},
+        {n: "Snow Mittens", p: 4.87}, {n: "Snow Globe", p: 5.05}, {n: "Light Sword", p: 5.24},
+        {n: "Joyful Bundle", p: 5.56}, {n: "Jolly Chimp", p: 6.45}, {n: "Spring Basket", p: 6.60},
+        {n: "Sakura Flower", p: 8.02}, {n: "Sleigh Bell", p: 8.36}, {n: "Love Candle", p: 9.44},
+        {n: "Top Hat", p: 9.57}, {n: "Valentine Box", p: 9.90}, {n: "Sky Stilettos", p: 10.01},
+        {n: "Snoop Cigar", p: 10.21}, {n: "Trapped Heart", p: 10.59}, {n: "UFC Strike", p: 12.27},
+        {n: "Mad Pumpkin", p: 13.75}, {n: "Love Potion", p: 14.30}, {n: "Khabib's Papakha", p: 22.41},
+        {n: "Voodoo Doll", p: 25.84}, {n: "Vintage Cigar", p: 30.42}, {n: "Neko Helmet", p: 31.75},
+        {n: "Toy Bear", p: 31.79}, {n: "Signet Ring", p: 32.34}, {n: "Low Rider", p: 38.27},
+        {n: "Sharp Tongue", p: 41.80}, {n: "Kissed Frog", p: 42.26}, {n: "Swiss Watch", p: 43.07},
+        {n: "Magic Potion", p: 72.59}, {n: "Scared Cat", p: 79.20}, {n: "Perfume Bottle", p: 84.82},
+        {n: "Mini Oscar", p: 87.96}, {n: "Loot Bag", p: 110.00}, {n: "Nail Bracelet", p: 119.79},
+        {n: "Heroic Helmet", p: 261.80}, {n: "Precious Peach", p: 395.99}, {n: "Bonded Ring", p: 440.00},
+        {n: "Diamond Ring", p: 605.00}, {n: "Durov’s Cap", p: 926.20}, {n: "Heart Locket", p: 1474.00},
+        {n: "Plush Pepe", p: 6033.50}
+    ];
+
+    let chart, gameLoop, crashPoint, giftPoint, currentGift;
+    let balance = 1000.0, currentX = 1.00, isPlaying = false;
 
     function initChart() {
         const ctx = document.getElementById('mainChart').getContext('2d');
         chart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: [0],
-                datasets: [{
-                    label: '',
-                    data: [1],
-                    borderColor: '#0098ea',
-                    borderWidth: 4,
-                    fill: true,
-                    backgroundColor: 'rgba(0, 152, 234, 0.1)',
-                    pointRadius: (context) => {
-                        // Рисуем ракету только на последней точке
-                        const index = context.dataIndex;
-                        const lastIndex = context.dataset.data.length - 1;
-                        return index === lastIndex ? 8 : 0;
-                    },
-                    pointStyle: 'rectRot',
-                    pointBackgroundColor: '#fff',
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { x: { display: false }, y: { display: false, min: 1, max: 5 } },
-                plugins: { legend: { display: false } },
-                animation: { duration: 0 }
-            }
+            data: { labels: [0], datasets: [{ data: [1], borderColor: '#0098ea', borderWidth: 3, fill: true, backgroundColor: 'rgba(0, 152, 234, 0.1)', pointRadius: 0, tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false, min: 1, max: 8 } }, plugins: { legend: { display: false } }, animation: false }
         });
     }
 
-    function toggleMenu() {
-        document.getElementById('sideMenu').classList.toggle('active');
-    }
-
     function handleAction() {
-        if (!isPlaying) {
-            prepareGame();
-        } else {
-            cashOut();
-        }
-    }
-
-    function prepareGame() {
-        const timerOverlay = document.getElementById('timer-overlay');
-        const countEl = document.getElementById('countdown');
-        let timeLeft = 3;
-
-        timerOverlay.style.display = 'flex';
-        
-        const timer = setInterval(() => {
-            countEl.innerText = timeLeft;
-            timeLeft--;
-            if (timeLeft < 0) {
-                clearInterval(timer);
-                timerOverlay.style.display = 'none';
-                startGame();
-            }
-        }, 1000);
+        if (!isPlaying) startGame();
+        else cashOut();
     }
 
     function startGame() {
-        isPlaying = true;
-        currentX = 1.00;
-        crashPoint = (Math.random() * 4 + 1.1).toFixed(2);
-        giftPoint = (Math.random() * (crashPoint - 1.2) + 1.1).toFixed(2);
+        const bet = parseFloat(document.getElementById('betAmount').value);
+        if (balance < bet) return alert("Недостаточно TON");
         
-        let bet = parseFloat(document.getElementById('betAmount').value);
         balance -= bet;
         updateUI();
+        isPlaying = true;
+        currentX = 1.00;
+        crashPoint = (Math.random() * 6 + 1.1).toFixed(2);
+        
+        // Шанс подарка
+        giftPoint = (Math.random() * (crashPoint - 1.1) + 1.1).toFixed(2);
+        currentGift = giftDB[Math.floor(Math.random() * giftDB.length)];
 
         const btn = document.getElementById('actionBtn');
         btn.innerText = "ЗАБРАТЬ";
         btn.style.background = "var(--accent)";
 
-        chart.data.labels = [0];
-        chart.data.datasets[0].data = [1];
+        chart.data.labels = [0]; chart.data.datasets[0].data = [1];
 
         gameLoop = setInterval(() => {
-            currentX += 0.012;
+            currentX += 0.02;
             document.getElementById('multiplier').innerText = `x${currentX.toFixed(2)}`;
-            
             chart.data.labels.push("");
             chart.data.datasets[0].data.push(currentX);
             chart.update();
 
-            // Показываем подарок на линии
             if (currentX >= giftPoint && currentX < parseFloat(giftPoint) + 0.1) {
-                showGift();
+                const g = document.getElementById('chart-gift');
+                g.style.display = 'block';
+                g.style.left = '50%'; g.style.top = '30%';
+                g.innerText = `🎁 ${currentGift.n}`;
             }
 
-            if (currentX >= crashPoint) {
-                finishGame(true);
-            }
+            if (currentX >= crashPoint) finishGame(true);
         }, 100);
     }
 
-    function showGift() {
-        const gift = document.getElementById('chart-gift');
-        gift.style.display = 'block';
-        gift.style.top = '30%';
-        gift.style.left = '60%';
-    }
-
     function collectGift() {
-        const bonus = (Math.random() * 5).toFixed(2);
-        balance += parseFloat(bonus);
-        alert("🎁 Ты нашел подарок! Бонус: " + bonus + " TON");
+        const inv = document.getElementById('inventory');
+        inv.innerHTML += `<div class="inv-item">🎁 ${currentGift.n}<br><b>${currentGift.p} TON</b></div>`;
         document.getElementById('chart-gift').style.display = 'none';
-        updateUI();
+        giftPoint = 999; // Убираем, чтобы не кликнуть дважды
     }
 
     function cashOut() {
-        let bet = parseFloat(document.getElementById('betAmount').value);
+        const bet = parseFloat(document.getElementById('betAmount').value);
         balance += bet * currentX;
         finishGame(false);
     }
@@ -331,32 +250,24 @@
     function finishGame(isCrash) {
         clearInterval(gameLoop);
         isPlaying = false;
+        document.getElementById('chart-gift').style.display = 'none';
         const btn = document.getElementById('actionBtn');
         
         if (isCrash) {
             document.getElementById('multiplier').innerText = "BOOM!";
-            document.getElementById('multiplier').style.color = "var(--danger)";
             btn.style.background = "var(--danger)";
-            btn.innerText = "ПРОИГРЫШ";
         } else {
             btn.style.background = "var(--success)";
-            btn.innerText = "ВЫИГРЫШ!";
         }
 
-        // Добавляем в историю
         const hist = document.getElementById('historyBar');
-        const newItem = document.createElement('div');
-        newItem.className = `hist-item ${currentX > 2 ? 'high' : 'low'}`;
-        newItem.innerText = currentX.toFixed(2) + 'x';
-        hist.prepend(newItem);
+        hist.innerHTML = `<div class="hist-item ${currentX > 2 ? 'high' : 'low'}">${currentX.toFixed(2)}x</div>` + hist.innerHTML;
 
         setTimeout(() => {
-            document.getElementById('multiplier').style.color = "white";
-            btn.style.background = "var(--success)";
             btn.innerText = "СТАВКА";
-            document.getElementById('chart-gift').style.display = 'none';
+            btn.style.background = "var(--success)";
             updateUI();
-        }, 2500);
+        }, 2000);
     }
 
     function updateUI() {
@@ -367,4 +278,5 @@
 </script>
 </body>
 </html>
+
 
