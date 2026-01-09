@@ -1,59 +1,31 @@
-import telebot
-from telebot import types
+import logging
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
+import asyncio
 
-TOKEN = '8428729370:AAFlWc5jr4w1fjSMTctjhaGTQOg0-ow3on4'
-bot = telebot.TeleBot(TOKEN)
+# ВСТАВЬТЕ СВОЙ ТОКЕН СЮДА
+API_TOKEN = 'ВАШ_ТОКЕН_БОТА'
 
-# Mock user data (In a real app, use a database)
-user = {"bal": 0.0, "lvl": 1}
+logging.basicConfig(level=logging.INFO)
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher()
 
-@bot.callback_query_handler(func=lambda call: True)
-def logic(call):
-    if call.data == "dep":
-        # Create a button to pay with Telegram Stars (XTR)
-        kb = types.InlineKeyboardMarkup()
-        kb.add(types.InlineKeyboardButton("⭐ Пополнить (35 Stars)", callback_data="buy_stars"))
-        kb.add(types.InlineKeyboardButton("🔙 Назад", callback_data="main"))
-        
-        bot.edit_message_caption(
-            "💎 **Пополнение баланса**\n\n35 ⭐ = 0.1 TON",
-            call.message.chat.id,
-            call.message.message_id,
-            reply_markup=kb,
-            parse_mode="HTML"
-        )
-
-    elif call.data == "buy_stars":
-        # Generate the invoice for Telegram Stars
-        prices = [types.LabeledPrice(label="35 Stars", amount=35)]
-        
-        bot.send_invoice(
-            call.message.chat.id,
-            title="Пополнение баланса",
-            description="Зачисление 0.1 TON на игровой баланс",
-            invoice_payload="refill_01_ton",
-            provider_token="", # Must be empty for Telegram Stars
-            currency="XTR",    # Currency code for Stars
-            prices=prices,
-            start_parameter="refill"
-        )
-
-# --- PAYMENT PROCESSING ---
-
-@bot.pre_checkout_query_handler(func=lambda query: True)
-def checkout(pre_checkout_query):
-    # Confirm readiness to accept payment
-    bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
-
-@bot.message_handler(content_types=['successful_payment'])
-def got_payment(m):
-    # If payment is successful, update balance
-    user['bal'] += 0.1
-    bot.send_message(
-        m.chat.id,
-        f"✅ **Оплата прошла успешно!**\nЗачислено: 0.1 TON\nТвой новый баланс: {user['bal']} TON",
-        parse_mode="HTML"
+@dp.message(Command("start"))
+async def start(message: types.Message):
+    # Кнопка для открытия игры
+    # Для теста на локальном ПК укажите ссылку на ваш HTML файл (см. Шаг 2)
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🚀 Играть в Crash", web_app=WebAppInfo(url="https://your-domain.com/index.html"))]
+    ])
+    
+    await message.answer(
+        "🚀 Добро пожаловать в Crash Gifts!\nСтавь TON, лови иксы и побеждай.",
+        reply_markup=kb
     )
 
-bot.infinity_polling()
+async def main():
+    await dp.start_polling(bot)
 
+if __name__ == '__main__':
+    asyncio.run(main())
