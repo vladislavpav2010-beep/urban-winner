@@ -1,114 +1,228 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Запуск Ракеты</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Crash Game</title>
     <style>
+        :root {
+            --bg: #0b0e11;
+            --panel: #1e2329;
+            --accent: #fcd535;
+            --red: #f6465d;
+            --green: #0ecb81;
+            --text: #eaeafe;
+        }
+
         body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 0;
-            background: #050505;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Верхняя панель (Профиль и Меню) */
+        header {
+            background: var(--panel);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links span { cursor: pointer; font-size: 14px; color: #848e9c; }
+        .nav-links span:hover { color: var(--accent); }
+
+        .profile-box { display: flex; align-items: center; gap: 10px; }
+        .balance { color: var(--green); font-weight: bold; }
+        .avatar { width: 35px; height: 35px; background: #444; border-radius: 50%; border: 2px solid var(--accent); }
+
+        /* Основной экран */
+        main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        /* Игровое поле */
+        .game-area {
+            background: var(--panel);
+            border-radius: 12px;
+            position: relative;
             overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: flex-end;
-            height: 100vh;
-            font-family: sans-serif;
+            align-items: center;
         }
 
-        #launch-btn {
+        #multiplier {
+            font-size: 80px;
+            font-weight: 800;
+            z-index: 10;
+        }
+
+        .rocket {
             position: absolute;
-            bottom: 20px;
-            padding: 15px 40px;
+            bottom: 20%;
+            left: 10%;
+            font-size: 60px;
+            transition: transform 0.1s linear;
+            transform: translate(0, 0) rotate(-45deg);
+        }
+
+        /* Панель ставок */
+        .bet-panel {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        input {
+            background: #2b3139;
+            border: 1px solid #474d57;
+            padding: 12px;
+            color: white;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        .btn-bet {
+            background: var(--green);
+            color: black;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
             font-size: 20px;
             font-weight: bold;
-            color: white;
-            background: #e63946;
-            border: none;
-            border-radius: 50px;
             cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
         }
 
-        #rocket {
-            position: absolute;
-            bottom: 80px;
-            font-size: 50px;
-            transition: transform 5s cubic-bezier(0.4, 0, 1, 1); /* Плавный разгон */
-            user-select: none;
+        .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .history {
+            margin-top: auto;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
         }
 
-        .explosion-particle {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        @keyframes explode {
-            to {
-                transform: translate(var(--dx), var(--dy));
-                opacity: 0;
-            }
+        .hist-item {
+            background: #2b3139;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
-    <button id="launch-btn" onclick="startLaunch()">ПУСК</button>
-    <div id="rocket">🚀</div>
+<header>
+    <div class="nav-links">
+        <span>Поповнити</span>
+        <span>Нагороди</span>
+        <span>Інвентар</span>
+        <span>Реферали</span>
+    </div>
+    <div class="profile-box">
+        <div class="balance">0.00 USD</div>
+        <div class="avatar"></div>
+    </div>
+</header>
 
-    <script>
-        function startLaunch() {
-            const btn = document.getElementById('launch-btn');
-            const rocket = document.getElementById('rocket');
+<main>
+    <div class="game-area" id="stage">
+        <div id="multiplier">x1.00</div>
+        <div class="rocket" id="rocket">🚀</div>
+    </div>
+
+    <div class="bet-panel">
+        <div class="input-group">
+            <label>Сума ставки</label>
+            <input type="number" id="bet-amount" value="10.00">
+        </div>
+        <button class="btn-bet" id="launch-btn" onclick="startRound()">ЗРОБИТИ СТАВКУ</button>
+        
+        <div class="history" id="history">
+            <span class="hist-item">x1.45</span>
+            <span class="hist-item" style="color:var(--red)">x1.02</span>
+            <span class="hist-item" style="color:var(--green)">x5.20</span>
+        </div>
+    </div>
+</main>
+
+<script>
+    let multiplier = 1.00;
+    let isFlying = false;
+    let interval;
+
+    function startRound() {
+        if(isFlying) return;
+        
+        const btn = document.getElementById('launch-btn');
+        const rocket = document.getElementById('rocket');
+        const multText = document.getElementById('multiplier');
+        
+        isFlying = true;
+        multiplier = 1.00;
+        btn.disabled = true;
+        btn.innerText = "ПОЛІТ...";
+        btn.style.background = "var(--red)";
+
+        // Рандомный момент взрыва (от 1.1 до 5.0)
+        const crashAt = (Math.random() * 4 + 1.1).toFixed(2);
+
+        interval = setInterval(() => {
+            multiplier += 0.01;
+            multText.innerText = `x${multiplier.toFixed(2)}`;
             
-            btn.style.display = 'none'; // Прячем кнопку
+            // Двигаем ракету вверх и вправо
+            let progress = (multiplier - 1) * 50;
+            rocket.style.transform = `translate(${progress}px, -${progress}px) rotate(-45deg)`;
 
-            // Плавный полет вверх (на 120% высоты экрана)
-            rocket.style.transform = `translateY(-${window.innerHeight + 100}px)`;
-
-            // Таймер до взрыва (как раз в конце полета)
-            setTimeout(() => {
-                createExplosion(rocket.getBoundingClientRect().left, 50);
-                rocket.style.display = 'none'; // Ракета исчезает
-            }, 5000); // 5 секунд полета
-        }
-
-        function createExplosion(x, y) {
-            const colors = ['#ff0', '#f00', '#f60', '#fff', '#0ff'];
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'explosion-particle';
-                
-                // Случайное направление разлета
-                const dx = (Math.random() - 0.5) * 400 + 'px';
-                const dy = (Math.random() - 0.5) * 400 + 'px';
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                particle.style.background = color;
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.setProperty('--dx', dx);
-                particle.style.setProperty('--dy', dy);
-                
-                particle.style.animation = 'explode 1s forwards ease-out';
-                
-                document.body.appendChild(particle);
-                
-                // Удаляем мусор
-                setTimeout(() => particle.remove(), 1000);
+            if (multiplier >= crashAt) {
+                crash();
             }
-            
-            // Кнопка возвращается через пару секунд после взрыва
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        }
-    </script>
+        }, 50);
+    }
+
+    function crash() {
+        clearInterval(interval);
+        const multText = document.getElementById('multiplier');
+        const rocket = document.getElementById('rocket');
+        const btn = document.getElementById('launch-btn');
+
+        multText.style.color = "var(--red)";
+        multText.innerText = "BOOM!";
+        rocket.innerHTML = "💥";
+
+        setTimeout(() => {
+            // Сброс игры
+            isFlying = false;
+            multiplier = 1.00;
+            multText.innerText = "x1.00";
+            multText.style.color = "var(--text)";
+            rocket.innerHTML = "🚀";
+            rocket.style.transform = "translate(0, 0) rotate(-45deg)";
+            btn.disabled = false;
+            btn.innerText = "ЗРОБИТИ СТАВКУ";
+            btn.style.background = "var(--green)";
+        }, 3000);
+    }
+</script>
+
 </body>
 </html>
+
 
  
