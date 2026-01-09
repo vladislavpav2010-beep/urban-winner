@@ -1,31 +1,77 @@
-import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
-import asyncio
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Project</title>
+    <style>
+        /* CSS стили прямо здесь */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-# ВСТАВЬТЕ СВОЙ ТОКЕН СЮДА
-API_TOKEN = 'ВАШ_ТОКЕН_БОТА'
+        .container {
+            text-align: center;
+            border: 2px solid #333;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 150, 0.2);
+        }
 
-logging.basicConfig(level=logging.INFO)
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ff96, #0070f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-@dp.message(Command("start"))
-async def start(message: types.Message):
-    # Кнопка для открытия игры
-    # Для теста на локальном ПК укажите ссылку на ваш HTML файл (см. Шаг 2)
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🚀 Играть в Crash", web_app=WebAppInfo(url="https://your-domain.com/index.html"))]
-    ])
-    
-    await message.answer(
-        "🚀 Добро пожаловать в Crash Gifts!\nСтавь TON, лови иксы и побеждай.",
-        reply_markup=kb
-    )
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-async def main():
-    await dp.start_polling(bot)
+        button:hover {
+            background: #00ff96;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
 
-if __name__ == '__main__':
-    asyncio.run(main())
+    <div class="container">
+        <h1 id="title">ВСЁ РАБОТАЕТ!</h1>
+        <p>Если ты видишь это, значит Vercel запустил код правильно.</p>
+        <button onclick="changeText()">Нажми на меня</button>
+    </div>
+
+    <script>
+        /* JavaScript логика прямо здесь */
+        function changeText() {
+            const title = document.getElementById('title');
+            title.innerText = "МАГИЯ КИНО!";
+            title.style.background = "linear-gradient(45deg, #ff0080, #7928ca)";
+            title.style.webkitBackgroundClip = "text";
+            console.log("Кнопка нажата, скрипт активен");
+        }
+    </script>
+</body>
+</html>
+ 
