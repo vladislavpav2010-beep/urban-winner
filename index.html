@@ -1,48 +1,59 @@
 import telebot
 from telebot import types
 
-TOKEN = '8428729370:AAFIWc5Jr4w1fjSMTCtjhaGTQOg0-ow3on4'
+TOKEN = '8428729370:AAFlWc5jr4w1fjSMTctjhaGTQOg0-ow3on4'
 bot = telebot.TeleBot(TOKEN)
 
-# Данные игрока
+# Mock user data (In a real app, use a database)
 user = {"bal": 0.0, "lvl": 1}
 
 @bot.callback_query_handler(func=lambda call: True)
 def logic(call):
     if call.data == "dep":
+        # Create a button to pay with Telegram Stars (XTR)
         kb = types.InlineKeyboardMarkup()
-        # Кнопка оплаты звездами (XTR — это код валюты Telegram Stars)
-        kb.add(types.InlineKeyboardButton("⭐️ Пополнить (35 Stars)", callback_data="buy_stars"))
+        kb.add(types.InlineKeyboardButton("⭐ Пополнить (35 Stars)", callback_data="buy_stars"))
         kb.add(types.InlineKeyboardButton("🔙 Назад", callback_data="main"))
-        bot.edit_message_caption("💎 <b>Пополнение баланса</b>\n\n35 ⭐️ = 0.1 TON", 
-                                 call.message.chat.id, call.message.message_id, reply_markup=kb, parse_mode="HTML")
+        
+        bot.edit_message_caption(
+            "💎 **Пополнение баланса**\n\n35 ⭐ = 0.1 TON",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=kb,
+            parse_mode="HTML"
+        )
 
     elif call.data == "buy_stars":
-        # Формируем счет на оплату звездами
+        # Generate the invoice for Telegram Stars
+        prices = [types.LabeledPrice(label="35 Stars", amount=35)]
+        
         bot.send_invoice(
             call.message.chat.id,
             title="Пополнение баланса",
             description="Зачисление 0.1 TON на игровой баланс",
             invoice_payload="refill_01_ton",
-            provider_token="", # Для звезд это поле ВСЕГДА пустое
-            currency="XTR",    # Код Telegram Stars
-            prices=[types.LabeledPrice(label="35 Stars", amount=35)], # 35 звезд
+            provider_token="", # Must be empty for Telegram Stars
+            currency="XTR",    # Currency code for Stars
+            prices=prices,
             start_parameter="refill"
         )
 
-# --- ОБРАБОТКА ПЛАТЕЖА ---
+# --- PAYMENT PROCESSING ---
 
 @bot.pre_checkout_query_handler(func=lambda query: True)
 def checkout(pre_checkout_query):
-    # Подтверждаем, что готовы принять оплату
+    # Confirm readiness to accept payment
     bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 @bot.message_handler(content_types=['successful_payment'])
 def got_payment(m):
-    # Если оплата прошла успешно
-    amount_stars = m.successful_payment.total_amount
-    user['bal'] += 0.1 # Добавляем 0.1 TON за 35 звезд
-    
-    bot.send_message(m.chat.id, f"✅ <b>Оплата прошла успешно!</b>\nЗачислено: 0.1 TON\nТвой новый баланс: {user['bal']} TON", parse_mode="HTML")
+    # If payment is successful, update balance
+    user['bal'] += 0.1
+    bot.send_message(
+        m.chat.id,
+        f"✅ **Оплата прошла успешно!**\nЗачислено: 0.1 TON\nТвой новый баланс: {user['bal']} TON",
+        parse_mode="HTML"
+    )
 
 bot.infinity_polling()
+
