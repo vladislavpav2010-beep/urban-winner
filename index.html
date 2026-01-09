@@ -1,228 +1,326 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Crash Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TonCrash Mobile</title>
     <style>
         :root {
-            --bg: #0b0e11;
-            --panel: #1e2329;
-            --accent: #fcd535;
-            --red: #f6465d;
+            --bg: #0f1115;
+            --panel: #181c23;
+            --accent: #0088cc;
             --green: #0ecb81;
-            --text: #eaeafe;
+            --red: #f6465d;
+            --text: #ffffff;
         }
-
         body {
             background: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
 
-        /* Верхняя панель (Профиль и Меню) */
+        /* Шапка */
         header {
+            padding: 10px 15px;
             background: var(--panel);
-            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #2a2e35;
         }
+        .balance-area { color: var(--green); font-weight: bold; font-size: 14px; }
+        .top-btns { display: flex; gap: 8px; }
+        button.small { background: #2b3139; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
 
-        .nav-links { display: flex; gap: 15px; }
-        .nav-links span { cursor: pointer; font-size: 14px; color: #848e9c; }
-        .nav-links span:hover { color: var(--accent); }
-
-        .profile-box { display: flex; align-items: center; gap: 10px; }
-        .balance { color: var(--green); font-weight: bold; }
-        .avatar { width: 35px; height: 35px; background: #444; border-radius: 50%; border: 2px solid var(--accent); }
-
-        /* Основной экран */
-        main {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 10px;
-            padding: 15px;
-            flex-grow: 1;
-        }
-
-        /* Игровое поле */
-        .game-area {
-            background: var(--panel);
-            border-radius: 12px;
+        /* Игровое поле (маленькое, как ты просил) */
+        .game-screen {
+            height: 40%;
             position: relative;
+            background: radial-gradient(circle at bottom left, #1a1f29, #0f1115);
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border-bottom: 2px solid #2a2e35;
         }
-
         #multiplier {
-            font-size: 80px;
-            font-weight: 800;
-            z-index: 10;
-        }
-
-        .rocket {
             position: absolute;
-            bottom: 20%;
-            left: 10%;
-            font-size: 60px;
+            width: 100%;
+            text-align: center;
+            top: 30%;
+            font-size: 48px;
+            font-weight: 900;
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        #rocket {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 40px;
             transition: transform 0.1s linear;
-            transform: translate(0, 0) rotate(-45deg);
+            z-index: 5;
         }
 
-        /* Панель ставок */
-        .bet-panel {
-            background: var(--panel);
-            border-radius: 12px;
-            padding: 20px;
+        /* Подарок в небе */
+        #gift-in-sky {
+            position: absolute;
+            display: none;
+            cursor: pointer;
+            z-index: 15;
+            filter: drop-shadow(0 0 10px gold);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.2);} 100% {transform: scale(1);} }
+
+        /* Панель управления */
+        .controls {
+            flex: 1;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
+            background: var(--bg);
         }
-
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
-        input {
-            background: #2b3139;
-            border: 1px solid #474d57;
-            padding: 12px;
-            color: white;
-            border-radius: 8px;
-            font-size: 18px;
-        }
-
-        .btn-bet {
-            background: var(--green);
-            color: black;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .history {
-            margin-top: auto;
+        .bet-input-box {
             display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--panel);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .bet-input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            outline: none;
+        }
+        .main-btn {
+            background: var(--green);
+            border: none;
+            border-radius: 10px;
+            color: black;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 15px;
+            height: 60px;
         }
 
-        .hist-item {
-            background: #2b3139;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+        /* Инвентарь */
+        .inventory-section {
+            margin-top: 10px;
+            background: var(--panel);
+            border-radius: 10px;
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
         }
+        .inventory-title { font-size: 12px; color: #848e9c; margin-bottom: 5px; }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2b3139;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .sell-btn { background: var(--accent); border: none; color: white; border-radius: 3px; padding: 3px 7px; }
+
+        /* История иксов */
+        .history { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; }
+        .hist-chip { background: #2b3139; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+
     </style>
 </head>
 <body>
 
 <header>
-    <div class="nav-links">
-        <span>Поповнити</span>
-        <span>Нагороди</span>
-        <span>Інвентар</span>
-        <span>Реферали</span>
-    </div>
-    <div class="profile-box">
-        <div class="balance">0.00 USD</div>
-        <div class="avatar"></div>
+    <div class="balance-area">💎 <span id="user-balance">0.00</span> TON</div>
+    <div class="top-btns">
+        <button class="small" onclick="getTestTon()" id="btn-faucet">+0.10 TON</button>
+        <button class="small" onclick="toggleLang()" id="btn-lang">EN</button>
     </div>
 </header>
 
-<main>
-    <div class="game-area" id="stage">
-        <div id="multiplier">x1.00</div>
-        <div class="rocket" id="rocket">🚀</div>
+<div class="game-screen">
+    <div id="multiplier">x1.00</div>
+    <div id="rocket">🚀</div>
+    <div id="gift-in-sky" onclick="catchGift()">🎁</div>
+</div>
+
+<div class="controls">
+    <div class="history" id="history-line"></div>
+    
+    <div class="bet-input-box">
+        <input type="number" id="bet-amount" value="0.10" step="0.1">
+        <span style="color:#848e9c; align-self:center">TON</span>
     </div>
 
-    <div class="bet-panel">
-        <div class="input-group">
-            <label>Сума ставки</label>
-            <input type="number" id="bet-amount" value="10.00">
-        </div>
-        <button class="btn-bet" id="launch-btn" onclick="startRound()">ЗРОБИТИ СТАВКУ</button>
-        
-        <div class="history" id="history">
-            <span class="hist-item">x1.45</span>
-            <span class="hist-item" style="color:var(--red)">x1.02</span>
-            <span class="hist-item" style="color:var(--green)">x5.20</span>
-        </div>
+    <button class="main-btn" id="action-btn" onclick="handleAction()">START</button>
+
+    <div class="inventory-section">
+        <div class="inventory-title" id="inv-title">ИНВЕНТАРЬ (0)</div>
+        <div id="inventory-list"></div>
     </div>
-</main>
+</div>
 
 <script>
+    let balance = 0.00;
     let multiplier = 1.00;
     let isFlying = false;
     let interval;
+    let lang = 'RU';
+    let inventory = [];
+    let currentGift = null;
+
+    const texts = {
+        RU: { start: "СТАРТ", take: "ЗАБРАТЬ", wait: "ЖДЕМ...", boom: "БАХ!", inv: "ИНВЕНТАРЬ", sell: "Продать" },
+        EN: { start: "START", take: "CASH OUT", wait: "WAIT...", boom: "BOOM!", inv: "INVENTORY", sell: "Sell" }
+    };
+
+    function toggleLang() {
+        lang = lang === 'RU' ? 'EN' : 'RU';
+        document.getElementById('btn-lang').innerText = lang === 'RU' ? 'EN' : 'RU';
+        updateUI();
+    }
+
+    function updateUI() {
+        const btn = document.getElementById('action-btn');
+        if (!isFlying) btn.innerText = texts[lang].start;
+        document.getElementById('inv-title').innerText = `${texts[lang].inv} (${inventory.length})`;
+        renderInventory();
+    }
+
+    function getTestTon() {
+        balance += 0.10;
+        updateBalance();
+        document.getElementById('btn-faucet').disabled = true;
+        setTimeout(() => document.getElementById('btn-faucet').disabled = false, 5000);
+    }
+
+    function updateBalance() {
+        document.getElementById('user-balance').innerText = balance.toFixed(2);
+    }
+
+    function handleAction() {
+        if (!isFlying) startRound();
+        else cashOut();
+    }
 
     function startRound() {
-        if(isFlying) return;
-        
-        const btn = document.getElementById('launch-btn');
-        const rocket = document.getElementById('rocket');
-        const multText = document.getElementById('multiplier');
-        
+        let bet = parseFloat(document.getElementById('bet-amount').value);
+        if (balance < bet) return alert("No balance!");
+
+        balance -= bet;
+        updateBalance();
+
         isFlying = true;
         multiplier = 1.00;
-        btn.disabled = true;
-        btn.innerText = "ПОЛІТ...";
-        btn.style.background = "var(--red)";
+        const btn = document.getElementById('action-btn');
+        btn.innerText = texts[lang].take;
+        btn.style.background = "var(--accent)";
 
-        // Рандомный момент взрыва (от 1.1 до 5.0)
-        const crashAt = (Math.random() * 4 + 1.1).toFixed(2);
+        const crashAt = (Math.random() * 5 + 1.1).toFixed(2);
+        const giftAt = (Math.random() * (crashAt - 1.1) + 1.1).toFixed(2);
+        let giftShown = false;
 
         interval = setInterval(() => {
             multiplier += 0.01;
-            multText.innerText = `x${multiplier.toFixed(2)}`;
+            document.getElementById('multiplier').innerText = `x${multiplier.toFixed(2)}`;
             
-            // Двигаем ракету вверх и вправо
-            let progress = (multiplier - 1) * 50;
-            rocket.style.transform = `translate(${progress}px, -${progress}px) rotate(-45deg)`;
+            // Движение ракеты
+            let pos = (multiplier - 1) * 40;
+            document.getElementById('rocket').style.transform = `translate(${pos}px, -${pos}px) rotate(-45deg)`;
+
+            // Появление подарка
+            if (multiplier >= giftAt && !giftShown) {
+                showGift();
+                giftShown = true;
+            }
 
             if (multiplier >= crashAt) {
-                crash();
+                boom();
             }
-        }, 50);
+        }, 60);
     }
 
-    function crash() {
+    function showGift() {
+        const gift = document.getElementById('gift-in-sky');
+        gift.style.display = "block";
+        gift.style.left = (Math.random() * 60 + 20) + "%";
+        gift.style.top = (Math.random() * 40 + 10) + "%";
+        currentGift = { id: Date.now(), name: "Подарок 2.6 TON", price: 2.6 };
+    }
+
+    function catchGift() {
+        if (currentGift) {
+            inventory.push(currentGift);
+            currentGift = null;
+            document.getElementById('gift-in-sky').style.display = "none";
+            updateUI();
+        }
+    }
+
+    function cashOut() {
+        if (!isFlying) return;
+        let bet = parseFloat(document.getElementById('bet-amount').value);
+        balance += bet * multiplier;
+        updateBalance();
+        endRound(false);
+    }
+
+    function boom() {
+        document.getElementById('multiplier').innerText = texts[lang].boom;
+        document.getElementById('multiplier').style.color = "var(--red)";
+        document.getElementById('rocket').innerHTML = "💥";
+        endRound(true);
+    }
+
+    function endRound(isBoom) {
         clearInterval(interval);
-        const multText = document.getElementById('multiplier');
-        const rocket = document.getElementById('rocket');
-        const btn = document.getElementById('launch-btn');
-
-        multText.style.color = "var(--red)";
-        multText.innerText = "BOOM!";
-        rocket.innerHTML = "💥";
-
+        isFlying = false;
+        document.getElementById('gift-in-sky').style.display = "none";
+        
         setTimeout(() => {
-            // Сброс игры
-            isFlying = false;
-            multiplier = 1.00;
-            multText.innerText = "x1.00";
-            multText.style.color = "var(--text)";
-            rocket.innerHTML = "🚀";
-            rocket.style.transform = "translate(0, 0) rotate(-45deg)";
-            btn.disabled = false;
-            btn.innerText = "ЗРОБИТИ СТАВКУ";
+            document.getElementById('multiplier').style.color = "white";
+            document.getElementById('multiplier').innerText = "x1.00";
+            document.getElementById('rocket').innerHTML = "🚀";
+            document.getElementById('rocket').style.transform = "translate(0,0) rotate(-45deg)";
+            const btn = document.getElementById('action-btn');
             btn.style.background = "var(--green)";
-        }, 3000);
+            updateUI();
+        }, 2000);
     }
-</script>
 
+    function renderInventory() {
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = "";
+        inventory.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = "item";
+            div.innerHTML = `
+                <span>🎁 ${item.name}</span>
+                <button class="sell-btn" onclick="sellItem(${index})">${texts[lang].sell}</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function sellItem(index) {
+        balance += inventory[index].price;
+        inventory.splice(index, 1);
+        updateBalance();
+        updateUI();
+    }
+
+    updateUI();
+</script>
 </body>
 </html>
-
-
- 
