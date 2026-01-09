@@ -1,266 +1,374 @@
-<!DOCTYPE html>
+            <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TonCrash Pro</title>
+    <title>Crash Pro Mobile</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0b0e11;
-            --panel: #1e2329;
-            --accent: #fcd535;
-            --green: #0ecb81;
-            --red: #f6465d;
-            --text: #eaeafe;
-            --gray: #848e9c;
-        }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            --bg-color: #05070a;
+            --panel-color: #12161c;
+            --accent-color: #0098ea; /* TON Blue */
+            --text-main: #ffffff;
+            --text-secondary: #9299a6;
+            --success: #0ecb81;
+            --danger: #f6465d;
         }
 
-        /* Шапка */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ --- */
         header {
-            padding: 12px 15px;
-            background: var(--panel);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            padding: 15px;
+            background: var(--panel-color);
+            border-bottom: 1px solid #23282f;
         }
-        .balance-box { color: var(--green); font-weight: bold; font-size: 16px; }
-        .header-right { display: flex; gap: 10px; }
-        .btn-ui { background: #2b3139; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 
-        /* Игровое поле */
-        .game-screen {
-            height: 35vh;
+        .menu-btn { font-size: 20px; cursor: pointer; }
+        .logo { font-weight: 800; font-size: 18px; color: var(--accent-color); }
+        .user-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .balance-badge { background: #1e2329; padding: 5px 12px; border-radius: 20px; color: var(--success); font-weight: bold; }
+
+        /* --- ИГРОВОЕ ПОЛЕ (ГРАФИК) --- */
+        .game-container {
+            height: 40vh;
             position: relative;
-            background: radial-gradient(circle at bottom left, #1e2329, #0b0e11);
+            background: radial-gradient(circle at center, #161b22 0%, #05070a 100%);
+        }
+        #chart-wrap { width: 100%; height: 100%; }
+        #multiplier-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 54px;
+            font-weight: 900;
+            text-shadow: 0 0 30px rgba(0, 152, 234, 0.4);
+            z-index: 10;
+        }
+        #rocket-anim {
+            position: absolute;
+            font-size: 40px;
+            display: none;
+            z-index: 5;
+            transition: 0.1s linear;
+        }
+
+        /* --- ПОДАРОК ВО ВРЕМЯ ПОЛЕТА --- */
+        #sky-gift {
+            position: absolute;
+            z-index: 20;
+            font-size: 35px;
+            display: none;
+            cursor: pointer;
+            filter: drop-shadow(0 0 15px gold);
+            animation: giftFloat 2s infinite ease-in-out;
+        }
+        @keyframes giftFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        /* --- ПАНЕЛЬ СТАВОК --- */
+        .bet-controls {
+            padding: 20px;
+            background: var(--panel-color);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            flex: 1;
+        }
+        .input-group {
+            background: #1e2329;
+            border-radius: 12px;
+            padding: 15px;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom: 2px solid #2b3139;
+            justify-content: space-between;
+            margin-bottom: 15px;
         }
-        #multiplier { font-size: 60px; font-weight: 900; z-index: 10; }
-        #rocket { position: absolute; bottom: 20px; left: 20px; font-size: 45px; z-index: 5; }
-        #gift-sky { position: absolute; display: none; font-size: 30px; cursor: pointer; z-index: 20; animation: bounce 1s infinite; }
-
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* Панель ставок */
-        .controls { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; }
-        .input-box { background: var(--panel); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; }
-        .input-box input { background: transparent; border: none; color: white; font-size: 20px; width: 60%; outline: none; }
-        .main-btn { 
-            background: var(--green); color: black; border: none; padding: 18px; 
-            border-radius: 12px; font-size: 20px; font-weight: bold; cursor: pointer;
+        .input-group input { background: transparent; border: none; color: white; font-size: 18px; outline: none; width: 50%; }
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(14, 203, 129, 0.3);
         }
 
-        /* Модальное окно Профиля */
-        #profile-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100; display: none;
-            flex-direction: column; padding: 20px; box-sizing: border-box;
+        /* --- БОКОВОЕ МЕНЮ (ПРОФИЛЬ) --- */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 100;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .wallet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .btn-wallet { padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
-        .deposit { background: var(--green); color: black; }
-        .withdraw { background: #2b3139; color: white; }
+        .side-menu.active { right: 0; }
+        .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         
-        .inventory-list { flex: 1; overflow-y: auto; background: var(--panel); border-radius: 10px; padding: 10px; }
-        .inv-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #2b3139; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+        .profile-card {
+            background: var(--panel-color);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+        }
+        .menu-items { flex: 1; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #161b22;
+            cursor: pointer;
+        }
+        .menu-item i { width: 20px; color: var(--accent-color); }
+
+        .inventory-list { margin-top: 20px; max-height: 200px; overflow-y: auto; }
+        .gift-card {
+            background: #1e2329;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .sell-btn { background: var(--accent-color); border: none; color: white; padding: 5px 10px; border-radius: 5px; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; z-index: 90;
         }
 
-        .close-modal { font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="balance-box">💎 <span id="user-balance">100.00</span> TON</div>
-    <div class="header-right">
-        <button class="btn-ui" onclick="toggleLang()" id="lang-btn">EN</button>
-        <button class="btn-ui" onclick="toggleProfile()">👤 Профиль</button>
+    <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <div class="logo">🚀 TON CRASH</div>
+    <div class="user-info" onclick="toggleMenu()">
+        <div class="balance-badge">💎 <span id="balance">100.00</span></div>
     </div>
 </header>
 
-<div class="game-screen">
-    <div id="multiplier">x1.00</div>
-    <div id="rocket">🚀</div>
-    <div id="gift-sky" onclick="collectGift()">🎁</div>
+<div class="game-container">
+    <div id="multiplier-display">x1.00</div>
+    <div id="rocket-anim">🚀</div>
+    <div id="sky-gift" onclick="takeGift()">🎁</div>
+    <canvas id="gameChart"></canvas>
 </div>
 
-<div class="controls">
-    <div class="input-box">
-        <input type="number" id="bet-amount" value="1.00" step="0.5">
-        <span style="color: var(--gray)">TON</span>
+<div class="bet-controls">
+    <div class="input-group">
+        <input type="number" id="betInput" value="1.00">
+        <span style="color: var(--text-secondary)">TON</span>
     </div>
-    <button class="main-btn" id="action-btn" onclick="gameAction()">СТАРТ</button>
+    <button id="mainBtn" class="action-btn" onclick="btnAction()">СТАРТ</button>
 </div>
 
-<div id="profile-modal">
-    <div class="modal-header">
-        <h2 id="txt-profile">Мой Профиль</h2>
-        <span class="close-modal" onclick="toggleProfile()">&times;</span>
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="side-menu" id="sideMenu">
+    <div class="menu-header">
+        <h2>Профиль</h2>
+        <i class="fas fa-times" style="font-size: 24px" onclick="toggleMenu()"></i>
     </div>
 
-    <div class="wallet-actions">
-        <button class="btn-wallet deposit" onclick="alert('Deposit system soon')">ПОПОЛНИТЬ</button>
-        <button class="btn-wallet withdraw" onclick="alert('Withdraw system soon')">ВЫВЕСТИ</button>
+    <div class="profile-card">
+        <div style="color: var(--text-secondary); font-size: 14px;">Ваш ID: #88234</div>
+        <div style="font-size: 22px; font-weight: bold; margin-top: 5px;">Player 1</div>
     </div>
 
-    <h3 id="txt-inv">Инвентарь</h3>
-    <div class="inventory-list" id="inv-container">
+    <div class="menu-items">
+        <div class="menu-item" onclick="alert('Wallet soon')">
+            <i class="fas fa-wallet"></i>
+            <span>Пополнить / Вывести</span>
         </div>
+        <div class="menu-item" onclick="alert('Settings')">
+            <i class="fas fa-cog"></i>
+            <span>Настройки</span>
+        </div>
+        
+        <div style="margin-top: 20px; font-weight: bold;">📦 Инвентарь (Подарки)</div>
+        <div class="inventory-list" id="invList">
+            </div>
+    </div>
 </div>
 
 <script>
     let balance = 100.00;
-    let multiplier = 1.00;
-    let isFlying = false;
-    let lang = 'RU';
+    let isPlaying = false;
+    let currentX = 1.00;
+    let chart;
+    let gameInterval;
     let inventory = [];
-    let interval;
 
-    const ui = {
-        RU: { start: "СТАРТ", take: "ЗАБРАТЬ", profile: "Профиль", inv: "Инвентарь", sell: "Продать", boom: "БАХ!" },
-        EN: { start: "START", take: "CASH OUT", profile: "Profile", inv: "Inventory", sell: "Sell", boom: "BOOM!" }
-    };
-
-    function toggleLang() {
-        lang = lang === 'RU' ? 'EN' : 'RU';
-        document.getElementById('lang-btn').innerText = lang === 'RU' ? 'EN' : 'RU';
-        refreshUI();
+    // Инициализация графика
+    function initChart() {
+        const ctx = document.getElementById('gameChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [0],
+                datasets: [{
+                    data: [1],
+                    borderColor: '#0098ea',
+                    borderWidth: 4,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 152, 234, 0.1)',
+                    pointRadius: 0,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: false },
+                    y: { display: false, min: 1 }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     }
 
-    function refreshUI() {
-        if(!isFlying) document.getElementById('action-btn').innerText = ui[lang].start;
-        document.getElementById('txt-profile').innerText = ui[lang].profile;
-        document.getElementById('txt-inv').innerText = ui[lang].inv;
+    function toggleMenu() {
+        document.getElementById('sideMenu').classList.toggle('active');
+        document.getElementById('overlay').style.display = 
+            document.getElementById('sideMenu').classList.contains('active') ? 'block' : 'none';
         renderInventory();
     }
 
-    function toggleProfile() {
-        const modal = document.getElementById('profile-modal');
-        modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        renderInventory();
-    }
-
-    function updateBalance() {
-        document.getElementById('user-balance').innerText = balance.toFixed(2);
-    }
-
-    function gameAction() {
-        if (!isFlying) startRound();
+    function btnAction() {
+        if (!isPlaying) startRound();
         else cashOut();
     }
 
     function startRound() {
-        let bet = parseFloat(document.getElementById('bet-amount').value);
-        if (balance < bet) return alert("Недостаточно TON");
+        let bet = parseFloat(document.getElementById('betInput').value);
+        if (balance < bet) return alert("Мало TON!");
 
         balance -= bet;
-        updateBalance();
-        isFlying = true;
-        multiplier = 1.00;
+        updateUI();
+        isPlaying = true;
+        currentX = 1.00;
 
-        const btn = document.getElementById('action-btn');
-        btn.innerText = ui[lang].take;
-        btn.style.background = "var(--accent)";
+        const btn = document.getElementById('mainBtn');
+        btn.innerText = "ЗАБРАТЬ";
+        btn.style.background = "var(--accent-color)";
 
-        let crashAt = (Math.random() * 4 + 1.2).toFixed(2);
-        let giftAt = (Math.random() * (crashAt - 1.1) + 1.1).toFixed(2);
+        let crashPoint = (Math.random() * 5 + 1.1).toFixed(2);
+        let giftPoint = (Math.random() * (crashPoint - 1.1) + 1.1).toFixed(2);
         let giftSpawned = false;
 
-        interval = setInterval(() => {
-            multiplier += 0.01;
-            document.getElementById('multiplier').innerText = `x${multiplier.toFixed(2)}`;
-            
-            let move = (multiplier - 1) * 45;
-            document.getElementById('rocket').style.transform = `translate(${move}px, -${move}px) rotate(-45deg)`;
+        chart.data.labels = [0];
+        chart.data.datasets[0].data = [1];
+        chart.update();
 
-            if (multiplier >= giftAt && !giftSpawned) {
+        gameInterval = setInterval(() => {
+            currentX += 0.015;
+            document.getElementById('multiplier-display').innerText = `x${currentX.toFixed(2)}`;
+            
+            // Обновление графика
+            chart.data.labels.push("");
+            chart.data.datasets[0].data.push(currentX);
+            chart.update('none');
+
+            // Шанс на подарок
+            if (currentX >= giftPoint && !giftSpawned) {
                 spawnGift();
                 giftSpawned = true;
             }
 
-            if (multiplier >= crashAt) {
-                crash();
+            if (currentX >= crashPoint) {
+                doCrash();
             }
-        }, 60);
+        }, 80);
     }
 
     function spawnGift() {
-        const gift = document.getElementById('gift-sky');
+        const gift = document.getElementById('sky-gift');
         gift.style.display = "block";
-        gift.style.left = (Math.random() * 60 + 20) + "%";
-        gift.style.top = (Math.random() * 30 + 10) + "%";
+        gift.style.left = Math.random() * 70 + 15 + "%";
+        gift.style.top = Math.random() * 40 + 10 + "%";
     }
 
-    function collectGift() {
-        inventory.push({ name: "Кейс TON", price: 2.6 });
-        document.getElementById('gift-sky').style.display = "none";
+    function takeGift() {
+        inventory.push({ id: Date.now(), name: "Кейс TON", price: 2.6 });
+        document.getElementById('sky-gift').style.display = "none";
     }
 
     function cashOut() {
-        let bet = parseFloat(document.getElementById('bet-amount').value);
-        balance += bet * multiplier;
-        stopGame(false);
+        let bet = parseFloat(document.getElementById('betInput').value);
+        balance += bet * currentX;
+        endGame();
     }
 
-    function crash() {
-        document.getElementById('multiplier').innerText = ui[lang].boom;
-        document.getElementById('multiplier').style.color = "var(--red)";
-        document.getElementById('rocket').innerHTML = "💥";
-        stopGame(true);
+    function doCrash() {
+        document.getElementById('multiplier-display').innerText = "BOOM!";
+        document.getElementById('multiplier-display').style.color = "var(--danger)";
+        endGame();
     }
 
-    function stopGame(isBoom) {
-        clearInterval(interval);
-        isFlying = false;
-        document.getElementById('gift-sky').style.display = "none";
+    function endGame() {
+        clearInterval(gameInterval);
+        isPlaying = false;
+        document.getElementById('sky-gift').style.display = "none";
         setTimeout(() => {
-            document.getElementById('multiplier').style.color = "white";
-            document.getElementById('multiplier').innerText = "x1.00";
-            document.getElementById('rocket').innerHTML = "🚀";
-            document.getElementById('rocket').style.transform = "translate(0,0) rotate(-45deg)";
-            document.getElementById('action-btn').style.background = "var(--green)";
-            updateBalance();
-            refreshUI();
+            document.getElementById('multiplier-display').style.color = "white";
+            document.getElementById('mainBtn').innerText = "СТАРТ";
+            document.getElementById('mainBtn').style.background = "var(--success)";
+            updateUI();
         }, 2000);
     }
 
+    function updateUI() {
+        document.getElementById('balance').innerText = balance.toFixed(2);
+    }
+
     function renderInventory() {
-        const cont = document.getElementById('inv-container');
-        cont.innerHTML = "";
-        inventory.forEach((item, i) => {
-            cont.innerHTML += `
-                <div class="inv-item">
-                    <span>🎁 ${item.name} (2.6 TON)</span>
-                    <button class="btn-ui" onclick="sellItem(${i})" style="color:var(--green)">${ui[lang].sell}</button>
-                </div>`;
+        const container = document.getElementById('invList');
+        container.innerHTML = inventory.length === 0 ? '<div style="color:gray">Тут пусто</div>' : '';
+        inventory.forEach((item, index) => {
+            container.innerHTML += `
+                <div class="gift-card">
+                    <span>🎁 ${item.name}</span>
+                    <button class="sell-btn" onclick="sellItem(${index})">2.6 TON</button>
+                </div>
+            `;
         });
     }
 
     function sellItem(i) {
         balance += inventory[i].price;
         inventory.splice(i, 1);
-        updateBalance();
+        updateUI();
         renderInventory();
     }
 
-    updateBalance();
+    initChart();
 </script>
 </body>
 </html>
-
