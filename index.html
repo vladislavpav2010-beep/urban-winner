@@ -1,31 +1,154 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Urban Winner Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #0b141a; color: white; text-align: center; font-family: sans-serif; margin: 0; }
-        .grid { border: 1px solid #1e2a35; height: 300px; position: relative; background-size: 40px 40px; background-image: linear-gradient(to right, #16212a 1px, transparent 1px), linear-gradient(to bottom, #16212a 1px, transparent 1px); }
-        .rocket { font-size: 50px; position: absolute; bottom: 10%; left: 10%; }
-        .mult { font-size: 40px; padding: 20px; color: #00d2ff; font-weight: bold; }
-        .btn { background: #007bff; border: none; padding: 15px; width: 90%; color: white; border-radius: 10px; font-size: 18px; margin-top: 20px; }
+        :root { --bg: #0d1117; --card: #161b22; --accent: #58a6ff; --win: #238636; --loss: #da3633; }
+        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 70px; }
+        
+        /* Шапка */
+        .header { display: flex; justify-content: space-between; padding: 15px; background: var(--card); border-bottom: 1px solid #30363d; }
+        .balance { color: #f2e054; font-weight: bold; }
+
+        /* Игровое поле */
+        .game-view { height: 250px; position: relative; background: radial-gradient(circle at bottom left, #1c2128, var(--bg)); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #multiplier { font-size: 48px; font-weight: 800; z-index: 10; }
+        .rocket { position: absolute; bottom: 20px; left: 20px; font-size: 40px; transition: 0.1s linear; }
+
+        /* Мультиплеер (Лента ставок) */
+        .live-bets { padding: 10px; background: #090c10; height: 120px; overflow-y: hidden; font-size: 12px; }
+        .bet-item { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #21262d; opacity: 0.8; }
+
+        /* Кнопка ставки */
+        .bet-zone { padding: 15px; }
+        .main-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; background: var(--accent); color: white; font-size: 18px; font-weight: bold; }
+
+        /* НИЖНЕЕ МЕНЮ (Навигация) */
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #30363d; }
+        .nav-item { text-align: center; font-size: 10px; color: #8b949e; text-decoration: none; cursor: pointer; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        /* Окна (Инвентарь, Рефералы) */
+        .screen { display: none; padding: 20px; }
+        .screen.active { display: block; }
     </style>
 </head>
 <body>
-    <div style="display:flex; justify-content: space-around; padding: 10px;">
-        <span>👤 146</span> <span>💎 0.12 TON</span>
+
+    <div id="game-screen" class="screen active">
+        <div class="header">
+            <span>👤 Владислав</span>
+            <span class="balance">💎 <span id="user-bal">0.12</span> TON</span>
+        </div>
+        <div class="game-view">
+            <div id="multiplier">1.00x</div>
+            <div id="rocket" class="rocket">🚀</div>
+        </div>
+        <div class="live-bets" id="bets-list">
+            </div>
+        <div class="bet-zone">
+            <button class="main-btn" id="action-btn" onclick="toggleGame()">СДЕЛАТЬ СТАВКУ</button>
+        </div>
     </div>
-    <div class="grid">
-        <div class="mult" id="m">1.00x</div>
-        <div class="rocket" id="r">🚀</div>
+
+    <div id="inv-screen" class="screen">
+        <h2>📦 Инвентарь</h2>
+        <p>Ваши скины и подарки:</p>
+        <div style="background: #161b22; padding: 15px; border-radius: 10px; border: 1px dashed #30363d;">
+            Пусто. Пополните баланс или пригласите друзей.
+        </div>
     </div>
-    <button class="btn">Сделать ставку</button>
+
+    <div id="ref-screen" class="screen">
+        <h2>👥 Рефералы</h2>
+        <p>Приглашай друзей и получай 10% от их ставок!</p>
+        <input type="text" readonly value="t.me/your_bot?start=12345" style="width:100%; background:#0d1117; color:white; border:1px solid #30363d; padding:10px; border-radius:5px;">
+    </div>
+
+    <nav class="nav">
+        <div class="nav-item active" onclick="showScreen('game-screen', this)">
+            <span class="nav-icon">🚀</span>КРАШ
+        </div>
+        <div class="nav-item" onclick="showScreen('inv-screen', this)">
+            <span class="nav-icon">🎒</span>ИНВЕНТАРЬ
+        </div>
+        <div class="nav-item" onclick="showScreen('ref-screen', this)">
+            <span class="nav-icon">🔗</span>РЕФЫ
+        </div>
+    </nav>
+
     <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let isRunning = false;
         let m = 1.00;
+        let timer;
+
+        function showScreen(id, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function toggleGame() {
+            let btn = document.getElementById('action-btn');
+            if(!isRunning) {
+                // Старт
+                isRunning = true;
+                m = 1.00;
+                btn.innerText = "ЗАБРАТЬ";
+                btn.style.background = "#d29922";
+                startRocket();
+            } else {
+                // Забрал
+                stopGame(false);
+            }
+        }
+
+        function startRocket() {
+            let crash = (Math.random() * 5 + 1.1).toFixed(2);
+            timer = setInterval(() => {
+                m += 0.01;
+                document.getElementById('multiplier').innerText = m.toFixed(2) + "x";
+                
+                // Движение ракеты
+                let pos = (m - 1) * 30;
+                document.getElementById('rocket').style.transform = `translate(${pos}px, -${pos}px)`;
+
+                if(m >= crash) stopGame(true);
+            }, 80);
+        }
+
+        function stopGame(isCrash) {
+            clearInterval(timer);
+            isRunning = false;
+            let btn = document.getElementById('action-btn');
+            btn.innerText = "СДЕЛАТЬ СТАВКУ";
+            btn.style.background = "#58a6ff";
+            if(isCrash) {
+                document.getElementById('multiplier').innerText = "BOOM! " + m.toFixed(2);
+                document.getElementById('multiplier').style.color = "#da3633";
+            }
+        }
+
+        // Имитация мультиплеера
         setInterval(() => {
-            m += 0.01;
-            document.getElementById('m').innerText = m.toFixed(2) + "x";
-        }, 100);
+            const users = ["Alice", "CryptoKing", "Vanya", "Doge", "Rich_Boy"];
+            const user = users[Math.floor(Math.random()*users.length)];
+            const amount = (Math.random() * 2).toFixed(2);
+            const list = document.getElementById('bets-list');
+            const item = document.createElement('div');
+            item.className = 'bet-item';
+            item.innerHTML = `<span>${user}</span> <span>💎 ${amount} TON</span>`;
+            list.prepend(item);
+            if(list.children.length > 5) list.lastChild.remove();
+        }, 3000);
     </script>
 </body>
 </html>
