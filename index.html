@@ -3,147 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Pro Full Logic</title>
+    <title>Crash Ultimate: Gifts & History</title>
     <style>
         :root {
             --bg: #07080a; --card: #121418; --blue: #0098ea;
-            --green: #0ecb81; --gold: #f3ba2f; --red: #f6465d;
-            --text-sec: #707a8a;
+            --green: #0ecb81; --gold: #f3ba2f; --red: #f6465d; --text-sec: #707a8a;
         }
-        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
+
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; }
+        .bal { background: #1e2329; padding: 8px 16px; border-radius: 50px; font-weight: 800; font-size: 14px; }
+
+        /* ИГРОВОЕ ПОЛЕ */
+        .game-viewport { position: relative; height: 300px; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
+        .history-line { position: absolute; top: 10px; left: 0; display: flex; gap: 8px; padding: 0 15px; z-index: 10; overflow-x: auto; width: 100%; }
+        .h-item { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--text-sec); }
+        .h-item.win { color: var(--blue); }
+
+        #multiplier { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 70px; font-weight: 900; z-index: 5; }
         
-        /* Виджет игры */
-        .game-box { position: relative; height: 300px; width: 100%; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
-        #mult { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 70px; font-weight: 900; z-index: 5; }
-        #rocket { position: absolute; bottom: 50px; left: 50px; z-index: 10; transition: transform 0.1s linear; }
-        
-        /* Кнопка и Уведомление */
-        .ui { padding: 15px; background: var(--bg); }
-        .btn { width: 100%; height: 60px; border-radius: 12px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
-        .btn:disabled { background: #1e2329; color: var(--text-sec); }
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1e2329; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--green); color: var(--green); transition: 0.4s; z-index: 100; font-weight: bold; }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        /* РАКЕТА */
+        #rocket { position: absolute; bottom: 40px; left: 40px; z-index: 20; will-change: transform; display: none; }
+        .rocket-svg { width: 80px; filter: drop-shadow(0 0 15px var(--blue)); }
+        .flame { position: absolute; left: -20px; top: 15px; width: 30px; height: 15px; background: #f44336; border-radius: 50%; filter: blur(3px); animation: fire 0.1s infinite alternate; }
+        @keyframes fire { from { transform: scaleX(1); } to { transform: scaleX(1.5); } }
+
+        /* ИНТЕРФЕЙС */
+        .controls { padding: 15px 20px; }
+        .btn-main { width: 100%; height: 55px; border-radius: 12px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; }
+        .btn-main:disabled { background: #1e2329; color: var(--text-sec); }
 
         /* СПИСОК СТАВОК */
         .bets-label { padding: 10px 20px; color: var(--text-sec); font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        .bets-list { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; height: calc(100vh - 450px); overflow-y: auto; }
-        .bet-item { background: var(--card); padding: 12px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
+        .bets-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; height: 300px; overflow-y: auto; }
+        .bet-row { background: var(--card); padding: 12px 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
         .u-info { display: flex; align-items: center; gap: 10px; }
-        .u-av { width: 36px; height: 36px; border-radius: 10px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
-        .u-n { font-size: 14px; font-weight: 600; }
-        .u-s { font-size: 11px; color: var(--text-sec); }
-        .u-v { font-weight: 800; font-size: 16px; text-align: right; }
+        .u-av { width: 35px; height: 35px; border-radius: 10px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
+        .u-name { font-size: 14px; font-weight: 600; }
+        .u-bet { font-size: 11px; color: var(--text-sec); }
+        .u-val { font-weight: 800; font-size: 15px; text-align: right; }
         .win-ton { color: var(--green); }
-        .win-gift { color: var(--gold); animation: pop 0.3s ease; }
-        @keyframes pop { from { transform: scale(0.8); } to { transform: scale(1); } }
-        canvas { position: absolute; inset: 0; }
+        .win-gift { color: var(--gold); display: flex; align-items: center; gap: 5px; animation: giftPop 0.3s ease-out; }
+        @keyframes giftPop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1c1f24; padding: 10px 20px; border-radius: 10px; border: 1px solid var(--green); z-index: 100; transition: 0.3s; }
+        #toast.active { transform: translateX(-50%) translateY(0); }
+        canvas { position: absolute; inset: 0; z-index: 4; }
     </style>
 </head>
 <body>
 
-<div id="toast">Выигрыш зафиксирован!</div>
+<div id="toast">Вы забрали x0.00</div>
 
-<div class="game-box">
-    <canvas id="cvs"></canvas>
-    <div id="mult">x1.00</div>
-    <div id="rocket" style="display:none">
-        <svg width="80" viewBox="0 0 512 512"><path fill="#e0e0e0" d="M437,75c-61-61-177-38-259,44S71,289,112,350c18,27,53,46,81,46,23,0,43-13,62-32l157-157C451,168,468,106,437,75Z"/><path fill="#f44336" d="M112,350c-10,32-35,116-35,116s84-25,116-35C158,421,121,385,112,350Z"/><circle fill="#80deea" cx="320" cy="192" r="48"/></svg>
+<div class="header">
+    <div style="font-size: 13px; color: var(--green);">● 124 онлайн</div>
+    <div class="bal">💎 0.12</div>
+</div>
+
+<div class="game-viewport">
+    <div class="history-line" id="history">
+        <div class="h-item">1.41</div><div class="h-item win">5.18</div><div class="h-item">1.55</div>
+    </div>
+    <canvas id="trail"></canvas>
+    <div id="multiplier">x1.00</div>
+    <div id="rocket">
+        <div class="flame"></div>
+        <svg class="rocket-svg" viewBox="0 0 512 512"><path fill="#e0e0e0" d="M437,75c-61-61-177-38-259,44S71,289,112,350c18,27,53,46,81,46,23,0,43-13,62-32l157-157C451,168,468,106,437,75Z"/><path fill="#f44336" d="M112,350c-10,32-35,116-35,116s84-25,116-35C158,421,121,385,112,350Z"/><circle fill="#80deea" cx="320" cy="192" r="48"/></svg>
     </div>
 </div>
 
-<div class="ui">
-    <button class="btn" id="btn" onclick="act()">Сделать ставку</button>
+<div class="controls">
+    <button id="btn" class="btn-main" onclick="onBtn()">Сделать ставку</button>
 </div>
 
 <div class="bets-label">Живые ставки</div>
-<div class="bets-list" id="list"></div>
+<div class="bets-list" id="bets"></div>
 
 <script>
-    const db = [{n:"Lol Pop",p:3.23,i:"🍭"},{n:"Snoop Cigar",p:10.21,i:"🚬"},{n:"Snowman",p:15.5,i:"☃️"}];
-    const bots = [
-        {n:"Forever Young",b:1.68,av:"FY"},
-        {n:"Саня",b:0.49,av:"С"},
-        {n:"Pudzhik #sash",b:0.37,av:"P"},
-        {n:"Обменик с $",b:0.14,av:"O"}
+    // ЦЕНЫ ПОДАРКОВ ИЗ ВИДЕО
+    const GIFT_DATA = [
+        { name: "Lol Pop", price: 3.23, icon: "🍭" },
+        { name: "Snoop Cigar", price: 10.21, icon: "🚬" },
+        { name: "Snowman", price: 15.50, icon: "☃️" },
+        { name: "Swiss Watch", price: 43.07, icon: "⌚" }
     ];
 
-    let x = 1.0, active = false, taken = false, loop, cvs, ctx;
+    const BOTS = [
+        { n: "Forever Young", b: 1.68, av: "FY" },
+        { n: "Саня", b: 0.49, av: "С" },
+        { n: "Pudzhik #sash", b: 0.37, av: "P" },
+        { n: "Обменик с $", b: 0.14, av: "O" }
+    ];
+
+    let x = 1.0, active = false, taken = false, loop, canvas, ctx;
 
     function init() {
-        cvs = document.getElementById('cvs');
-        cvs.width = window.innerWidth; cvs.height = 300;
-        ctx = cvs.getContext('2d');
-        updateList(1.0);
+        canvas = document.getElementById('trail');
+        canvas.width = window.innerWidth;
+        canvas.height = 300;
+        ctx = canvas.getContext('2d');
+        updateBets(1.0);
     }
 
-    function act() { if(!active) start(); else take(); }
+    function onBtn() {
+        if (!active) start(); else take();
+    }
 
     function start() {
         active = true; taken = false; x = 1.0;
-        let crash = (Math.random() * 5 + 1.2).toFixed(2);
+        let crash = (Math.random() * 4 + 1.1).toFixed(2);
+        
         document.getElementById('btn').innerText = "Забрать";
         document.getElementById('btn').disabled = false;
         document.getElementById('rocket').style.display = 'block';
-        document.getElementById('mult').style.color = 'white';
-        document.getElementById('toast').classList.remove('show');
+        document.getElementById('rocket').style.opacity = '1';
+        document.getElementById('multiplier').style.color = "white";
 
         loop = setInterval(() => {
-            x += x * 0.012;
-            document.getElementById('mult').innerText = `x${x.toFixed(2)}`;
+            x += x * 0.012; // Скорость
+            document.getElementById('multiplier').innerText = `x${x.toFixed(2)}`;
+
+            let dx = Math.min((x-1)*70, canvas.width - 100);
+            let dy = Math.min((x-1)*50, 220);
             
-            let dx = Math.min((x-1)*70, cvs.width - 100);
-            let dy = Math.min((x-1)*50, 200);
-            document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px)`;
+            document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px) rotate(${-Math.min((x-1)*10, 20)}deg)`;
             
-            ctx.clearRect(0,0,cvs.width,cvs.height);
-            ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5;
-            ctx.moveTo(50, 250); ctx.quadraticCurveTo(dx/2+50, 250, dx+50, 250-dy); ctx.stroke();
-            
-            updateList(x);
-            if(x >= crash) stop();
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5; ctx.lineCap = "round";
+            ctx.moveTo(50, 260); ctx.quadraticCurveTo(dx/2 + 50, 260, dx + 50, 260 - dy);
+            ctx.stroke();
+
+            updateBets(x);
+
+            if (x >= crash) stop(true);
         }, 60);
     }
 
     function take() {
-        if(taken) return;
+        if (taken) return;
         taken = true;
-        const t = document.getElementById('toast');
-        t.innerText = `Вы выиграли x${x.toFixed(2)}`;
-        t.classList.add('show');
+        
+        const toast = document.getElementById('toast');
+        toast.innerText = `Вы забрали: x${x.toFixed(2)}`;
+        toast.classList.add('active');
+        
         document.getElementById('btn').innerText = "Ставка принята";
         document.getElementById('btn').disabled = true;
-        setTimeout(() => t.classList.remove('show'), 2000);
+        
+        setTimeout(() => toast.classList.remove('active'), 2000);
     }
 
-    function updateList(m) {
-        document.getElementById('list').innerHTML = bots.map(b => {
-            let val = b.b * m;
-            let g = [...db].reverse().find(item => val >= item.p);
+    function stop(isCrash) {
+        clearInterval(loop);
+        active = false;
+        
+        if (isCrash) {
+            document.getElementById('multiplier').style.color = "var(--red)";
+            document.getElementById('rocket').style.opacity = "0";
+            addHistory(x.toFixed(2));
+        }
+        
+        document.getElementById('btn').disabled = false;
+        document.getElementById('btn').innerText = "Сделать ставку";
+    }
+
+    function updateBets(mult) {
+        const wrap = document.getElementById('bets');
+        wrap.innerHTML = BOTS.map(b => {
+            let win = b.b * mult;
+            let gift = [...GIFT_DATA].reverse().find(g => win >= g.price);
             return `
-                <div class="bet-item">
+                <div class="bet-row">
                     <div class="u-info">
                         <div class="u-av">${b.av}</div>
-                        <div><div class="u-n">${b.n}</div><div class="u-s">💎 ${b.b} x${m.toFixed(2)}</div></div>
+                        <div><div class="u-name">${b.n}</div><div class="u-bet">💎 ${b.b} x${mult.toFixed(2)}</div></div>
                     </div>
-                    <div class="u-v ${g ? 'win-gift' : 'win-ton'}">
-                        ${g ? `<span>${g.i}</span> ${g.n}` : val.toFixed(2)}
+                    <div class="u-val ${gift ? 'win-gift' : 'win-ton'}">
+                        ${gift ? `<span>${gift.icon}</span> ${gift.name}` : win.toFixed(2)}
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    function stop() {
-        clearInterval(loop); active = false;
-        document.getElementById('mult').style.color = "#f6465d";
-        document.getElementById('btn').disabled = false;
-        document.getElementById('btn').innerText = "Сделать ставку";
-        document.getElementById('rocket').style.display = 'none';
+    function addHistory(val) {
+        const h = document.getElementById('history');
+        const item = document.createElement('div');
+        item.className = `h-item ${val > 2 ? 'win' : ''}`;
+        item.innerText = val;
+        h.prepend(item);
+        if (h.children.length > 6) h.lastChild.remove();
     }
 
     window.onload = init;
 </script>
 </body>
 </html>
+
 
 
