@@ -3,204 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Ultimate: Gifts & History</title>
+    <title>Crash Pro: Betting Cycle</title>
     <style>
         :root {
             --bg: #07080a; --card: #121418; --blue: #0098ea;
             --green: #0ecb81; --gold: #f3ba2f; --red: #f6465d; --text-sec: #707a8a;
         }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: white; margin: 0; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; outline: none; }
+        body { background: var(--bg); color: white; margin: 0; overflow: hidden; }
 
         /* HEADER */
-        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; }
-        .bal { background: #1e2329; padding: 8px 16px; border-radius: 50px; font-weight: 800; font-size: 14px; }
+        .header { display: flex; justify-content: space-between; padding: 12px 20px; align-items: center; }
+        .bal { background: #1e2329; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
 
-        /* ИГРОВОЕ ПОЛЕ */
-        .game-viewport { position: relative; height: 300px; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
-        .history-line { position: absolute; top: 10px; left: 0; display: flex; gap: 8px; padding: 0 15px; z-index: 10; overflow-x: auto; width: 100%; }
-        .h-item { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--text-sec); }
-        .h-item.win { color: var(--blue); }
-
-        #multiplier { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 70px; font-weight: 900; z-index: 5; }
+        /* GAME AREA */
+        .game-viewport { position: relative; height: 280px; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
+        #multiplier { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 72px; font-weight: 900; z-index: 5; }
+        #countdown { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 80px; font-weight: 900; z-index: 6; color: white; display: none; }
         
-        /* РАКЕТА */
         #rocket { position: absolute; bottom: 40px; left: 40px; z-index: 20; will-change: transform; display: none; }
-        .rocket-svg { width: 80px; filter: drop-shadow(0 0 15px var(--blue)); }
-        .flame { position: absolute; left: -20px; top: 15px; width: 30px; height: 15px; background: #f44336; border-radius: 50%; filter: blur(3px); animation: fire 0.1s infinite alternate; }
-        @keyframes fire { from { transform: scaleX(1); } to { transform: scaleX(1.5); } }
+        .rocket-svg { width: 85px; filter: drop-shadow(0 0 15px var(--blue)); }
 
-        /* ИНТЕРФЕЙС */
-        .controls { padding: 15px 20px; }
-        .btn-main { width: 100%; height: 55px; border-radius: 12px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; }
-        .btn-main:disabled { background: #1e2329; color: var(--text-sec); }
+        /* CONTROLS */
+        .controls { padding: 15px 20px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 20px 20px 0 0; }
+        .input-group { display: flex; gap: 10px; }
+        .input-box { flex: 1; background: #1e2329; border-radius: 12px; padding: 8px 12px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
+        .input-box label { font-size: 10px; color: var(--text-sec); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
+        .input-box input { background: transparent; border: none; color: white; font-weight: 800; font-size: 16px; }
 
-        /* СПИСОК СТАВОК */
-        .bets-label { padding: 10px 20px; color: var(--text-sec); font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        .bets-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; height: 300px; overflow-y: auto; }
-        .bet-row { background: var(--card); padding: 12px 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
-        .u-info { display: flex; align-items: center; gap: 10px; }
-        .u-av { width: 35px; height: 35px; border-radius: 10px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
-        .u-name { font-size: 14px; font-weight: 600; }
-        .u-bet { font-size: 11px; color: var(--text-sec); }
-        .u-val { font-weight: 800; font-size: 15px; text-align: right; }
-        .win-ton { color: var(--green); }
-        .win-gift { color: var(--gold); display: flex; align-items: center; gap: 5px; animation: giftPop 0.3s ease-out; }
-        @keyframes giftPop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+        .btn-main { width: 100%; height: 58px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
+        .btn-main:disabled { background: #1e2329; color: var(--text-sec); cursor: not-allowed; }
+        .btn-main.take { background: var(--green); }
 
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1c1f24; padding: 10px 20px; border-radius: 10px; border: 1px solid var(--green); z-index: 100; transition: 0.3s; }
+        /* BETS */
+        .bets-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; height: calc(100vh - 540px); overflow-y: auto; }
+        .bet-row { background: var(--card); padding: 12px 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
+        .u-info { display: flex; align-items: center; gap: 12px; }
+        .u-av { width: 38px; height: 38px; border-radius: 12px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+        
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1c1f24; padding: 12px 25px; border-radius: 12px; border: 1px solid var(--green); z-index: 100; transition: 0.5s; }
         #toast.active { transform: translateX(-50%) translateY(0); }
         canvas { position: absolute; inset: 0; z-index: 4; }
     </style>
 </head>
 <body>
 
-<div id="toast">Вы забрали x0.00</div>
+<div id="toast">Выигрыш зафиксирован!</div>
 
 <div class="header">
-    <div style="font-size: 13px; color: var(--green);">● 124 онлайн</div>
+    <div style="font-size: 13px; font-weight: 700;"><span style="color:var(--green)">●</span> 124</div>
     <div class="bal">💎 0.12</div>
 </div>
 
 <div class="game-viewport">
-    <div class="history-line" id="history">
-        <div class="h-item">1.41</div><div class="h-item win">5.18</div><div class="h-item">1.55</div>
-    </div>
     <canvas id="trail"></canvas>
     <div id="multiplier">x1.00</div>
+    <div id="countdown">5</div>
     <div id="rocket">
-        <div class="flame"></div>
         <svg class="rocket-svg" viewBox="0 0 512 512"><path fill="#e0e0e0" d="M437,75c-61-61-177-38-259,44S71,289,112,350c18,27,53,46,81,46,23,0,43-13,62-32l157-157C451,168,468,106,437,75Z"/><path fill="#f44336" d="M112,350c-10,32-35,116-35,116s84-25,116-35C158,421,121,385,112,350Z"/><circle fill="#80deea" cx="320" cy="192" r="48"/></svg>
     </div>
 </div>
 
 <div class="controls">
-    <button id="btn" class="btn-main" onclick="onBtn()">Сделать ставку</button>
+    <div class="input-group">
+        <div class="input-box"><label>Сумма</label><input type="number" id="betAmount" value="1.0"></div>
+        <div class="input-box"><label>Автовывод</label><input type="number" id="autoExit" value="2.0"></div>
+    </div>
+    <button id="btn" class="btn-main" onclick="handleBtn()">Поставить</button>
 </div>
 
-<div class="bets-label">Живые ставки</div>
 <div class="bets-list" id="bets"></div>
 
 <script>
-    // ЦЕНЫ ПОДАРКОВ ИЗ ВИДЕО
-    const GIFT_DATA = [
-        { name: "Lol Pop", price: 3.23, icon: "🍭" },
-        { name: "Snoop Cigar", price: 10.21, icon: "🚬" },
-        { name: "Snowman", price: 15.50, icon: "☃️" },
-        { name: "Swiss Watch", price: 43.07, icon: "⌚" }
-    ];
-
-    const BOTS = [
-        { n: "Forever Young", b: 1.68, av: "FY" },
-        { n: "Саня", b: 0.49, av: "С" },
-        { n: "Pudzhik #sash", b: 0.37, av: "P" },
-        { n: "Обменик с $", b: 0.14, av: "O" }
-    ];
-
-    let x = 1.0, active = false, taken = false, loop, canvas, ctx;
+    let x = 1.0, state = 'IDLE', hasBet = false, hasTaken = false, loop, canvas, ctx;
+    let countdownVal = 5;
 
     function init() {
         canvas = document.getElementById('trail');
-        canvas.width = window.innerWidth;
-        canvas.height = 300;
+        canvas.width = window.innerWidth; canvas.height = 280;
         ctx = canvas.getContext('2d');
-        updateBets(1.0);
+        startWaiting();
     }
 
-    function onBtn() {
-        if (!active) start(); else take();
-    }
-
-    function start() {
-        active = true; taken = false; x = 1.0;
-        let crash = (Math.random() * 4 + 1.1).toFixed(2);
+    // Фаза ожидания 5 секунд
+    function startWaiting() {
+        state = 'WAITING';
+        hasBet = false; hasTaken = false; x = 1.0;
+        countdownVal = 5;
         
-        document.getElementById('btn').innerText = "Забрать";
+        document.getElementById('countdown').style.display = 'block';
+        document.getElementById('multiplier').style.display = 'none';
+        document.getElementById('rocket').style.display = 'none';
+        document.getElementById('btn').innerText = "Поставить";
+        document.getElementById('btn').className = "btn-main";
         document.getElementById('btn').disabled = false;
-        document.getElementById('rocket').style.display = 'block';
-        document.getElementById('rocket').style.opacity = '1';
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+
+        let timer = setInterval(() => {
+            document.getElementById('countdown').innerText = countdownVal;
+            countdownVal--;
+            if (countdownVal < 0) {
+                clearInterval(timer);
+                startFlight();
+            }
+        }, 1000);
+    }
+
+    function handleBtn() {
+        if (state === 'WAITING') {
+            hasBet = true;
+            document.getElementById('btn').innerText = "Ставка принята";
+            document.getElementById('btn').disabled = true;
+        } else if (state === 'FLIGHT' && hasBet && !hasTaken) {
+            take();
+        }
+    }
+
+    function startFlight() {
+        state = 'FLIGHT';
+        document.getElementById('countdown').style.display = 'none';
+        document.getElementById('multiplier').style.display = 'block';
         document.getElementById('multiplier').style.color = "white";
+        document.getElementById('rocket').style.display = 'block';
+        
+        if (hasBet) {
+            document.getElementById('btn').innerText = "Забрать";
+            document.getElementById('btn').className = "btn-main take";
+            document.getElementById('btn').disabled = false;
+        }
+
+        let crashPoint = (Math.random() * 4 + 1.1).toFixed(2);
+        let autoExit = parseFloat(document.getElementById('autoExit').value);
 
         loop = setInterval(() => {
-            x += x * 0.012; // Скорость
+            x += x * 0.012;
             document.getElementById('multiplier').innerText = `x${x.toFixed(2)}`;
 
             let dx = Math.min((x-1)*70, canvas.width - 100);
             let dy = Math.min((x-1)*50, 220);
-            
-            document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px) rotate(${-Math.min((x-1)*10, 20)}deg)`;
+            document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px)`;
             
             ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5; ctx.lineCap = "round";
-            ctx.moveTo(50, 260); ctx.quadraticCurveTo(dx/2 + 50, 260, dx + 50, 260 - dy);
+            ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5;
+            ctx.moveTo(50, 250); ctx.quadraticCurveTo(dx/2+50, 250, dx+50, 250-dy);
             ctx.stroke();
 
-            updateBets(x);
-
-            if (x >= crash) stop(true);
+            // Автовывод
+            if (hasBet && !hasTaken && x >= autoExit) take();
+            
+            if (x >= crashPoint) crash();
         }, 60);
     }
 
     function take() {
-        if (taken) return;
-        taken = true;
-        
+        hasTaken = true;
+        let win = (parseFloat(document.getElementById('betAmount').value) * x).toFixed(2);
         const toast = document.getElementById('toast');
-        toast.innerText = `Вы забрали: x${x.toFixed(2)}`;
+        toast.innerText = `Вы забрали: ${win} TON`;
         toast.classList.add('active');
         
-        document.getElementById('btn').innerText = "Ставка принята";
+        document.getElementById('btn').innerText = "Вы забрали";
         document.getElementById('btn').disabled = true;
-        
         setTimeout(() => toast.classList.remove('active'), 2000);
     }
 
-    function stop(isCrash) {
+    function crash() {
         clearInterval(loop);
-        active = false;
+        state = 'CRASH';
+        document.getElementById('multiplier').style.color = "var(--red)";
+        document.getElementById('rocket').style.display = 'none';
         
-        if (isCrash) {
-            document.getElementById('multiplier').style.color = "var(--red)";
-            document.getElementById('rocket').style.opacity = "0";
-            addHistory(x.toFixed(2));
-        }
-        
-        document.getElementById('btn').disabled = false;
-        document.getElementById('btn').innerText = "Сделать ставку";
-    }
-
-    function updateBets(mult) {
-        const wrap = document.getElementById('bets');
-        wrap.innerHTML = BOTS.map(b => {
-            let win = b.b * mult;
-            let gift = [...GIFT_DATA].reverse().find(g => win >= g.price);
-            return `
-                <div class="bet-row">
-                    <div class="u-info">
-                        <div class="u-av">${b.av}</div>
-                        <div><div class="u-name">${b.n}</div><div class="u-bet">💎 ${b.b} x${mult.toFixed(2)}</div></div>
-                    </div>
-                    <div class="u-val ${gift ? 'win-gift' : 'win-ton'}">
-                        ${gift ? `<span>${gift.icon}</span> ${gift.name}` : win.toFixed(2)}
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function addHistory(val) {
-        const h = document.getElementById('history');
-        const item = document.createElement('div');
-        item.className = `h-item ${val > 2 ? 'win' : ''}`;
-        item.innerText = val;
-        h.prepend(item);
-        if (h.children.length > 6) h.lastChild.remove();
+        setTimeout(() => startWaiting(), 2000); // Через 2 сек новый раунд
     }
 
     window.onload = init;
 </script>
 </body>
 </html>
+
 
 
 
