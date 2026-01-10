@@ -2,252 +2,234 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Crash DEMO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>GoStyle Crash</title>
+
 <style>
 :root{
-  --bg:#0a0a0a;
-  --card:#141414;
-  --accent:#1e88e5;
-  --text:#fff;
-  --muted:#888;
+  --bg:#05070b;
+  --panel:#0e1218;
+  --card:#141a22;
+  --blue:#3aa3ff;
+  --green:#2de38c;
+  --red:#ff4d5a;
+  --text:#9aa4b2;
 }
-*{box-sizing:border-box}
-body{
+
+*{
   margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter,Arial,sans-serif;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter,system-ui,Arial;
 }
+
+body{
+  background:radial-gradient(circle at top,#0b1020,#05070b);
+  color:#fff;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
 .header{
+  padding:14px 18px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:14px;
 }
-.badge{
-  background:#0f0f0f;
-  padding:6px 12px;
-  border-radius:20px;
+.balance{
+  background:var(--card);
+  padding:8px 16px;
+  border-radius:30px;
+  font-weight:700;
   font-size:14px;
 }
-.center{
-  text-align:center;
-  margin-top:10px;
-}
-.mult{
-  font-size:48px;
-  font-weight:700;
-}
-.stage{
+
+/* GAME */
+.game{
+  margin:0 14px;
+  height:260px;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 50% 20%,#1a2240 0%,#0b1020 45%,#05070b 100%);
   position:relative;
-  height:160px;
-  margin:20px;
-  background:radial-gradient(circle at bottom left,#111,#050505);
-  border-radius:16px;
   overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
 }
+
+.mult{
+  position:absolute;
+  top:40%;
+  width:100%;
+  text-align:center;
+  font-size:56px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+}
+
+/* ROCKET */
 .rocket{
   position:absolute;
-  bottom:20px;
-  left:20px;
-  width:42px;
-  transform:rotate(-45deg);
-  transition:left .05s linear;
+  width:46px;
+  height:90px;
+  left:40px;
+  bottom:40px;
+  animation:fly 6s linear infinite;
 }
+.rocket:before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,#fff,#cfd6ff);
+  clip-path:polygon(50% 0,100% 20%,80% 100%,20% 100%,0 20%);
+  border-radius:6px;
+}
+.fire{
+  position:absolute;
+  bottom:-24px;
+  left:50%;
+  transform:translateX(-50%);
+  width:18px;
+  height:28px;
+  background:linear-gradient(180deg,#ffb300,#ff4d00);
+  border-radius:50%;
+  filter:blur(1px);
+  animation:fire .2s infinite alternate;
+}
+
+@keyframes fly{
+  0%{transform:translate(0,0)}
+  100%{transform:translate(220px,-140px)}
+}
+@keyframes fire{
+  from{height:20px}
+  to{height:30px}
+}
+
+/* CONTROLS */
 .controls{
+  margin:16px 14px 0;
+  background:var(--panel);
+  border-radius:20px;
+  padding:16px;
+}
+.row{
   display:flex;
   gap:10px;
-  padding:14px;
 }
-.card{
+.box{
   flex:1;
   background:var(--card);
-  padding:12px;
   border-radius:14px;
+  padding:10px 12px;
 }
-.card label{
-  font-size:12px;
-  color:var(--muted);
+.box span{
+  font-size:10px;
+  color:var(--text);
 }
-.card input{
-  width:100%;
-  margin-top:6px;
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:18px;
-  outline:none;
-}
-.btn{
-  margin:0 14px;
-  background:var(--accent);
-  border:none;
-  border-radius:14px;
-  padding:16px;
+.box b{
+  display:block;
+  margin-top:4px;
   font-size:16px;
-  font-weight:600;
-  color:#fff;
 }
-.history{
-  display:flex;
-  gap:6px;
-  padding:10px 14px;
-  overflow-x:auto;
-}
-.hist{
-  background:#1b1b1b;
-  padding:6px 10px;
-  border-radius:10px;
-  font-size:13px;
-}
-.menu{
-  position:fixed;
-  bottom:0;
+
+.btn{
+  margin-top:12px;
   width:100%;
-  background:#0f0f0f;
+  height:52px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(135deg,#3aa3ff,#5fd0ff);
+  font-size:16px;
+  font-weight:800;
+  color:#000;
+}
+
+/* NAV */
+.nav{
+  margin-top:auto;
+  background:#070a10;
   display:flex;
-  justify-content:space-around;
   padding:10px 0;
+  border-top:1px solid #111;
 }
-.menu div{
+.nav div{
+  flex:1;
   text-align:center;
-  font-size:12px;
-  color:#777;
+  font-size:11px;
+  color:var(--text);
 }
-.menu .active{color:#4da}
-.panel{display:none;padding-bottom:70px}
-.panel.active{display:block}
+.nav .active{
+  color:var(--blue);
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div class="badge">🟢 124 онлайн</div>
-  <div class="badge">💎 <span id="bal">100.00</span></div>
+  <div>🚀 GoStyle</div>
+  <div class="balance">💎 1 250.00</div>
 </div>
 
-<!-- CRASH -->
-<div id="crash" class="panel active">
-  <div class="center">
-    <div class="mult" id="mult">x1.00</div>
-  </div>
+<div class="game">
+  <canvas id="c"></canvas>
 
-  <div class="stage">
-    <img class="rocket" id="rocket"
-      src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png">
-  </div>
+  <div class="mult">x1.00</div>
 
-  <div class="controls">
-    <div class="card">
-      <label>СУММА</label>
-      <input id="bet" type="number" value="10">
+  <div class="rocket">
+    <div class="fire"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="row">
+    <div class="box">
+      <span>СУММА</span>
+      <b>100.00</b>
     </div>
-    <div class="card">
-      <label>АВТОВЫВОД</label>
-      <input id="auto" type="number" step="0.01" value="1.50">
+    <div class="box">
+      <span>АВТОВЫВОД</span>
+      <b>x1.80</b>
     </div>
   </div>
-
-  <button class="btn" onclick="start()">Сделать ставку</button>
-
-  <div class="history" id="history"></div>
+  <button class="btn">СДЕЛАТЬ СТАВКУ</button>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="panel">
-  <h3>👤 Профиль</h3>
-  Баланс: 💎 <span id="bal2"></span><br><br>
-  <button class="btn" onclick="topUp()">➕ Пополнить (DEMO)</button><br><br>
-  <button class="btn" onclick="withdraw()">➖ Вывести (DEMO)</button>
-</div>
-
-<div class="menu">
-  <div onclick="tab('crash')" class="active">🚀<br>Краш</div>
-  <div onclick="tab('profile')">👤<br>Профиль</div>
+<div class="nav">
+  <div>🏆<br>ТОП</div>
+  <div class="active">🚀<br>CRASH</div>
+  <div>👤<br>ПРОФИЛЬ</div>
 </div>
 
 <script>
-let bal=100,playing=false,m=1,bet=0,auto=0,hist=[];
-const mult=document.getElementById("mult");
-const rocket=document.getElementById("rocket");
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+c.width=innerWidth;
+c.height=260;
 
-function update(){
-  bal.innerText=bal;
-  document.getElementById("bal").innerText=bal.toFixed(2);
-  document.getElementById("bal2").innerText=bal.toFixed(2);
+let x=1;
+setInterval(()=>{
+  x+=0.02;
+  document.querySelector('.mult').innerText='x'+x.toFixed(2);
+  draw();
+},60);
+
+function draw(){
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.strokeStyle='rgba(255,255,255,.05)';
+  for(let i=0;i<c.width;i+=40){
+    ctx.beginPath();
+    ctx.moveTo(i,0);
+    ctx.lineTo(i,c.height);
+    ctx.stroke();
+  }
 }
-
-function tab(t){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById(t).classList.add('active');
-  document.querySelectorAll('.menu div').forEach(d=>d.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-function start(){
-  if(playing) return;
-  bet=+betInput.value;
-  auto=+autoInput.value;
-}
-
-const betInput=document.getElementById("bet");
-const autoInput=document.getElementById("auto");
-
-function start(){
-  if(playing) return;
-  bet=+betInput.value;
-  auto=+autoInput.value;
-  if(bet>bal) return alert("Недостаточно баланса");
-  bal-=bet;
-  m=1;
-  playing=true;
-  run();
-  update();
-}
-
-function run(){
-  let crash=(Math.random()*3+1).toFixed(2);
-  let i=setInterval(()=>{
-    m+=0.01;
-    mult.innerText="x"+m.toFixed(2);
-    rocket.style.left=(20+m*30)+"px";
-    if(auto && m>=auto){ clearInterval(i); end(true); }
-    if(m>=crash){ clearInterval(i); end(false,crash); }
-  },40);
-}
-
-function end(win,c){
-  playing=false;
-  if(win){ bal+=bet*m; }
-  hist.unshift((c||m).toFixed(2));
-  hist=hist.slice(0,10);
-  drawHist();
-  update();
-}
-
-function drawHist(){
-  const h=document.getElementById("history");
-  h.innerHTML="";
-  hist.forEach(x=>{
-    let d=document.createElement("div");
-    d.className="hist";
-    d.innerText="x"+x;
-    h.appendChild(d);
-  });
-}
-
-function topUp(){
-  let a=+prompt("DEMO сумма");
-  if(a>0){ bal+=a; update(); }
-}
-function withdraw(){
-  let a=+prompt("DEMO сумма");
-  if(a>0 && a<=bal){ bal-=a; update(); }
-}
-
-update();
 </script>
 
 </body>
