@@ -7,11 +7,12 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 
 # --- ТВОИ НАСТРОЙКИ ---
-TOKEN = "ТВОЙ_ТОКЕН_ЗДЕСЬ" 
-WEBAPP_URL = "https://твоя-ссылка.ngrok-free.app"
+# Твой новый токен уже здесь
+TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
+# Сюда вставь ссылку из ngrok (например: https://abcd-123.ngrok-free.app)
+WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK"
 
 # --- ИНИЦИАЛИЗАЦИЯ ---
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +20,6 @@ bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-# База данных пользователей
 def init_db():
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 8.54)")
@@ -28,27 +28,29 @@ def init_db():
 # --- БОТ ---
 @dp.message_handler(commands=['start'])
 async def start(m: types.Message):
-    # Создаем пользователя в БД
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
     
-    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton("🎡 Крутить (PvP)", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer("<b>🎰 PvP Колесо готово!</b>\nЖми кнопку ниже, чтобы ворваться в игру.", reply_markup=kb)
+    # Создаем инлайн-кнопку, чтобы не заходить в BotFather лишний раз
+    kb = types.InlineKeyboardMarkup()
+    kb.add(types.InlineKeyboardButton("🎡 Играть в PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
+    
+    await m.answer(
+        f"<b>🎰 Добро пожаловать, {m.from_user.first_name}!</b>\n\n"
+        "Это PvP Колесо Фортуны. Жми на кнопку ниже, чтобы начать игру с ботами!", 
+        reply_markup=kb
+    )
 
-# --- API ДЛЯ ИГРЫ ---
+# --- API ДЛЯ ИГРЫ (БОТЫ) ---
 @app.get("/api/bots")
 async def get_bots():
-    # Генерируем случайных соперников как на видео
     names = ["Gusati", "Andre", "NeverBye", "Enzu", "Nikita", "Ilya"]
     avatars = [
         "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
         "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
         "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob"
     ]
-    
     bots = []
-    # Добавляем 2-3 бота
     for _ in range(random.randint(2, 3)):
         bots.append({
             "name": random.choice(names),
@@ -63,140 +65,55 @@ async def get_bots():
 async def serve_game():
     return """
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0b0e11; color: white; font-family: sans-serif; margin: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        
-        /* Верхняя панель как на скрине 1000042178.jpg */
-        .top-bar { width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161a1e; font-weight: bold; }
-        .tab { color: #848e9c; }
-        .tab.active { color: white; border-bottom: 2px solid white; }
-
-        /* Колесо */
-        .wheel-wrap { position: relative; width: 320px; height: 320px; margin-top: 40px; }
-        .wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139;
-            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
-            position: relative; overflow: hidden;
-        }
-        
-        /* Стрелка сверху */
-        .pointer { 
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; 
-            border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; 
-            z-index: 10; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-        }
-
-        /* Таймер в центре */
-        .center-hub {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80px; height: 80px; background: #0b0e11; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900; z-index: 5; border: 4px solid #2b3139;
-        }
-
-        /* Кнопка */
-        .btn-play {
-            background: #f0b90b; color: black; border: none; padding: 15px 40px; 
-            border-radius: 12px; font-size: 18px; font-weight: 900; margin-top: 50px; cursor: pointer;
-            box-shadow: 0 4px 0 #c49607; width: 90%;
-        }
-        .btn-play:active { transform: translateY(2px); box-shadow: none; }
-
-        /* Список игроков */
-        .players-list { width: 90%; margin-top: 20px; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: #1e2329; padding: 10px; margin-bottom: 5px; border-radius: 8px; }
-        .p-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-        .p-info { display: flex; align-items: center; }
+        body { background-color: #0b0e11; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .top-bar { width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161a1e; }
+        .wheel-wrap { position: relative; width: 300px; height: 300px; margin-top: 30px; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); position: relative; }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
+        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #0b0e11; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #2b3139; }
+        .btn-play { background: #f0b90b; color: black; border: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: 900; margin-top: 30px; width: 90%; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: #1e2329; padding: 10px; margin: 5px; border-radius: 8px; width: 90%; }
+        .p-avatar { width: 25px; height: 25px; border-radius: 50%; margin-right: 10px; }
     </style>
 </head>
 <body>
-
-    <div class="top-bar">
-        <div class="tab active">Гифты</div>
-        <div class="tab">Стикеры</div>
-    </div>
-    
-    <div style="margin-top: 10px; font-size: 12px; color: #848e9c;">БАНК ИГРЫ: <span id="total-pot" style="color:white; font-weight:bold;">0.00 TON</span></div>
-
+    <div class="top-bar"><div>Гифты</div><div>Стикеры</div></div>
     <div class="wheel-wrap">
         <div class="pointer"></div>
         <div class="wheel" id="wheel"></div>
-        <div class="center-hub" id="timer">ИГРА</div>
+        <div class="center-hub">PvP</div>
     </div>
-
-    <div class="players-list" id="p-list"></div>
-
+    <div id="p-list" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:20px;"></div>
     <button class="btn-play" onclick="startGame()">ВОЙТИ В PvP</button>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        
-        let spinning = false;
-
         async function startGame() {
-            if (spinning) return;
-            
-            // 1. Получаем ботов с сервера
             const res = await fetch('/api/bots');
             const data = await res.json();
             const bots = data.bots;
-
-            // Добавляем себя (Ты)
-            bots.push({
-                name: "Ты", 
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You", 
-                bet: 5.0, 
-                color: "#6f42c1" 
-            });
-
-            // 2. Рисуем сектора на колесе (Conic Gradient)
-            let gradientStr = "";
-            let startDeg = 0;
-            let totalBet = bots.reduce((sum, b) => sum + b.bet, 0);
-            document.getElementById('total-pot').innerText = totalBet.toFixed(2) + " TON";
-
+            bots.push({name: "Ты", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You", bet: 5.0, color: "#6f42c1"});
+            
+            let gradient = "";
+            let start = 0;
+            let total = bots.reduce((s, b) => s + b.bet, 0);
             let listHtml = "";
-            
-            bots.forEach((bot, index) => {
-                let percent = (bot.bet / totalBet) * 100;
-                let deg = (bot.bet / totalBet) * 360;
-                
-                // Строим градиент для CSS
-                gradientStr += `${bot.color} ${startDeg}deg ${startDeg + deg}deg, `;
-                startDeg += deg;
 
-                // Добавляем в список внизу
-                listHtml += `
-                    <div class="player-row">
-                        <div class="p-info"><img src="${bot.avatar}" class="p-avatar"> ${bot.name}</div>
-                        <div>${bot.bet} TON</div>
-                    </div>`;
+            bots.forEach(b => {
+                let deg = (b.bet / total) * 360;
+                gradient += `${b.color} ${start}deg ${start + deg}deg, `;
+                start += deg;
+                listHtml += `<div class="player-row"><div><img src="${b.avatar}" class="p-avatar">${b.name}</div><b>${b.bet} TON</b></div>`;
             });
 
-            // Применяем стили
-            gradientStr = gradientStr.slice(0, -2); // Убираем запятую
-            document.getElementById('wheel').style.background = `conic-gradient(${gradientStr})`;
+            document.getElementById('wheel').style.background = `conic-gradient(${gradient.slice(0,-2)})`;
             document.getElementById('p-list').innerHTML = listHtml;
-
-            // 3. Запускаем спин
-            spinning = true;
-            document.getElementById('timer').innerText = "SPIN";
-            
-            let randomDeg = Math.floor(Math.random() * 3600) + 1440; // Минимум 4 оборота
-            document.getElementById('wheel').style.transform = `rotate(${randomDeg}deg)`;
-
-            setTimeout(() => {
-                spinning = false;
-                tg.showPopup({title: 'Игра окончена!', message: 'Победитель определен (это тест)'});
-                document.getElementById('timer').innerText = "ИГРА";
-            }, 5500);
+            document.getElementById('wheel').style.transform = `rotate(${Math.floor(Math.random() * 3600) + 1440}deg)`;
         }
     </script>
 </body>
@@ -205,7 +122,7 @@ async def serve_game():
 
 if __name__ == "__main__":
     init_db()
-    # Запускаем в отдельном потоке бота, а в основном — сервер
     from threading import Thread
     Thread(target=lambda: executor.start_polling(dp, skip_updates=True)).start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
