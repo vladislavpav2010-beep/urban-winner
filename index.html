@@ -1,11 +1,12 @@
-import logging, asyncio, sqlite3, uvicorn, random
+import logging, sqlite3, uvicorn, random
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
+# --- НАСТРОЙКИ ---
 TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
-WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK"
+WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Ссылка из терминала ngrok
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
@@ -13,7 +14,6 @@ app = FastAPI()
 
 def init_db():
     with sqlite3.connect("wheel.db") as conn:
-        # Устанавливаем баланс 100.00 по умолчанию
         conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 100.00)")
         conn.commit()
 
@@ -22,134 +22,137 @@ async def start(m: types.Message):
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🎡 Открыть PvP Колесо", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer(f"<b>💎 Твой баланс: 100.00 TON</b>", reply_markup=kb)
+    kb.add(types.InlineKeyboardButton("🎡 Войти в игру", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer("<b>💎 Твой баланс: 100.00 TON</b>\nНажми кнопку, чтобы открыть PvP Колесо", reply_markup=kb)
 
 @app.get("/", response_class=HTMLResponse)
-async def serve_game():
+async def game():
     return """
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #0b0e11; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .header { display: flex; justify-content: space-around; padding: 15px; background: #161a1e; border-bottom: 1px solid #2b3139; }
-        .tab { color: #848e9c; font-weight: bold; }
-        .active { color: white; border-bottom: 2px solid #0098ea; }
+        body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; height: 100vh; }
+        .header { width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-bottom: 1px solid #2b3139; font-size: 14px; }
+        .active-tab { color: white; border-bottom: 2px solid #0098ea; padding-bottom: 5px; font-weight: bold; }
+        .bal-display { margin: 15px 0; font-size: 18px; font-weight: bold; color: #0ecb81; }
         
-        /* Колесо с гирляндой */
-        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #2b3139; background: #1e2329; transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1); }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 20px solid white; z-index: 10; }
-        .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #0b0e11; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 3px solid #2b3139; }
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 10px auto; }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; background: #1e2329; transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1); }
+        .marker { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 5; }
+        .status-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 75px; height: 75px; background: #0b0e11; border-radius: 50%; border: 3px solid #2b3139; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* Ставки и меню */
-        .bet-area { padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        input { background: #1e2329; border: 1px solid #2b3139; color: white; padding: 10px; border-radius: 8px; width: 80%; text-align: center; margin-bottom: 10px; }
-        .btn-bet { background: #0098ea; color: white; border: none; padding: 12px; border-radius: 10px; width: 85%; font-weight: bold; cursor: pointer; }
+        .controls { width: 90%; margin-top: 20px; text-align: center; }
+        input { width: 100%; background: #1e2329; border: 1px solid #2b3139; color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 10px; font-size: 16px; box-sizing: border-box; }
+        .btn-bet { width: 100%; background: #0098ea; border: none; padding: 15px; color: white; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #161a1e; padding: 15px 0; border-top: 1px solid #2b3139; }
-        .foot-item { font-size: 12px; color: #848e9c; text-align: center; }
-        .player-row { width: 90%; display: flex; justify-content: space-between; padding: 8px; background: #1e2329; margin: 3px; border-radius: 6px; font-size: 13px; }
+        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-top: 1px solid #2b3139; }
+        .f-btn { font-size: 11px; color: #848e9c; }
+        .f-btn.active { color: #0098ea; }
+        .p-list { width: 100%; overflow-y: auto; flex-grow: 1; padding-bottom: 70px; }
+        .p-item { display: flex; justify-content: space-between; padding: 10px 20px; background: #1e2329; margin: 4px 10px; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="header"><div class="tab active">Гифты</div><div class="tab">Стикеры</div></div>
-    
-    <div style="text-align:center; padding: 10px; color:#848e9c">ВСЕГО: <span id="total" style="color:white">0.00</span> TON</div>
+    <div class="header"><div class="active-tab">Гифты</div><div>Стикеры</div></div>
+    <div class="bal-display" id="balText">100.00 TON</div>
 
     <div class="wheel-container">
-        <div class="pointer"></div>
+        <div class="marker"></div>
         <div id="wheel"></div>
-        <div class="center" id="status">ОЖИДАНИЕ</div>
+        <div class="status-center" id="timer">ОЖИДАНИЕ</div>
     </div>
 
-    <div class="bet-area">
+    <div id="betUI" class="controls">
         <input type="number" id="betAmount" value="1.0" step="0.1">
-        <button class="btn-bet" onclick="joinPvP()">ДОБАВИТЬ В PvP</button>
+        <button class="btn-bet" onclick="joinGame()">ДОБАВИТЬ В PvP</button>
     </div>
 
-    <div id="players" style="overflow-y: auto; flex-grow: 1; display:flex; flex-direction:column; align-items:center;"></div>
+    <div class="p-list" id="playerContainer"></div>
 
     <div class="footer">
-        <div class="foot-item">⚔️ ПвП</div><div class="foot-item">🎡 Соло</div><div class="foot-item">🎒 Инвентарь</div><div class="foot-item">🏪 Магазин</div><div class="foot-item">👤 Профиль</div>
+        <div class="f-btn active">⚔️ ПвП</div><div class="f-btn">🎡 Соло</div><div class="f-btn">🎒 Инвентарь</div><div class="f-btn">👤 Профиль</div>
     </div>
 
     <script>
-        let balance = 100.00;
-        let players = [];
-        let isSpinning = false;
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-        function joinPvP() {
-            if (isSpinning) return;
+        let myBalance = 100.00;
+        let players = [];
+        let isRunning = false;
+
+        function joinGame() {
+            if (isRunning) return;
             const bet = parseFloat(document.getElementById('betAmount').value);
-            if (bet > balance) return alert('Недостаточно TON!');
+            if (bet > myBalance) return tg.showAlert("Недостаточно TON!");
+
+            myBalance -= bet;
+            document.getElementById('balText').innerText = myBalance.toFixed(2) + " TON";
+            document.getElementById('betUI').style.display = 'none';
             
-            balance -= bet;
-            players = [{name: "Ты", bet: bet, color: "#0098ea", avatar: "👤"}];
-            updateWheel();
+            players = [{name: "Ты", bet: bet, color: "#0098ea"}];
+            updateDisplay();
             startTimer();
         }
 
         function startTimer() {
-            let time = 15; // Таймер на 15 сек
-            const btn = document.querySelector('.btn-bet');
-            btn.disabled = true;
-            
-            const timer = setInterval(() => {
-                document.getElementById('status').innerHTML = `00:${time < 10 ? '0'+time : time}`;
+            let timeLeft = 15; // Таймер на 15 сек
+            let countdown = setInterval(() => {
+                document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
                 
-                // Боты залетают по времени
-                if (time == 12) addBot("Gusati", 0.5, "#f6465d");
-                if (time == 8) addBot("Andre", 2.1, "#0ecb81");
-                if (time == 3) addBot("NeverBye", 1.5, "#f0b90b");
+                // Боты заходят со ставкой МАКСИМУМ 0.10 TON
+                if(timeLeft == 12) addBot("Gusati", 0.08, "#f6465d");
+                if(timeLeft == 8) addBot("Andre", 0.10, "#0ecb81");
+                if(timeLeft == 4) addBot("NeverBye", 0.05, "#f0b90b");
 
-                if (time <= 0) {
-                    clearInterval(timer);
-                    spin();
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    spinWheel();
                 }
-                time--;
+                timeLeft--;
             }, 1000);
         }
 
         function addBot(name, bet, color) {
-            players.push({name, bet, color, avatar: "🤖"});
-            updateWheel();
+            players.push({name, bet, color});
+            updateDisplay();
         }
 
-        function updateWheel() {
+        function updateDisplay() {
             let total = players.reduce((s, p) => s + p.bet, 0);
-            document.getElementById('total').innerText = total.toFixed(2);
-            let grad = ""; let start = 0;
-            let html = "";
+            let gradient = ""; let startDeg = 0; let listHtml = "";
             players.forEach(p => {
-                let deg = (p.bet / total) * 360;
-                grad += `${p.color} ${start}deg ${start+deg}deg, `;
-                start += deg;
-                html += `<div class="player-row"><span>${p.avatar} ${p.name}</span><b>${p.bet} TON</b></div>`;
+                let share = (p.bet / total) * 360;
+                gradient += `${p.color} ${startDeg}deg ${startDeg + share}deg, `;
+                startDeg += share;
+                listHtml += `<div class="p-item"><span>👤 ${p.name}</span><b>${p.bet.toFixed(2)} TON</b></div>`;
             });
-            document.getElementById('wheel').style.background = `conic-gradient(${grad.slice(0,-2)})`;
-            document.getElementById('players').innerHTML = html;
+            document.getElementById('wheel').style.background = `conic-gradient(${gradient.slice(0,-2)})`;
+            document.getElementById('playerContainer').innerHTML = listHtml;
         }
 
-        function spin() {
-            isSpinning = true;
-            document.getElementById('status').innerText = "ИГРА";
-            let deg = Math.floor(Math.random() * 3600) + 1800;
-            document.getElementById('wheel').style.transform = `rotate(${deg}deg)`;
+        function spinWheel() {
+            isRunning = true;
+            document.getElementById('timer').innerText = "ИГРА";
+            let rotation = 1800 + Math.floor(Math.random() * 3600);
+            document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
             setTimeout(() => {
-                alert("Раунд завершен!");
-                location.reload(); // Перезагрузка для нового раунда
+                tg.showPopup({title: "Раунд завершен!", message: "Победитель определен."});
+                setTimeout(() => location.reload(), 2000);
             }, 5500);
         }
     </script>
 </body>
 </html>
-    """
+"""
 
 if __name__ == "__main__":
     init_db()
     from threading import Thread
-    Thread(target=lambda: executor.start_polling(dp, skip_updates=True)).start()
+    Thread(target=lambda: executor.start_polling(dp)).start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
