@@ -1,90 +1,88 @@
-import sqlite3
 import logging
+import aiosqlite
+import asyncio
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
-# Настройка логов, чтобы видеть ошибки в консоли
+# --- НАСТРОЙКИ ---
+TOKEN = "ТВОЙ_ТОКЕН_ИЗ_BOTFATHER"
+ADMIN_ID = 123456789 # Твой ID
+WEBAPP_URL = "https://твой-сайт-с-игрой.vercel.app" # Ссылка на твою игру
+
 logging.basicConfig(level=logging.INFO)
-
-TOKEN = "ТВОЙ_ТОКЕН"
-ADMIN_ID = 123456789  # Твой ID
-
-bot = Bot(token=TOKEN)
+bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 
-# Функция для работы с БД (лучше открывать соединение внутри или использовать пул)
-def get_db():
-    db = sqlite3.connect("users.db")
-    return db, db.cursor()
+# --- БАЗА ДАННЫХ ---
+async def init_db():
+    async with aiosqlite.connect("database.db") as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                balance REAL DEFAULT 112.97,
+                refs_count INTEGER DEFAULT 0,
+                invited_by INTEGER
+            )
+        """)
+        await db.commit()
 
-# Создание таблицы
-conn, cursor = get_db()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    balance INTEGER DEFAULT 0,
-    ref INTEGER
-)
-""")
-conn.commit()
+# --- КНОПКИ ---
+def main_kb():
+    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    kb.add(types.KeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
+    kb.add(types.KeyboardButton("💎 Баланс"), types.KeyboardButton("👤 Профиль"))
+    kb.add(types.KeyboardButton("🏆 Топ"))
+    return kb
 
-# Меню
-menu = ReplyKeyboardMarkup(resize_keyboard=True)
-menu.add(KeyboardButton("🎁 Получить подарок"), KeyboardButton("💎 Баланс"))
-
+# --- КОМАНДЫ ---
 @dp.message_handler(commands=["start"])
 async def start(message: types.Message):
-    user_id = message.from_user.id
-    args = message.get_args() # Встроенный метод получения аргументов ссылки
+    uid = message.from_user.id
+    args = message.get_args()
     
-    conn, cursor = get_db()
-    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-    user = cursor.fetchone()
+    async with aiosqlite.connect("database.db") as db:
+        async with db.execute("SELECT user_id FROM users WHERE user_id = ?", (uid,)) as cur:
+            user = await cur.fetchone()
+            
+        if not user:
+            inviter = int(args) if args and args.isdigit() and int(args) != uid else None
+            await db.execute("INSERT INTO users (user_id, invited_by) VALUES (?, ?)", (uid, inviter))
+            if inviter:
+                await db.execute("UPDATE users SET balance = balance + 5.0, refs_count = refs_count + 1 WHERE user_id = ?", (inviter,))
+                try: await bot.send_message(inviter, "🔔 +1 реферал! Вам начислено 5.0 TON")
+                except: pass
+            await db.commit()
 
-    if not user:
-        ref_id = None
-        # Проверка реферала: не сам ли это пользователь и является ли аргумент числом
-        if args and args.isdigit():
-            ref_candidate = int(args)
-            if ref_candidate != user_id:
-                ref_id = ref_candidate
-
-        cursor.execute("INSERT INTO users (user_id, balance, ref) VALUES (?, ?, ?)", (user_id, 0, ref_id))
-        
-        if ref_id:
-            # Начисляем бонус пригласителю
-            cursor.execute("UPDATE users SET balance = balance + 1 WHERE user_id = ?", (ref_id,))
-            # Уведомляем пригласителя (опционально)
-            try:
-                await bot.send_message(ref_id, "🤝 По вашей ссылке зарегистрировался новый пользователь! +1 💎")
-            except:
-                pass
-        conn.commit()
-
-    await message.answer("🎁 Добро пожаловать! Вы в базе.", reply_markup=menu)
+    await message.answer(f"🚀 <b>Добро пожаловать в Crash!</b>\n\nТвой начальный баланс: 112.97 TON", reply_markup=main_kb())
 
 @dp.message_handler(lambda m: m.text == "💎 Баланс")
-async def balance(message: types.Message):
-    conn, cursor = get_db()
-    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (message.from_user.id,))
-    res = cursor.fetchone()
-    bal = res[0] if res else 0
-    await message.answer(f"💎 Твой баланс: {bal}")
+async def bal(message: types.Message):
+    async with aiosqlite.connect("database.db") as db:
+        async with db.execute("SELECT balance FROM users WHERE user_id = ?", (message.from_user.id,)) as cur:
+            res = await cur.fetchone()
+            # Выводим баланс как на твоем скриншоте
+            await message.answer(f"💎 <b>Ваш баланс:</b> {res[0]:.2f} TON")
 
-@dp.message_handler(lambda m: m.text == "🎁 Получить подарок")
-async def gift(message: types.Message):
-    conn, cursor = get_db()
-    cursor.execute("UPDATE users SET balance = balance + 1 WHERE user_id = ?", (message.from_user.id,))
-    conn.commit()
-    await message.answer("🎉 Ты получил +1 подарок!")
-
-@dp.message_handler(commands=["users"])
-async def users_count(message: types.Message):
-    if message.from_user.id == ADMIN_ID:
-        conn, cursor = get_db()
-        cursor.execute("SELECT COUNT(*) FROM users")
-        count = cursor.fetchone()[0]
-        await message.answer(f"👥 Всего в базе: {count}")
+@dp.message_handler(lambda m: m.text == "👤 Профиль")
+async def profile(message: types.Message):
+    uid = message.from_user.id
+    async with aiosqlite.connect("database.db") as db:
+        async with db.execute("SELECT balance, refs_count FROM users WHERE user_id = ?", (uid,)) as cur:
+            row = await cur.fetchone()
+            
+    # Ссылка для приглашения
+    ref_link = f"https://t.me/{(await bot.get_me()).username}?start={uid}"
+    
+    text = (
+        f"👤 <b>Профиль:</b>\n"
+        f"ID: <code>{uid}</code>\n"
+        f"Баланс: <b>{row[0]:.2f} TON</b>\n"
+        f"Рефералов: <b>{row[1]}</b>\n\n"
+        f"🔗 Ссылка для друзей:\n<code>{ref_link}</code>"
+    )
+    await message.answer(text)
 
 if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(init_db())
     executor.start_polling(dp, skip_updates=True)
