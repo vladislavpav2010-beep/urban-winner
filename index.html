@@ -1,118 +1,121 @@
-import logging
-import asyncio
-import sqlite3
-import uvicorn
-import random
+import logging, asyncio, sqlite3, uvicorn, random
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-# --- ТВОИ НАСТРОЙКИ ---
-# Твой новый токен уже здесь
 TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
-# Сюда вставь ссылку из ngrok (например: https://abcd-123.ngrok-free.app)
 WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK"
 
-# --- ИНИЦИАЛИЗАЦИЯ ---
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
+# Баланс сразу 100 TON
 def init_db():
     with sqlite3.connect("wheel.db") as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 8.54)")
+        conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 100.00)")
         conn.commit()
 
-# --- БОТ ---
 @dp.message_handler(commands=['start'])
 async def start(m: types.Message):
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
-    
-    # Создаем инлайн-кнопку, чтобы не заходить в BotFather лишний раз
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🎡 Играть в PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
-    
-    await m.answer(
-        f"<b>🎰 Добро пожаловать, {m.from_user.first_name}!</b>\n\n"
-        "Это PvP Колесо Фортуны. Жми на кнопку ниже, чтобы начать игру с ботами!", 
-        reply_markup=kb
-    )
+    kb.add(types.InlineKeyboardButton("🎡 Начать PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer(f"<b>💎 Твой баланс: 100.00 TON</b>\nЖми кнопку для входа!", reply_markup=kb)
 
-# --- API ДЛЯ ИГРЫ (БОТЫ) ---
 @app.get("/api/bots")
 async def get_bots():
-    names = ["Gusati", "Andre", "NeverBye", "Enzu", "Nikita", "Ilya"]
-    avatars = [
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob"
-    ]
-    bots = []
-    for _ in range(random.randint(2, 3)):
-        bots.append({
-            "name": random.choice(names),
-            "avatar": random.choice(avatars),
-            "bet": round(random.uniform(0.5, 5.0), 2),
-            "color": random.choice(["#f6465d", "#0ecb81", "#0098ea", "#f0b90b"])
-        })
-    return {"bots": bots}
+    names = ["Gusati", "Andre", "NeverBye", "Enzu", "misha", "sociofob"]
+    avatars = [f"https://api.dicebear.com/7.x/avataaars/svg?seed={i}" for i in range(10)]
+    # Генерируем 3 случайных бота
+    return [{"name": random.choice(names), "avatar": random.choice(avatars), 
+             "bet": round(random.uniform(1.0, 10.0), 2), 
+             "color": random.choice(["#f6465d", "#0ecb81", "#0098ea", "#f0b90b"])} for _ in range(3)]
 
-# --- ИНТЕРФЕЙС (HTML/JS) ---
 @app.get("/", response_class=HTMLResponse)
 async def serve_game():
     return """
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background-color: #0b0e11; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-bar { width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161a1e; }
+        body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .top { width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161a1e; font-weight: bold; }
         .wheel-wrap { position: relative; width: 300px; height: 300px; margin-top: 30px; }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); position: relative; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); background: #1e2329; }
         .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
-        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #0b0e11; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #2b3139; }
-        .btn-play { background: #f0b90b; color: black; border: none; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: 900; margin-top: 30px; width: 90%; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: #1e2329; padding: 10px; margin: 5px; border-radius: 8px; width: 90%; }
+        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #0b0e11; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid #2b3139; }
+        .btn { background: #0098ea; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 900; margin-top: 20px; width: 90%; }
+        .player-row { display: flex; align-items: center; justify-content: space-between; background: #1e2329; padding: 10px; margin: 5px; border-radius: 8px; width: 90%; font-size: 14px; }
         .p-avatar { width: 25px; height: 25px; border-radius: 50%; margin-right: 10px; }
     </style>
 </head>
 <body>
-    <div class="top-bar"><div>Гифты</div><div>Стикеры</div></div>
+    <div class="top"><div>Гифты</div><div>Стикеры</div></div>
+    <div style="margin-top:10px; color:#848e9c">БАНК: <span id="bank" style="color:white">0.00</span> TON</div>
     <div class="wheel-wrap">
         <div class="pointer"></div>
         <div class="wheel" id="wheel"></div>
-        <div class="center-hub">PvP</div>
+        <div class="center-hub" id="timer">Ожидание</div>
     </div>
-    <div id="p-list" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:20px;"></div>
-    <button class="btn-play" onclick="startGame()">ВОЙТИ В PvP</button>
+    <div id="p-list" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:10px;"></div>
+    <button class="btn" id="mainBtn" onclick="startQueue()">ДОБАВИТЬ В PvP</button>
 
     <script>
-        async function startGame() {
-            const res = await fetch('/api/bots');
-            const data = await res.json();
-            const bots = data.bots;
-            bots.push({name: "Ты", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You", bet: 5.0, color: "#6f42c1"});
+        let isStarted = false;
+        async function startQueue() {
+            if(isStarted) return;
+            isStarted = true;
+            document.getElementById('mainBtn').style.display = 'none';
             
-            let gradient = "";
-            let start = 0;
-            let total = bots.reduce((s, b) => s + b.bet, 0);
-            let listHtml = "";
+            let timeLeft = 15; // Таймер как на видео
+            const timerEl = document.getElementById('timer');
+            const res = await fetch('/api/bots');
+            const bots = await res.json();
+            
+            // Логика постепенного добавления ботов
+            let currentPlayers = [{name: "Ты", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You", bet: 10.0, color: "#6f42c1"}];
+            
+            let interval = setInterval(() => {
+                timerEl.innerText = timeLeft > 9 ? "00:" + timeLeft : "00:0" + timeLeft;
+                if(timeLeft == 10) addBot(bots[0], currentPlayers);
+                if(timeLeft == 5) addBot(bots[1], currentPlayers);
+                if(timeLeft == 2) addBot(bots[2], currentPlayers);
+                
+                if(timeLeft <= 0) {
+                    clearInterval(interval);
+                    spinWheel();
+                }
+                timeLeft--;
+            }, 1000);
+        }
 
-            bots.forEach(b => {
-                let deg = (b.bet / total) * 360;
-                gradient += `${b.color} ${start}deg ${start + deg}deg, `;
+        function addBot(bot, players) {
+            players.push(bot);
+            updateUI(players);
+        }
+
+        function updateUI(players) {
+            let grad = ""; let start = 0;
+            let total = players.reduce((s, b) => s + b.bet, 0);
+            let html = "";
+            players.forEach(p => {
+                let deg = (p.bet / total) * 360;
+                grad += `${p.color} ${start}deg ${start + deg}deg, `;
                 start += deg;
-                listHtml += `<div class="player-row"><div><img src="${b.avatar}" class="p-avatar">${b.name}</div><b>${b.bet} TON</b></div>`;
+                html += `<div class="player-row"><div><img src="${p.avatar}" class="p-avatar">${p.name}</div><b>${p.bet} TON</b></div>`;
             });
+            document.getElementById('wheel').style.background = `conic-gradient(${grad.slice(0,-2)})`;
+            document.getElementById('p-list').innerHTML = html;
+            document.getElementById('bank').innerText = total.toFixed(2);
+        }
 
-            document.getElementById('wheel').style.background = `conic-gradient(${gradient.slice(0,-2)})`;
-            document.getElementById('p-list').innerHTML = listHtml;
+        function spinWheel() {
+            document.getElementById('timer').innerText = "ИГРА";
             document.getElementById('wheel').style.transform = `rotate(${Math.floor(Math.random() * 3600) + 1440}deg)`;
         }
     </script>
@@ -125,4 +128,3 @@ if __name__ == "__main__":
     from threading import Thread
     Thread(target=lambda: executor.start_polling(dp, skip_updates=True)).start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
