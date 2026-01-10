@@ -3,240 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash TON Ultimate</title>
     <style>
-        :root {
-            --bg: #07080a; --card: #121418; --blue: #0098ea;
-            --green: #0ecb81; --red: #f6465d; --text-sec: #707a8a; --gold: #f3ba2f;
-        }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        :root { --bg: #07080a; --card: #121418; --blue: #0098ea; --green: #0ecb81; --red: #f6465d; --text: #707a8a; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; color: white; outline: none; }
+        body { background: var(--bg); overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
-        .header { display: flex; justify-content: space-between; padding: 12px 16px; align-items: center; }
-        .online-count { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--green); }
-        .balance-pill { background: #1e2329; padding: 6px 14px; border-radius: 50px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; padding: 10px 16px; align-items: center; }
+        .online { color: var(--green); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .balance { background: #1e2329; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
 
-        /* ИГРОВОЕ ПОЛЕ */
-        .game-view { position: relative; height: 260px; background: #07080a; overflow: hidden; border-bottom: 1px solid #1a1d23; }
+        /* GAME */
+        .game-view { position: relative; height: 260px; background: radial-gradient(circle at 50% 50%, #10141a 0%, #07080a 100%); overflow: hidden; }
         canvas { position: absolute; inset: 0; }
-        .multiplier-text { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 68px; font-weight: 900; z-index: 10; transition: color 0.2s; }
-        .countdown-text { position: absolute; width: 100%; text-align: center; top: 30%; font-size: 90px; font-weight: 900; z-index: 11; }
-        
-        .history-row { position: absolute; top: 12px; left: 16px; display: flex; gap: 6px; z-index: 12; }
-        .h-tag { background: #1e2329; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--text-sec); }
-        .h-tag.high { color: var(--blue); }
+        .mult { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 60px; font-weight: 900; z-index: 10; }
+        .cd { position: absolute; width: 100%; text-align: center; top: 30%; font-size: 80px; font-weight: 900; z-index: 11; }
+        .history { position: absolute; top: 10px; left: 15px; display: flex; gap: 6px; z-index: 12; }
+        .h-tag { background: #1e2329; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #888; }
 
-        /* ВКЛАДКИ (СТАВКИ, ИНВЕНТАРЬ, ПРОФИЛЬ) */
-        .tabs-nav { display: flex; background: var(--card); margin: 12px 16px; border-radius: 12px; padding: 4px; }
-        .tab-item { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: 800; color: var(--text-sec); border-radius: 8px; cursor: pointer; }
-        .tab-item.active { background: #1e2329; color: white; }
+        /* MODAL (ПОДТВЕРЖДЕНИЕ) */
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-box { background: #1c1f24; width: 85%; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid #2a2e35; }
+        .modal-box h3 { font-size: 16px; margin-bottom: 10px; }
+        .modal-box p { color: var(--text); font-size: 14px; margin-bottom: 20px; }
+        .modal-btn { background: #2a2e35; width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 700; color: var(--blue); font-size: 16px; }
 
-        /* ПАНЕЛЬ УПРАВЛЕНИЯ СТАВКОЙ */
-        .bet-panel { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
-        .inputs-row { display: flex; gap: 10px; }
-        .input-box { flex: 1; background: #1c1f24; border-radius: 12px; padding: 10px 14px; border: 1px solid #2a2e35; }
-        .input-box label { display: block; font-size: 10px; color: var(--text-sec); font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
-        .input-box input { background: transparent; border: none; color: white; font-weight: 800; font-size: 18px; width: 100%; outline: none; }
-        
-        .btn-main { width: 100%; height: 58px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
-        .btn-main.collect { background: var(--green); }
-        .btn-main:disabled { background: #1e2329; color: var(--text-sec); }
+        /* TABS */
+        .tabs { display: flex; background: #161a1e; margin: 10px 16px; border-radius: 10px; padding: 4px; }
+        .tab { flex: 1; text-align: center; padding: 8px; font-size: 11px; font-weight: 800; color: var(--text); border-radius: 7px; }
+        .tab.active { background: #1e2329; color: white; }
 
-        /* СПИСОК СТАВОК */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 0 16px; }
-        .bet-card { background: var(--card); padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .user-meta { display: flex; align-items: center; gap: 12px; }
-        .user-meta img { width: 36px; height: 36px; border-radius: 10px; background: #222; }
-        .win-val { text-align: right; font-weight: 800; }
+        /* CONTROLS */
+        .bet-area { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+        .row { display: flex; gap: 8px; }
+        .field { flex: 1; background: #1e2329; padding: 8px 12px; border-radius: 12px; border: 1px solid #2a2e35; }
+        .field label { font-size: 9px; color: var(--text); font-weight: 800; display: block; margin-bottom: 2px; }
+        .field input { background: transparent; border: none; font-size: 17px; font-weight: 800; width: 100%; }
+        .btn-main { height: 52px; border-radius: 14px; border: none; background: var(--blue); font-size: 16px; font-weight: 800; margin-top: 5px; cursor: pointer; }
+        .btn-main.take { background: var(--green); }
 
-        /* НИЖНЕЕ МЕНЮ (НАВИГАЦИЯ) */
-        .bottom-nav { background: #0c0d10; display: flex; padding: 10px 0; border-top: 1px solid #1a1d23; }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sec); font-size: 10px; font-weight: 700; opacity: 0.6; }
-        .nav-btn.active { color: var(--blue); opacity: 1; }
-        .nav-icon { width: 22px; height: 22px; margin-bottom: 2px; }
-
-        /* УВЕДОМЛЕНИЕ */
-        #win-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1c1f24; padding: 14px 24px; border-radius: 14px; border: 1px solid var(--green); z-index: 1000; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); text-align: center; }
-        #win-toast.show { transform: translateX(-50%) translateY(0); }
+        /* LIST */
+        .list { flex: 1; overflow-y: auto; padding: 15px 16px; }
+        .item { background: #161a1e; padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .nav { display: flex; padding: 12px 0; border-top: 1px solid #1a1d23; background: #0c0d10; }
+        .nav-i { flex: 1; text-align: center; font-size: 10px; color: var(--text); opacity: 0.5; font-weight: 700; }
+        .nav-i.active { color: var(--blue); opacity: 1; }
     </style>
 </head>
 <body>
 
-<div id="win-toast"><b>Вы забрали: 0.00 TON</b></div>
+<div id="modal">
+    <div class="modal-box">
+        <h3>Подтвердите действие</h3>
+        <p>Выигрыш зафиксирован!</p>
+        <button class="modal-btn" onclick="closeModal()">OK</button>
+    </div>
+</div>
 
 <div class="header">
-    <div class="online-count">● 124 онлайн</div>
-    <div class="balance-pill">💎 <span id="userBalance">112.97</span></div>
+    <div class="online">● 124 онлайн</div>
+    <div class="balance">💎 <span id="balance">112.97</span></div>
 </div>
 
 <div class="game-view">
-    <div class="history-row" id="historyBox"></div>
-    <canvas id="gameCanvas"></canvas>
-    <div id="multiplier" class="multiplier-text">x1.00</div>
-    <div id="countdown" class="countdown-text">5</div>
+    <div class="history" id="history"></div>
+    <canvas id="canvas"></canvas>
+    <div class="mult" id="mult">x1.00</div>
+    <div class="cd" id="cd">5</div>
 </div>
 
-<div class="tabs-nav">
-    <div class="tab-item active" onclick="setTab('bets')">СТАВКИ</div>
-    <div class="tab-item" onclick="setTab('inv')">ИНВЕНТАРЬ</div>
-    <div class="tab-item" onclick="setTab('prof')">ПРОФИЛЬ</div>
+<div class="tabs">
+    <div class="tab active">СТАВКИ</div>
+    <div class="tab">ИНВЕНТАРЬ</div>
+    <div class="tab">ПРОФИЛЬ</div>
 </div>
 
-<div class="bet-panel">
-    <div class="inputs-row">
-        <div class="input-box"><label>СУММА</label><input type="number" id="inpSum" value="10.0"></div>
-        <div class="input-box"><label>АВТОВЫВОД</label><input type="number" id="inpAuto" value="1.50"></div>
+<div class="bet-area">
+    <div class="row">
+        <div class="field"><label>СУММА</label><input type="number" id="bet" value="10.0"></div>
+        <div class="field"><label>АВТОВЫВОД</label><input type="number" id="auto" value="1.50"></div>
     </div>
-    <button id="mainBtn" class="btn-main" onclick="onMainAction()">Сделать ставку</button>
+    <button class="btn-main" id="btn" onclick="handle()">Сделать ставку</button>
 </div>
 
-<div class="scroll-area" id="listContent"></div>
+<div class="list" id="list">
+    <div class="item">
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div style="width:32px; height:32px; background:#2b3139; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800;">FY</div>
+            <div><b style="font-size:13px;">Forever Young</b><br><small style="color:var(--text); font-size:10px;">💎 1.68 x1.00</small></div>
+        </div>
+        <div style="color:#f3ba2f; font-weight:800; font-size:12px;">🍭 Lol Pop</div>
+    </div>
+</div>
 
-<div class="bottom-nav">
-    <div class="nav-btn"><div class="nav-icon">🏆</div>Топ</div>
-    <div class="nav-btn active"><div class="nav-icon">🚀</div>Краш</div>
-    <div class="nav-btn"><div class="nav-icon">👤</div>Профиль</div>
+<div class="nav">
+    <div class="nav-i">🏆<br>Топ</div>
+    <div class="nav-i active">🚀<br>Краш</div>
+    <div class="nav-i">👤<br>Профиль</div>
 </div>
 
 <script>
-    let balance = 112.97, state = 'WAITING', x = 1.0, currentBet = 0, hasBet = false, hasTaken = false;
-    let canvas, ctx, loop, rocketImg = new Image();
-    rocketImg.src = 'https://cdn-icons-png.flaticon.com/512/1043/1043514.png'; // Ссылка на ракетку
+    let bal = 112.97, state = 'WAITING', x = 1.0, currentBet = 0, hasBet = false, hasTaken = false, loop;
+    const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = 260;
 
-    function init() {
-        canvas = document.getElementById('gameCanvas');
-        canvas.width = window.innerWidth; canvas.height = 260;
-        ctx = canvas.getContext('2d');
-        updateBalance();
-        setTab('bets');
-        startCycle();
-    }
-
-    function updateBalance() {
-        document.getElementById('userBalance').innerText = balance.toFixed(2);
-    }
-
-    function startCycle() {
+    function start() {
         state = 'WAITING'; x = 1.0; hasBet = false; hasTaken = false;
-        document.getElementById('countdown').style.display = 'block';
-        document.getElementById('multiplier').style.display = 'none';
-        document.getElementById('mainBtn').innerText = "Сделать ставку";
-        document.getElementById('mainBtn').className = "btn-main";
-        document.getElementById('mainBtn').disabled = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('cd').style.display = 'block';
+        document.getElementById('mult').style.display = 'none';
+        document.getElementById('btn').innerText = "Сделать ставку";
+        document.getElementById('btn').className = "btn-main";
+        document.getElementById('btn').disabled = false;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
 
         let time = 5;
         let t = setInterval(() => {
-            document.getElementById('countdown').innerText = time;
+            document.getElementById('cd').innerText = time;
             time--;
-            if (time < 0) { clearInterval(t); launch(); }
+            if(time < 0) { clearInterval(t); launch(); }
         }, 1000);
     }
 
-    function onMainAction() {
-        if (state === 'WAITING' && !hasBet) {
-            let s = parseFloat(document.getElementById('inpSum').value);
-            if (s > 0 && s <= balance) {
-                balance -= s; currentBet = s; hasBet = true; updateBalance();
-                document.getElementById('mainBtn').innerText = "Ставка принята";
-                document.getElementById('mainBtn').disabled = true;
-            }
-        } else if (state === 'FLIGHT' && hasBet && !hasTaken) {
-            collect();
-        }
+    function handle() {
+        if(state === 'WAITING' && !hasBet) {
+            let s = parseFloat(document.getElementById('bet').value);
+            if(s <= bal) { bal -= s; currentBet = s; hasBet = true; update(); document.getElementById('btn').innerText = "Ставка принята"; document.getElementById('btn').disabled = true; }
+        } else if(state === 'FLIGHT' && hasBet && !hasTaken) { take(); }
     }
 
     function launch() {
-        state = 'FLIGHT';
-        document.getElementById('countdown').style.display = 'none';
-        document.getElementById('multiplier').style.display = 'block';
-        if (hasBet) {
-            document.getElementById('mainBtn').innerText = "Забрать";
-            document.getElementById('mainBtn').className = "btn-main collect";
-            document.getElementById('mainBtn').disabled = false;
-        }
-
-        let crashAt = (Math.random() * 4 + 1.1).toFixed(2);
-        let autoOut = parseFloat(document.getElementById('inpAuto').value);
-
+        state = 'FLIGHT'; document.getElementById('cd').style.display = 'none'; document.getElementById('mult').style.display = 'block';
+        if(hasBet) { document.getElementById('btn').innerText = "Забрать"; document.getElementById('btn').className = "btn-main take"; document.getElementById('btn').disabled = false; }
+        let crash = (Math.random() * 4 + 1.1).toFixed(2);
         loop = setInterval(() => {
-            x += x * 0.012;
-            document.getElementById('multiplier').innerText = `x${x.toFixed(2)}`;
-
-            // Рисование ракетки и линии
-            let progress = (x - 1) * 60;
-            let targetX = Math.min(progress + 40, canvas.width - 60);
-            let targetY = 220 - Math.min((x - 1) * 45, 180);
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5; ctx.lineCap = 'round';
-            ctx.moveTo(40, 220);
-            ctx.quadraticCurveTo(targetX / 2 + 20, 220, targetX, targetY);
-            ctx.stroke();
-            ctx.drawImage(rocketImg, targetX - 25, targetY - 25, 50, 50);
-
-            if (hasBet && !hasTaken && x >= autoOut) collect();
-            if (x >= crashAt) explode(crashAt);
+            x += x * 0.012; document.getElementById('mult').innerText = `x${x.toFixed(2)}`;
+            draw(x);
+            if(hasBet && !hasTaken && x >= parseFloat(document.getElementById('auto').value)) take();
+            if(x >= crash) stop(crash);
         }, 60);
     }
 
-    function collect() {
-        hasTaken = true;
-        let win = currentBet * x;
-        balance += win; updateBalance();
-        
-        const toast = document.getElementById('win-toast');
-        toast.innerHTML = `<b>Вы забрали: ${win.toFixed(2)} TON</b>`;
-        toast.classList.add('show');
-        
-        document.getElementById('mainBtn').innerText = "Вы забрали";
-        document.getElementById('mainBtn').disabled = true;
-        setTimeout(() => toast.classList.remove('show'), 2000);
+    function draw(v) {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.strokeStyle = '#1a1d23'; ctx.lineWidth = 1;
+        for(let i=0; i<canvas.width; i+=45) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+        for(let i=0; i<canvas.height; i+=45) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+        let tx = Math.min((v-1)*65 + 40, canvas.width - 60), ty = 220 - Math.min((v-1)*50, 180);
+        ctx.beginPath(); ctx.strokeStyle = '#0ecb81'; ctx.lineWidth = 4; ctx.moveTo(40, 220); ctx.quadraticCurveTo(tx/2+20, 220, tx, ty); ctx.stroke();
+        ctx.fillStyle = "white"; ctx.beginPath(); ctx.ellipse(tx, ty, 20, 10, -0.4, 0, Math.PI*2); ctx.fill();
     }
 
-    function explode(val) {
-        clearInterval(loop);
-        state = 'CRASH';
-        document.getElementById('multiplier').style.color = "var(--red)";
-        
-        let hb = document.getElementById('historyBox');
-        let tag = document.createElement('div');
-        tag.className = `h-tag ${val > 2 ? 'high' : ''}`;
-        tag.innerText = val;
-        hb.prepend(tag); if(hb.children.length > 6) hb.lastChild.remove();
-
-        setTimeout(() => {
-            document.getElementById('multiplier').style.color = "white";
-            startCycle();
-        }, 2500);
+    function take() {
+        hasTaken = true; bal += currentBet * x; update();
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('btn').innerText = "Вы забрали"; document.getElementById('btn').disabled = true;
     }
 
-    function setTab(name) {
-        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        const list = document.getElementById('listContent');
-        if (name === 'bets') {
-            list.innerHTML = `
-                <div class="bet-card">
-                    <div class="user-meta"><div class="av">FY</div><div><b>Forever Young</b><br><small>💎 1.68 x${x.toFixed(2)}</small></div></div>
-                    <div class="win-val" style="color:var(--gold)">🍭 Lol Pop</div>
-                </div>
-                <div class="bet-card">
-                    <div class="user-meta"><div class="av">С</div><div><b>Саня</b><br><small>💎 0.49 x${x.toFixed(2)}</small></div></div>
-                    <div class="win-val" style="color:var(--green)">+${(0.49*x).toFixed(2)}</div>
-                </div>`;
-        } else if (name === 'inv') {
-            list.innerHTML = `<div style="text-align:center; padding-top:40px; color:var(--text-sec)">У вас пока нет подарков</div>`;
-        } else if (name === 'prof') {
-            list.innerHTML = `<div class="bet-card"><div>ID: 8829103</div><div>Игр: 14</div></div>`;
-        }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function update() { document.getElementById('balance').innerText = bal.toFixed(2); }
+
+    function stop(v) {
+        clearInterval(loop); document.getElementById('mult').style.color = 'var(--red)';
+        let h = document.getElementById('history'); let tag = document.createElement('div'); tag.className = 'h-tag'; tag.innerText = v; h.prepend(tag);
+        setTimeout(() => { document.getElementById('mult').style.color = 'white'; start(); }, 2000);
     }
 
-    window.onload = init;
+    window.onload = start;
 </script>
 </body>
 </html>
+
 
 
 
