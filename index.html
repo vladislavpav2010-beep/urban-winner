@@ -3,245 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Ultimate 1:1</title>
+    <title>Crash Pro Full Logic</title>
     <style>
         :root {
-            --bg: #0b0e11; --card: #161a1e; --accent: #0098ea;
-            --green: #0ecb81; --gold: #f3ba2f; --danger: #f6465d;
-            --text-main: #ffffff; --text-sec: #9299a6;
+            --bg: #07080a; --card: #121418; --blue: #0098ea;
+            --green: #0ecb81; --gold: #f3ba2f; --red: #f6465d;
+            --text-sec: #707a8a;
         }
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text-main); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; overflow: hidden; }
-
-        /* HEADER */
-        .top-nav { display: flex; justify-content: space-between; padding: 12px 16px; align-items: center; position: relative; z-index: 10; }
-        .stat-item { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
-        .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
-        .balance-chip { background: #1e2329; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
-
-        /* GAME ENGINE SPACE */
-        .viewport { position: relative; height: 320px; width: 100%; background: radial-gradient(circle at 10% 90%, #151e29 0%, #0b0e11 100%); overflow: hidden; }
-        .grid-system { position: absolute; inset: -100px; background-image: 
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 45px 45px; z-index: 1; }
+        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; }
         
-        #multiplier-text { position: absolute; width: 100%; text-align: center; top: 30%; font-size: 72px; font-weight: 900; z-index: 5; pointer-events: none; }
-        #rocket-node { position: absolute; bottom: 50px; left: 50px; z-index: 20; will-change: transform; display: none; }
-        .rocket-svg { width: 100px; filter: drop-shadow(0 0 20px rgba(0,152,234,0.5)); }
+        /* Виджет игры */
+        .game-box { position: relative; height: 300px; width: 100%; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
+        #mult { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 70px; font-weight: 900; z-index: 5; }
+        #rocket { position: absolute; bottom: 50px; left: 50px; z-index: 10; transition: transform 0.1s linear; }
         
-        canvas#render-layer { position: absolute; inset: 0; z-index: 4; }
+        /* Кнопка и Уведомление */
+        .ui { padding: 15px; background: var(--bg); }
+        .btn { width: 100%; height: 60px; border-radius: 12px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
+        .btn:disabled { background: #1e2329; color: var(--text-sec); }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1e2329; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--green); color: var(--green); transition: 0.4s; z-index: 100; font-weight: bold; }
+        #toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* CONTROLS */
-        .panel { padding: 16px; background: var(--bg); position: relative; z-index: 10; }
-        .main-button { 
-            width: 100%; height: 64px; border-radius: 16px; border: none; 
-            background: var(--accent); color: white; font-size: 20px; font-weight: 800; 
-            cursor: pointer; transition: all 0.1s; box-shadow: 0 6px 20px rgba(0,152,234,0.3);
-        }
-        .main-button:active { transform: scale(0.97); }
-        .main-button.waiting { background: #2b3139; color: var(--text-sec); cursor: not-allowed; }
-
-        /* LIVE BETS TABLE */
-        .table-title { padding: 0 16px 10px; color: var(--text-sec); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .bets-scroll { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 10px; height: calc(100vh - 480px); overflow-y: auto; }
-        .player-row { 
-            background: var(--card); padding: 14px; border-radius: 16px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(255,255,255,0.02); animation: slideIn 0.4s ease-out;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-
-        .p-meta { display: flex; align-items: center; gap: 12px; }
-        .p-avatar { 
-            width: 40px; height: 40px; border-radius: 12px; background: #2b3139; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 800; border: 1px solid rgba(255,255,255,0.08); font-size: 14px;
-        }
-        .p-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-        .p-bet-info { font-size: 12px; color: var(--text-sec); font-weight: 600; }
-
-        .p-value { text-align: right; font-weight: 800; font-size: 17px; }
-        .cash-ton { color: var(--green); }
-        .cash-gift { 
-            color: var(--gold); display: flex; align-items: center; gap: 8px; 
-            animation: giftArrival 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        @keyframes giftArrival { from { transform: scale(0); rotate: -20deg; } to { transform: scale(1); rotate: 0; } }
-        
-        .gift-icon-img { width: 22px; height: 22px; }
+        /* СПИСОК СТАВОК */
+        .bets-label { padding: 10px 20px; color: var(--text-sec); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .bets-list { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; height: calc(100vh - 450px); overflow-y: auto; }
+        .bet-item { background: var(--card); padding: 12px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
+        .u-info { display: flex; align-items: center; gap: 10px; }
+        .u-av { width: 36px; height: 36px; border-radius: 10px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
+        .u-n { font-size: 14px; font-weight: 600; }
+        .u-s { font-size: 11px; color: var(--text-sec); }
+        .u-v { font-weight: 800; font-size: 16px; text-align: right; }
+        .win-ton { color: var(--green); }
+        .win-gift { color: var(--gold); animation: pop 0.3s ease; }
+        @keyframes pop { from { transform: scale(0.8); } to { transform: scale(1); } }
+        canvas { position: absolute; inset: 0; }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <div class="stat-item"><div class="dot"></div> 124</div>
-    <div class="balance-chip">💎 0.12</div>
-</div>
+<div id="toast">Выигрыш зафиксирован!</div>
 
-<div class="viewport">
-    <div class="grid-system" id="stars-parallax"></div>
-    <canvas id="render-layer"></canvas>
-    <div id="multiplier-text">x1.00</div>
-    <div id="rocket-node">
-        <svg class="rocket-svg" viewBox="0 0 512 512">
-            <path fill="#FFD15C" d="M352 160l-32-32-96 96 32 32z"/>
-            <path fill="#F3705A" d="M128 448l64-64-96-96-64 64z"/>
-            <circle fill="#4BB3FD" cx="320" cy="192" r="64"/>
-            <path fill="#E6E9EE" d="M448 64c-64 0-192 64-256 128s-64 192-64 256c64 0 192-64 256-128s64-192 64-256z"/>
-            <circle fill="#4BB3FD" cx="352" cy="160" r="32"/>
-        </svg>
+<div class="game-box">
+    <canvas id="cvs"></canvas>
+    <div id="mult">x1.00</div>
+    <div id="rocket" style="display:none">
+        <svg width="80" viewBox="0 0 512 512"><path fill="#e0e0e0" d="M437,75c-61-61-177-38-259,44S71,289,112,350c18,27,53,46,81,46,23,0,43-13,62-32l157-157C451,168,468,106,437,75Z"/><path fill="#f44336" d="M112,350c-10,32-35,116-35,116s84-25,116-35C158,421,121,385,112,350Z"/><circle fill="#80deea" cx="320" cy="192" r="48"/></svg>
     </div>
 </div>
 
-<div class="panel">
-    <button class="main-button" id="action-btn" onclick="onBtnClick()">Сделать ставку</button>
+<div class="ui">
+    <button class="btn" id="btn" onclick="act()">Сделать ставку</button>
 </div>
 
-<div class="table-title">Живые ставки</div>
-<div class="bets-scroll" id="live-list"></div>
+<div class="bets-label">Живые ставки</div>
+<div class="bets-list" id="list"></div>
 
 <script>
-    // ПОЛНАЯ БАЗА ПОДАРКОВ
-    const GIFT_DB = [
-        { name: "Lol Pop", price: 3.23, icon: "🍭" },
-        { name: "Xmas Stocking", price: 3.22, icon: "🧦" },
-        { name: "Snake Box", price: 3.22, icon: "📦" },
-        { name: "Snoop Cigar", price: 10.21, icon: "🚬" },
-        { name: "Snowman", price: 15.50, icon: "☃️" },
-        { name: "Swiss Watch", price: 43.07, icon: "⌚" },
-        { name: "Diamond Ring", price: 605.00, icon: "💍" }
+    const db = [{n:"Lol Pop",p:3.23,i:"🍭"},{n:"Snoop Cigar",p:10.21,i:"🚬"},{n:"Snowman",p:15.5,i:"☃️"}];
+    const bots = [
+        {n:"Forever Young",b:1.68,av:"FY"},
+        {n:"Саня",b:0.49,av:"С"},
+        {n:"Pudzhik #sash",b:0.37,av:"P"},
+        {n:"Обменик с $",b:0.14,av:"O"}
     ];
 
-    // БОТЫ ИЗ ВИДЕО
-    const BOT_DATA = [
-        { name: "Forever Young", bet: 1.68, av: "FY" },
-        { name: "Саня", bet: 0.49, av: "С" },
-        { name: "Pudzhik #sash", bet: 0.37, av: "P" },
-        { name: "Обменик с $", bet: 0.14, av: "O" }
-    ];
-
-    let state = {
-        running: false,
-        multiplier: 1.0,
-        crashPoint: 0,
-        startTime: 0,
-        loop: null
-    };
-
-    let canvas, ctx;
+    let x = 1.0, active = false, taken = false, loop, cvs, ctx;
 
     function init() {
-        canvas = document.getElementById('render-layer');
-        canvas.width = window.innerWidth;
-        canvas.height = 320;
-        ctx = canvas.getContext('2d');
-        renderBets(1.0);
+        cvs = document.getElementById('cvs');
+        cvs.width = window.innerWidth; cvs.height = 300;
+        ctx = cvs.getContext('2d');
+        updateList(1.0);
     }
 
-    function renderBets(mult) {
-        const container = document.getElementById('live-list');
-        container.innerHTML = BOT_DATA.map((bot, i) => {
-            const currentVal = bot.bet * mult;
-            // Поиск лучшего подарка
-            const gift = [...GIFT_DB].reverse().find(g => currentVal >= g.price);
+    function act() { if(!active) start(); else take(); }
+
+    function start() {
+        active = true; taken = false; x = 1.0;
+        let crash = (Math.random() * 5 + 1.2).toFixed(2);
+        document.getElementById('btn').innerText = "Забрать";
+        document.getElementById('btn').disabled = false;
+        document.getElementById('rocket').style.display = 'block';
+        document.getElementById('mult').style.color = 'white';
+        document.getElementById('toast').classList.remove('show');
+
+        loop = setInterval(() => {
+            x += x * 0.012;
+            document.getElementById('mult').innerText = `x${x.toFixed(2)}`;
             
+            let dx = Math.min((x-1)*70, cvs.width - 100);
+            let dy = Math.min((x-1)*50, 200);
+            document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px)`;
+            
+            ctx.clearRect(0,0,cvs.width,cvs.height);
+            ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5;
+            ctx.moveTo(50, 250); ctx.quadraticCurveTo(dx/2+50, 250, dx+50, 250-dy); ctx.stroke();
+            
+            updateList(x);
+            if(x >= crash) stop();
+        }, 60);
+    }
+
+    function take() {
+        if(taken) return;
+        taken = true;
+        const t = document.getElementById('toast');
+        t.innerText = `Вы выиграли x${x.toFixed(2)}`;
+        t.classList.add('show');
+        document.getElementById('btn').innerText = "Ставка принята";
+        document.getElementById('btn').disabled = true;
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function updateList(m) {
+        document.getElementById('list').innerHTML = bots.map(b => {
+            let val = b.b * m;
+            let g = [...db].reverse().find(item => val >= item.p);
             return `
-                <div class="player-row">
-                    <div class="p-meta">
-                        <div class="p-avatar">${bot.av}</div>
-                        <div>
-                            <div class="p-name">${bot.name}</div>
-                            <div class="p-bet-info">💎 ${bot.bet} x${mult.toFixed(2)}</div>
-                        </div>
+                <div class="bet-item">
+                    <div class="u-info">
+                        <div class="u-av">${b.av}</div>
+                        <div><div class="u-n">${b.n}</div><div class="u-s">💎 ${b.b} x${m.toFixed(2)}</div></div>
                     </div>
-                    <div class="p-value ${gift ? 'cash-gift' : 'cash-ton'}" id="v-${i}">
-                        ${gift ? `<span>${gift.icon}</span> <span>${gift.name}</span>` : currentVal.toFixed(2)}
+                    <div class="u-v ${g ? 'win-gift' : 'win-ton'}">
+                        ${g ? `<span>${g.i}</span> ${g.n}` : val.toFixed(2)}
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    function onBtnClick() {
-        if (!state.running) startFlight();
-        else finishFlight(false);
-    }
-
-    function startFlight() {
-        state.running = true;
-        state.multiplier = 1.0;
-        state.crashPoint = generateCrashPoint();
-        
-        const btn = document.getElementById('action-btn');
-        const rocket = document.getElementById('rocket-node');
-        const mText = document.getElementById('multiplier-text');
-        
-        btn.innerText = "Забрать";
-        rocket.style.display = 'block';
-        mText.style.color = 'white';
-
-        state.loop = setInterval(() => {
-            state.multiplier += state.multiplier * 0.012; // Скорость как в видео
-            
-            mText.innerText = `x${state.multiplier.toFixed(2)}`;
-            
-            // Физика ракеты
-            const progress = state.multiplier - 1;
-            const moveX = Math.min(progress * 70, canvas.width - 150);
-            const moveY = Math.min(progress * 50, 200);
-            
-            rocket.style.transform = `translate(${moveX}px, -${moveY}px) rotate(${-Math.min(progress*5, 20)}deg)`;
-            
-            // Рисуем след
-            drawEngineTrail(moveX + 60, 270 - moveY);
-            
-            // Параллакс фона
-            document.getElementById('stars-parallax').style.transform = `translate(${-moveX % 45}px, ${moveY % 45}px) rotate(-5deg)`;
-
-            // Обновляем список ставок
-            renderBets(state.multiplier);
-
-            if (state.multiplier >= state.crashPoint) finishFlight(true);
-        }, 60);
-    }
-
-    function drawEngineTrail(tx, ty) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.strokeStyle = "#0ecb81";
-        ctx.lineWidth = 6;
-        ctx.lineCap = "round";
-        ctx.moveTo(60, 270);
-        ctx.quadraticCurveTo(tx / 2 + 30, 270, tx, ty);
-        ctx.stroke();
-    }
-
-    function generateCrashPoint() {
-        const r = Math.random();
-        if (r < 0.05) return 1.0; // Моментальный краш
-        return (1 / (1 - r)).toFixed(2);
-    }
-
-    function finishFlight(isCrash) {
-        clearInterval(state.loop);
-        state.running = false;
-        
-        const btn = document.getElementById('action-btn');
-        const mText = document.getElementById('multiplier-text');
-        
-        if (isCrash) {
-            mText.style.color = "var(--danger)";
-            document.getElementById('rocket-node').style.display = 'none';
-        } else {
-            alert("Выигрыш зафиксирован!");
-        }
-        
-        btn.innerText = "Сделать ставку";
+    function stop() {
+        clearInterval(loop); active = false;
+        document.getElementById('mult').style.color = "#f6465d";
+        document.getElementById('btn').disabled = false;
+        document.getElementById('btn').innerText = "Сделать ставку";
+        document.getElementById('rocket').style.display = 'none';
     }
 
     window.onload = init;
 </script>
 </body>
 </html>
+
 
