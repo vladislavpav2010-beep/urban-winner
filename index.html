@@ -5,198 +5,230 @@
 <title>Crash DEMO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+:root{
+  --bg:#0a0a0a;
+  --card:#141414;
+  --accent:#1e88e5;
+  --text:#fff;
+  --muted:#888;
+}
+*{box-sizing:border-box}
 body{
   margin:0;
-  background:#0b0b0b;
-  color:#fff;
-  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
 }
-.top{
+.header{
   display:flex;
   justify-content:space-between;
-  padding:10px 14px;
+  align-items:center;
+  padding:14px;
 }
-.balance{
-  background:#111;
-  padding:6px 14px;
+.badge{
+  background:#0f0f0f;
+  padding:6px 12px;
   border-radius:20px;
+  font-size:14px;
 }
-#game{
+.center{
   text-align:center;
-  padding-top:20px;
+  margin-top:10px;
 }
-#mult{
-  font-size:42px;
-  font-weight:bold;
+.mult{
+  font-size:48px;
+  font-weight:700;
 }
-#rocket{
-  width:40px;
-  margin:30px auto;
+.stage{
+  position:relative;
+  height:160px;
+  margin:20px;
+  background:radial-gradient(circle at bottom left,#111,#050505);
+  border-radius:16px;
+  overflow:hidden;
+}
+.rocket{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  width:42px;
   transform:rotate(-45deg);
+  transition:left .05s linear;
 }
 .controls{
   display:flex;
-  justify-content:space-around;
-  padding:10px;
-}
-.controls input{
-  width:45%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-}
-button{
-  width:90%;
-  margin:10px auto;
+  gap:10px;
   padding:14px;
-  font-size:16px;
+}
+.card{
+  flex:1;
+  background:var(--card);
+  padding:12px;
+  border-radius:14px;
+}
+.card label{
+  font-size:12px;
+  color:var(--muted);
+}
+.card input{
+  width:100%;
+  margin-top:6px;
+  background:none;
   border:none;
-  border-radius:12px;
-  background:#2196f3;
+  color:#fff;
+  font-size:18px;
+  outline:none;
+}
+.btn{
+  margin:0 14px;
+  background:var(--accent);
+  border:none;
+  border-radius:14px;
+  padding:16px;
+  font-size:16px;
+  font-weight:600;
   color:#fff;
 }
 .history{
   display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
+  gap:6px;
+  padding:10px 14px;
+  overflow-x:auto;
 }
 .hist{
-  background:#222;
-  margin:4px;
-  padding:4px 8px;
+  background:#1b1b1b;
+  padding:6px 10px;
   border-radius:10px;
-  font-size:12px;
+  font-size:13px;
 }
-.hidden{display:none}
 .menu{
   position:fixed;
   bottom:0;
   width:100%;
-  background:#111;
+  background:#0f0f0f;
   display:flex;
   justify-content:space-around;
   padding:10px 0;
 }
-.menu div{opacity:.5}
-.menu .active{opacity:1;color:#4da}
-.panel{
-  padding:15px;
+.menu div{
+  text-align:center;
+  font-size:12px;
+  color:#777;
 }
+.menu .active{color:#4da}
+.panel{display:none;padding-bottom:70px}
+.panel.active{display:block}
 </style>
 </head>
 
 <body>
 
-<div class="top">
-  <div>🟢 <span id="online">123</span> онлайн</div>
-  <div class="balance">💎 <span id="bal">100.00</span></div>
+<div class="header">
+  <div class="badge">🟢 124 онлайн</div>
+  <div class="badge">💎 <span id="bal">100.00</span></div>
 </div>
 
-<div id="crash" class="panel">
-  <div id="game">
-    <div id="mult">x1.00</div>
-    <img id="rocket" src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png">
+<!-- CRASH -->
+<div id="crash" class="panel active">
+  <div class="center">
+    <div class="mult" id="mult">x1.00</div>
+  </div>
+
+  <div class="stage">
+    <img class="rocket" id="rocket"
+      src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png">
   </div>
 
   <div class="controls">
-    <input id="bet" type="number" value="10">
-    <input id="auto" type="number" value="1.50" step="0.01">
+    <div class="card">
+      <label>СУММА</label>
+      <input id="bet" type="number" value="10">
+    </div>
+    <div class="card">
+      <label>АВТОВЫВОД</label>
+      <input id="auto" type="number" step="0.01" value="1.50">
+    </div>
   </div>
 
-  <button onclick="placeBet()">Сделать ставку</button>
+  <button class="btn" onclick="start()">Сделать ставку</button>
 
   <div class="history" id="history"></div>
 </div>
 
-<div id="top" class="panel hidden">
-  <h3>🏆 ТОП выигрышей</h3>
-  <div id="toplist"></div>
-</div>
-
-<div id="profile" class="panel hidden">
+<!-- PROFILE -->
+<div id="profile" class="panel">
   <h3>👤 Профиль</h3>
-  Ник: <b id="nick"></b><br><br>
   Баланс: 💎 <span id="bal2"></span><br><br>
-  Реф.код: <b id="ref"></b><br><br>
-  <button onclick="topUp()">➕ Пополнить (DEMO)</button>
-  <button onclick="withdraw()">➖ Вывести (DEMO)</button>
+  <button class="btn" onclick="topUp()">➕ Пополнить (DEMO)</button><br><br>
+  <button class="btn" onclick="withdraw()">➖ Вывести (DEMO)</button>
 </div>
 
 <div class="menu">
-  <div onclick="tab('top')">🏆<br>Топ</div>
-  <div class="active" onclick="tab('crash')">🚀<br>Краш</div>
+  <div onclick="tab('crash')" class="active">🚀<br>Краш</div>
   <div onclick="tab('profile')">👤<br>Профиль</div>
 </div>
 
 <script>
-let bal=100;
-let mult=1;
-let playing=false;
-let bet=0;
-let auto=0;
-let hist=[];
-let nick="Player"+Math.floor(Math.random()*1000);
-let refCode=Math.random().toString(36).substr(2,6);
-
-document.getElementById("nick").innerText=nick;
-document.getElementById("ref").innerText=refCode;
+let bal=100,playing=false,m=1,bet=0,auto=0,hist=[];
+const mult=document.getElementById("mult");
+const rocket=document.getElementById("rocket");
 
 function update(){
+  bal.innerText=bal;
   document.getElementById("bal").innerText=bal.toFixed(2);
   document.getElementById("bal2").innerText=bal.toFixed(2);
 }
 
 function tab(t){
-  ["crash","top","profile"].forEach(x=>{
-    document.getElementById(x).classList.add("hidden");
-  });
-  document.getElementById(t).classList.remove("hidden");
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(t).classList.add('active');
+  document.querySelectorAll('.menu div').forEach(d=>d.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
-function placeBet(){
+function start(){
   if(playing) return;
-  bet=+document.getElementById("bet").value;
-  auto=+document.getElementById("auto").value;
+  bet=+betInput.value;
+  auto=+autoInput.value;
+}
+
+const betInput=document.getElementById("bet");
+const autoInput=document.getElementById("auto");
+
+function start(){
+  if(playing) return;
+  bet=+betInput.value;
+  auto=+autoInput.value;
   if(bet>bal) return alert("Недостаточно баланса");
   bal-=bet;
-  mult=1;
+  m=1;
   playing=true;
-  crash();
+  run();
   update();
 }
 
-function crash(){
-  let crashAt=(Math.random()*3+1).toFixed(2);
-  let interval=setInterval(()=>{
-    mult+=0.01;
-    document.getElementById("mult").innerText="x"+mult.toFixed(2);
-    document.getElementById("rocket").style.marginLeft=(mult*20)+"px";
-    if(mult>=crashAt){
-      clearInterval(interval);
-      end(false,crashAt);
-    }
-    if(auto && mult>=auto){
-      clearInterval(interval);
-      end(true,mult);
-    }
-  },50);
+function run(){
+  let crash=(Math.random()*3+1).toFixed(2);
+  let i=setInterval(()=>{
+    m+=0.01;
+    mult.innerText="x"+m.toFixed(2);
+    rocket.style.left=(20+m*30)+"px";
+    if(auto && m>=auto){ clearInterval(i); end(true); }
+    if(m>=crash){ clearInterval(i); end(false,crash); }
+  },40);
 }
 
-function end(win,m){
+function end(win,c){
   playing=false;
-  if(win){
-    let w=bet*m;
-    bal+=w;
-    addTop(w);
-  }
-  hist.unshift(m.toFixed(2));
+  if(win){ bal+=bet*m; }
+  hist.unshift((c||m).toFixed(2));
   hist=hist.slice(0,10);
   drawHist();
   update();
 }
 
 function drawHist(){
-  let h=document.getElementById("history");
+  const h=document.getElementById("history");
   h.innerHTML="";
   hist.forEach(x=>{
     let d=document.createElement("div");
@@ -206,20 +238,12 @@ function drawHist(){
   });
 }
 
-function addTop(w){
-  let t=document.getElementById("toplist");
-  let d=document.createElement("div");
-  d.innerText=nick+" выиграл "+w.toFixed(2);
-  t.prepend(d);
-}
-
 function topUp(){
-  let a=+prompt("Сумма DEMO");
+  let a=+prompt("DEMO сумма");
   if(a>0){ bal+=a; update(); }
 }
-
 function withdraw(){
-  let a=+prompt("Сумма DEMO");
+  let a=+prompt("DEMO сумма");
   if(a>0 && a<=bal){ bal-=a; update(); }
 }
 
