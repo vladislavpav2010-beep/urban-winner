@@ -1,88 +1,373 @@
 import logging
-import aiosqlite
 import asyncio
+import uvicorn
+import aiosqlite
+import random
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.types import WebAppInfo
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 # --- НАСТРОЙКИ ---
-TOKEN = "ТВОЙ_ТОКЕН_ИЗ_BOTFATHER"
-ADMIN_ID = 123456789 # Твой ID
-WEBAPP_URL = "https://твой-сайт-с-игрой.vercel.app" # Ссылка на твою игру
+TOKEN = "ТВОЙ_ТОКЕН_ЗДЕСЬ"
+# ВАЖНО: Сюда вставь ссылку от ngrok (https://....ngrok-free.app)
+WEBAPP_URL = "https://твоя-ссылка.ngrok-free.app"
 
+# --- ИНИЦИАЛИЗАЦИЯ ---
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- БАЗА ДАННЫХ ---
 async def init_db():
-    async with aiosqlite.connect("database.db") as db:
+    async with aiosqlite.connect("sigma.db") as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
                 balance REAL DEFAULT 112.97,
-                refs_count INTEGER DEFAULT 0,
-                invited_by INTEGER
+                inventory TEXT DEFAULT '[]'
             )
         """)
         await db.commit()
 
-# --- КНОПКИ ---
-def main_kb():
-    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
-    kb.add(types.KeyboardButton("💎 Баланс"), types.KeyboardButton("👤 Профиль"))
-    kb.add(types.KeyboardButton("🏆 Топ"))
-    return kb
-
-# --- КОМАНДЫ ---
-@dp.message_handler(commands=["start"])
-async def start(message: types.Message):
+# --- ЛОГИКА БОТА ---
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
     uid = message.from_user.id
-    args = message.get_args()
+    async with aiosqlite.connect("sigma.db") as db:
+        await db.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (uid,))
+        await db.commit()
     
-    async with aiosqlite.connect("database.db") as db:
-        async with db.execute("SELECT user_id FROM users WHERE user_id = ?", (uid,)) as cur:
-            user = await cur.fetchone()
-            
-        if not user:
-            inviter = int(args) if args and args.isdigit() and int(args) != uid else None
-            await db.execute("INSERT INTO users (user_id, invited_by) VALUES (?, ?)", (uid, inviter))
-            if inviter:
-                await db.execute("UPDATE users SET balance = balance + 5.0, refs_count = refs_count + 1 WHERE user_id = ?", (inviter,))
-                try: await bot.send_message(inviter, "🔔 +1 реферал! Вам начислено 5.0 TON")
-                except: pass
-            await db.commit()
-
-    await message.answer(f"🚀 <b>Добро пожаловать в Crash!</b>\n\nТвой начальный баланс: 112.97 TON", reply_markup=main_kb())
-
-@dp.message_handler(lambda m: m.text == "💎 Баланс")
-async def bal(message: types.Message):
-    async with aiosqlite.connect("database.db") as db:
-        async with db.execute("SELECT balance FROM users WHERE user_id = ?", (message.from_user.id,)) as cur:
-            res = await cur.fetchone()
-            # Выводим баланс как на твоем скриншоте
-            await message.answer(f"💎 <b>Ваш баланс:</b> {res[0]:.2f} TON")
+    kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    # Кнопка открывает WebApp на весь экран
+    kb.add(types.KeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
+    kb.add(types.KeyboardButton("👤 Профиль"))
+    
+    await message.answer(
+        "<b>🔥 Добро пожаловать в Crash Sigma!</b>\n\n"
+        "Жми кнопку ниже, чтобы поднять бабла!", 
+        reply_markup=kb
+    )
 
 @dp.message_handler(lambda m: m.text == "👤 Профиль")
 async def profile(message: types.Message):
     uid = message.from_user.id
-    async with aiosqlite.connect("database.db") as db:
-        async with db.execute("SELECT balance, refs_count FROM users WHERE user_id = ?", (uid,)) as cur:
-            row = await cur.fetchone()
-            
-    # Ссылка для приглашения
-    ref_link = f"https://t.me/{(await bot.get_me()).username}?start={uid}"
-    
-    text = (
-        f"👤 <b>Профиль:</b>\n"
-        f"ID: <code>{uid}</code>\n"
-        f"Баланс: <b>{row[0]:.2f} TON</b>\n"
-        f"Рефералов: <b>{row[1]}</b>\n\n"
-        f"🔗 Ссылка для друзей:\n<code>{ref_link}</code>"
-    )
-    await message.answer(text)
+    async with aiosqlite.connect("sigma.db") as db:
+        async with db.execute("SELECT balance FROM users WHERE user_id = ?", (uid,)) as cursor:
+            row = await cursor.fetchone()
+            bal = row[0] if row else 0.0
+    await message.answer(f"👤 <b>Твой ID:</b> <code>{uid}</code>\n💎 <b>Баланс:</b> {bal:.2f} TON")
 
+# --- API ДЛЯ ИГРЫ ---
+@app.get("/api/balance/{user_id}")
+async def get_balance(user_id: int):
+    async with aiosqlite.connect("sigma.db") as db:
+        async with db.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,)) as cursor:
+            row = await cursor.fetchone()
+            return {"balance": row[0] if row else 0.0}
+
+@app.post("/api/update_balance")
+async def update_balance(request: Request):
+    data = await request.json()
+    uid = data.get("user_id")
+    amount = float(data.get("amount")) # Может быть отрицательным (ставка) или положительным (выигрыш)
+    
+    async with aiosqlite.connect("sigma.db") as db:
+        await db.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (amount, uid))
+        await db.commit()
+        # Возвращаем новый баланс
+        async with db.execute("SELECT balance FROM users WHERE user_id = ?", (uid,)) as cursor:
+            row = await cursor.fetchone()
+            return {"new_balance": row[0]}
+
+# --- ФРОНТЕНД (HTML/JS/CSS) ---
+# Это точная копия интерфейса с твоих скриншотов
+@app.get("/", response_class=HTMLResponse)
+async def serve_game():
+    return """
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body { margin: 0; background-color: #0b0e11; color: white; font-family: 'Inter', sans-serif; overflow: hidden; user-select: none; }
+        
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #0b0e11; }
+        .online { display: flex; align-items: center; font-size: 13px; font-weight: bold; }
+        .online span { width: 8px; height: 8px; background: #0ecb81; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 5px #0ecb81; }
+        .balance-box { background: #1e2329; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; font-weight: 700; font-size: 14px; }
+        .diamond { color: #0098ea; margin-right: 5px; }
+
+        /* GAME AREA */
+        .game-container { position: relative; height: 280px; width: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .multiplier-text { font-size: 64px; font-weight: 900; z-index: 10; position: absolute; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* TABS (Как на видео) */
+        .tabs { display: flex; padding: 0 15px; border-bottom: 1px solid #2b3139; margin-bottom: 15px; }
+        .tab { padding: 10px 0; margin-right: 20px; color: #848e9c; font-weight: 700; font-size: 14px; cursor: pointer; position: relative; }
+        .tab.active { color: white; }
+        .tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #0098ea; }
+
+        /* CONTENT AREAS */
+        .content-section { display: none; padding: 0 15px; height: 200px; overflow-y: auto; }
+        .content-section.active { display: block; }
+
+        /* INVENTORY GRID (Как на видео 1000042164.mp4) */
+        .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .item-card { background: #1e2329; border-radius: 10px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .item-icon { font-size: 28px; margin-bottom: 5px; }
+        .item-price { font-size: 10px; color: #eaecef; font-weight: bold; }
+        .item-buy { font-size: 9px; color: #848e9c; margin-top: 2px; }
+
+        /* CONTROLS */
+        .controls { position: fixed; bottom: 0; width: 100%; background: #161a1e; padding: 15px; box-sizing: border-box; border-radius: 20px 20px 0 0; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-box { background: #2b3139; border-radius: 8px; padding: 10px; flex: 1; }
+        .label { font-size: 10px; color: #848e9c; margin-bottom: 3px; font-weight: 700; }
+        .value-input { background: transparent; border: none; color: white; font-weight: 700; font-size: 16px; width: 100%; outline: none; }
+
+        .btn-action { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 18px; font-weight: 800; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-blue { background: #0098ea; box-shadow: 0 4px 0 #0077b5; }
+        .btn-blue:active { transform: translateY(2px); box-shadow: 0 0 0; }
+        .btn-green { background: #0ecb81; box-shadow: 0 4px 0 #0aa869; }
+        
+        .crashed { color: #f6465d; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="online"><span></span> 124 онлайн</div>
+        <div class="balance-box"><span class="diamond">💎</span> <span id="balance">...</span></div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="graphCanvas"></canvas>
+        <div class="multiplier-text" id="multiplier">x1.00</div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('bets')">Ставки</div>
+        <div class="tab" onclick="switchTab('inventory')">Подарками</div>
+        <div class="tab" onclick="switchTab('profile')">Балансом</div>
+    </div>
+
+    <div id="bets" class="content-section active">
+        <div style="color: #848e9c; font-size: 12px; text-align: center; margin-top: 20px;">
+            Ожидание ставок...
+        </div>
+    </div>
+
+    <div id="inventory" class="content-section">
+        <div class="inventory-grid">
+            <div class="item-card"><div class="item-icon">🍭</div><div class="item-price">2.95</div><div class="item-buy">Buy</div></div>
+            <div class="item-card"><div class="item-icon">🔞</div><div class="item-price">2.95</div><div class="item-buy">Buy</div></div>
+            <div class="item-card"><div class="item-icon">🧪</div><div class="item-price">3.00</div><div class="item-buy">Buy</div></div>
+            <div class="item-card"><div class="item-icon">🎂</div><div class="item-price">2.95</div><div class="item-buy">Buy</div></div>
+            <div class="item-card"><div class="item-icon">👟</div><div class="item-price">5.00</div><div class="item-buy">Buy</div></div>
+            <div class="item-card"><div class="item-icon">🎩</div><div class="item-price">1.50</div><div class="item-buy">Buy</div></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="input-row">
+            <div class="input-box">
+                <div class="label">СУММА</div>
+                <input type="number" id="betAmount" class="value-input" value="10.0">
+            </div>
+            <div class="input-box">
+                <div class="label">АВТОВЫВОД</div>
+                <input type="number" class="value-input" value="2.0">
+            </div>
+        </div>
+        <button id="actionBtn" class="btn-action btn-blue">Сделать ставку</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+
+        const userId = tg.initDataUnsafe.user?.id || 12345; // Фейк ID для теста в браузере
+        let balance = 0.0;
+        let isPlaying = false;
+        let currentMult = 1.00;
+        let crashPoint = 0;
+        let gameInterval;
+        
+        // Элементы
+        const elMult = document.getElementById('multiplier');
+        const elBtn = document.getElementById('actionBtn');
+        const elBal = document.getElementById('balance');
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Настройка Canvas
+        canvas.width = window.innerWidth;
+        canvas.height = 280;
+
+        // 1. Получение баланса при старте
+        fetch(`/api/balance/${userId}`)
+            .then(res => res.json())
+            .then(data => {
+                balance = data.balance;
+                updateBalanceUI();
+            });
+
+        function updateBalanceUI() {
+            elBal.innerText = balance.toFixed(2);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
+            
+            // Простая логика переключения классов
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Логика кнопки
+        elBtn.onclick = () => {
+            if (!isPlaying) {
+                placeBet();
+            } else {
+                cashOut();
+            }
+        };
+
+        function placeBet() {
+            const amount = parseFloat(document.getElementById('betAmount').value);
+            if (amount > balance) {
+                tg.showAlert("Недостаточно средств!");
+                return;
+            }
+            if (amount <= 0) return;
+
+            // Списываем ставку
+            fetch('/api/update_balance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId, amount: -amount})
+            }).then(res => res.json()).then(data => {
+                balance = data.new_balance;
+                updateBalanceUI();
+                startGame(amount);
+            });
+        }
+
+        function startGame(betAmount) {
+            isPlaying = true;
+            elBtn.innerText = "Забрать";
+            elBtn.className = "btn-action btn-green";
+            elMult.classList.remove('crashed');
+            
+            currentMult = 1.00;
+            // Генерируем точку краша (1.00 - 5.00 для теста)
+            crashPoint = (Math.random() * 4 + 1).toFixed(2); 
+            if (Math.random() < 0.3) crashPoint = 1.10; // Часто крашится рано
+            
+            drawGraph(0); // Очистить график
+
+            let progress = 0;
+            gameInterval = setInterval(() => {
+                progress += 0.05;
+                currentMult += 0.01 + (currentMult * 0.005); // Экспоненциальный рост
+                
+                elMult.innerText = "x" + currentMult.toFixed(2);
+                drawGraph(progress);
+
+                // Если дошли до точки краша
+                if (currentMult >= crashPoint) {
+                    crash(betAmount);
+                }
+            }, 50);
+        }
+
+        function cashOut() {
+            if (!isPlaying) return;
+            clearInterval(gameInterval);
+            isPlaying = false;
+
+            const amount = parseFloat(document.getElementById('betAmount').value);
+            const win = amount * currentMult;
+            
+            // Начисляем выигрыш
+            fetch('/api/update_balance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId, amount: win})
+            }).then(res => res.json()).then(data => {
+                balance = data.new_balance;
+                updateBalanceUI();
+                tg.showPopup({title: 'Победа!', message: `Вы забрали: ${win.toFixed(2)} TON`});
+                resetGame();
+            });
+        }
+
+        function crash(betAmount) {
+            clearInterval(gameInterval);
+            isPlaying = false;
+            elMult.innerText = "x" + parseFloat(crashPoint).toFixed(2);
+            elMult.classList.add('crashed');
+            elMult.innerText = "Краш";
+            
+            resetGame();
+        }
+
+        function resetGame() {
+            elBtn.innerText = "Сделать ставку";
+            elBtn.className = "btn-action btn-blue";
+        }
+
+        // Простая рисовалка графика
+        function drawGraph(progress) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            
+            // Кривая Безье
+            ctx.quadraticCurveTo(
+                canvas.width / 2, canvas.height, 
+                canvas.width * (progress/10), canvas.height - (progress * 20)
+            );
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#0ecb81'; // Цвет линии как на скрине
+            ctx.stroke();
+        }
+
+    </script>
+</body>
+</html>
+    """
+
+# --- ЗАПУСК ---
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(init_db())
+    
+    # Запуск сервера FastAPI
+    config = uvicorn.Config(app, host="0.0.0.0", port=8000)
+    server = uvicorn.Server(config)
+    
+    # Запуск бота и сервера параллельно
+    loop.create_task(server.serve())
     executor.start_polling(dp, skip_updates=True)
+
