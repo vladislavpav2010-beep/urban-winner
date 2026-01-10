@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Pro: Betting Cycle</title>
+    <title>Crash Ultimate Pro</title>
     <style>
         :root {
             --bg: #07080a; --card: #121418; --blue: #0098ea;
@@ -12,51 +12,58 @@
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; outline: none; }
         body { background: var(--bg); color: white; margin: 0; overflow: hidden; }
 
-        /* HEADER */
+        /* HEADER & BALANCE */
         .header { display: flex; justify-content: space-between; padding: 12px 20px; align-items: center; }
-        .bal { background: #1e2329; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .online { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .online-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+        .bal-container { background: #1e2329; padding: 6px 14px; border-radius: 50px; display: flex; align-items: center; gap: 8px; font-weight: 800; }
 
         /* GAME AREA */
-        .game-viewport { position: relative; height: 280px; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
+        .game-viewport { position: relative; height: 260px; background: radial-gradient(circle at 30% 70%, #151e29 0%, #07080a 100%); overflow: hidden; }
+        .history-bar { position: absolute; top: 10px; left: 15px; display: flex; gap: 6px; z-index: 10; }
+        .h-tag { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #aaa; }
+        .h-tag.high { color: var(--blue); }
+
         #multiplier { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 72px; font-weight: 900; z-index: 5; }
-        #countdown { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 80px; font-weight: 900; z-index: 6; color: white; display: none; }
+        #countdown { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 80px; font-weight: 900; z-index: 6; display: none; }
         
-        #rocket { position: absolute; bottom: 40px; left: 40px; z-index: 20; will-change: transform; display: none; }
-        .rocket-svg { width: 85px; filter: drop-shadow(0 0 15px var(--blue)); }
+        #rocket { position: absolute; bottom: 40px; left: 40px; z-index: 20; display: none; }
+        .rocket-svg { width: 80px; filter: drop-shadow(0 0 15px var(--blue)); }
 
-        /* CONTROLS */
-        .controls { padding: 15px 20px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 20px 20px 0 0; }
-        .input-group { display: flex; gap: 10px; }
-        .input-box { flex: 1; background: #1e2329; border-radius: 12px; padding: 8px 12px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
-        .input-box label { font-size: 10px; color: var(--text-sec); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
-        .input-box input { background: transparent; border: none; color: white; font-weight: 800; font-size: 16px; }
+        /* INPUTS (SUM & AUTO) */
+        .bet-controls { padding: 15px 20px; display: flex; flex-direction: column; gap: 12px; }
+        .input-row { display: flex; gap: 10px; }
+        .input-group { flex: 1; background: #1e2329; border-radius: 12px; padding: 10px 15px; display: flex; flex-direction: column; }
+        .input-group label { font-size: 10px; color: var(--text-sec); font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+        .input-group input { background: transparent; border: none; color: white; font-weight: 800; font-size: 18px; width: 100%; }
 
-        .btn-main { width: 100%; height: 58px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
-        .btn-main:disabled { background: #1e2329; color: var(--text-sec); cursor: not-allowed; }
-        .btn-main.take { background: var(--green); }
+        .btn-action { width: 100%; height: 58px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; transition: 0.2s; cursor: pointer; }
+        .btn-action.taking { background: var(--blue); }
+        .btn-action:disabled { background: #1e2329; color: var(--text-sec); }
 
-        /* BETS */
-        .bets-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; height: calc(100vh - 540px); overflow-y: auto; }
-        .bet-row { background: var(--card); padding: 12px 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
-        .u-info { display: flex; align-items: center; gap: 12px; }
-        .u-av { width: 38px; height: 38px; border-radius: 12px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
-        
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1c1f24; padding: 12px 25px; border-radius: 12px; border: 1px solid var(--green); z-index: 100; transition: 0.5s; }
-        #toast.active { transform: translateX(-50%) translateY(0); }
+        /* BETS LIST */
+        .bets-header { padding: 10px 20px; color: var(--text-sec); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .bets-scroll { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px; height: calc(100vh - 540px); overflow-y: auto; }
+        .bet-card { background: var(--card); padding: 12px 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.02); }
+        .user-block { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 12px; background: #2b3139; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
+        .val-block { text-align: right; font-weight: 800; font-size: 15px; }
+        .win-green { color: var(--green); }
+        .win-gold { color: var(--gold); }
+
         canvas { position: absolute; inset: 0; z-index: 4; }
     </style>
 </head>
 <body>
 
-<div id="toast">Выигрыш зафиксирован!</div>
-
 <div class="header">
-    <div style="font-size: 13px; font-weight: 700;"><span style="color:var(--green)">●</span> 124</div>
-    <div class="bal">💎 0.12</div>
+    <div class="online"><div class="online-dot"></div> <span id="online-count">124</span></div>
+    <div class="bal-container">💎 <span id="user-balance">100.00</span></div>
 </div>
 
 <div class="game-viewport">
-    <canvas id="trail"></canvas>
+    <div class="history-bar" id="history"></div>
+    <canvas id="graph"></canvas>
     <div id="multiplier">x1.00</div>
     <div id="countdown">5</div>
     <div id="rocket">
@@ -64,122 +71,162 @@
     </div>
 </div>
 
-<div class="controls">
-    <div class="input-group">
-        <div class="input-box"><label>Сумма</label><input type="number" id="betAmount" value="1.0"></div>
-        <div class="input-box"><label>Автовывод</label><input type="number" id="autoExit" value="2.0"></div>
+<div class="bet-controls">
+    <div class="input-row">
+        <div class="input-group">
+            <label>СУММА</label>
+            <input type="number" id="betInput" value="1.00" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>АВТОВЫВОД</label>
+            <input type="number" id="autoInput" value="2.00" step="0.1">
+        </div>
     </div>
-    <button id="btn" class="btn-main" onclick="handleBtn()">Поставить</button>
+    <button id="mainBtn" class="btn-action" onclick="handleInput()">Поставить</button>
 </div>
 
-<div class="bets-list" id="bets"></div>
+<div class="bets-header">Живые ставки</div>
+<div class="bets-scroll" id="live-bets"></div>
 
 <script>
-    let x = 1.0, state = 'IDLE', hasBet = false, hasTaken = false, loop, canvas, ctx;
-    let countdownVal = 5;
+    let balance = 100.00, currentBet = 0, x = 1.0, state = 'WAITING';
+    let hasBet = false, hasTaken = false, loop, canvas, ctx;
+    const GIFTS = [{p: 3.23, n: "Lol Pop", i: "🍭"}, {p: 10.21, n: "Snoop Cigar", i: "🚬"}, {p: 43.07, n: "Watch", i: "⌚"}];
+    const BOT_NAMES = ["Forever Young", "Саня", "Pudzhik #sash", "Обменик с $"];
 
     function init() {
-        canvas = document.getElementById('trail');
-        canvas.width = window.innerWidth; canvas.height = 280;
+        canvas = document.getElementById('graph');
+        canvas.width = window.innerWidth; canvas.height = 260;
         ctx = canvas.getContext('2d');
-        startWaiting();
+        updateBalance();
+        startCycle();
     }
 
-    // Фаза ожидания 5 секунд
-    function startWaiting() {
+    function updateBalance() {
+        document.getElementById('user-balance').innerText = balance.toFixed(2);
+    }
+
+    function handleInput() {
+        if (state === 'WAITING' && !hasBet) {
+            let val = parseFloat(document.getElementById('betInput').value);
+            if (val > 0 && val <= balance) {
+                balance -= val;
+                currentBet = val;
+                hasBet = true;
+                updateBalance();
+                document.getElementById('mainBtn').innerText = "Ставка принята";
+                document.getElementById('mainBtn').disabled = true;
+            }
+        } else if (state === 'FLIGHT' && hasBet && !hasTaken) {
+            takeProfit();
+        }
+    }
+
+    function startCycle() {
         state = 'WAITING';
-        hasBet = false; hasTaken = false; x = 1.0;
-        countdownVal = 5;
-        
+        let count = 5;
         document.getElementById('countdown').style.display = 'block';
         document.getElementById('multiplier').style.display = 'none';
         document.getElementById('rocket').style.display = 'none';
-        document.getElementById('btn').innerText = "Поставить";
-        document.getElementById('btn').className = "btn-main";
-        document.getElementById('btn').disabled = false;
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-
+        
         let timer = setInterval(() => {
-            document.getElementById('countdown').innerText = countdownVal;
-            countdownVal--;
-            if (countdownVal < 0) {
+            document.getElementById('countdown').innerText = count;
+            count--;
+            if (count < 0) {
                 clearInterval(timer);
-                startFlight();
+                launch();
             }
         }, 1000);
     }
 
-    function handleBtn() {
-        if (state === 'WAITING') {
-            hasBet = true;
-            document.getElementById('btn').innerText = "Ставка принята";
-            document.getElementById('btn').disabled = true;
-        } else if (state === 'FLIGHT' && hasBet && !hasTaken) {
-            take();
-        }
-    }
-
-    function startFlight() {
+    function launch() {
         state = 'FLIGHT';
+        hasTaken = false; x = 1.0;
         document.getElementById('countdown').style.display = 'none';
         document.getElementById('multiplier').style.display = 'block';
-        document.getElementById('multiplier').style.color = "white";
         document.getElementById('rocket').style.display = 'block';
         
         if (hasBet) {
-            document.getElementById('btn').innerText = "Забрать";
-            document.getElementById('btn').className = "btn-main take";
-            document.getElementById('btn').disabled = false;
+            document.getElementById('mainBtn').innerText = "Забрать";
+            document.getElementById('mainBtn').disabled = false;
         }
 
-        let crashPoint = (Math.random() * 4 + 1.1).toFixed(2);
-        let autoExit = parseFloat(document.getElementById('autoExit').value);
+        let crash = (Math.random() * 4 + 1.1).toFixed(2);
+        let autoOut = parseFloat(document.getElementById('autoInput').value);
 
         loop = setInterval(() => {
             x += x * 0.012;
             document.getElementById('multiplier').innerText = `x${x.toFixed(2)}`;
+            document.getElementById('multiplier').style.color = "white";
 
+            // Drawing
             let dx = Math.min((x-1)*70, canvas.width - 100);
-            let dy = Math.min((x-1)*50, 220);
+            let dy = Math.min((x-1)*55, 200);
             document.getElementById('rocket').style.transform = `translate(${dx}px, -${dy}px)`;
             
             ctx.clearRect(0,0, canvas.width, canvas.height);
             ctx.beginPath(); ctx.strokeStyle = "#0ecb81"; ctx.lineWidth = 5;
-            ctx.moveTo(50, 250); ctx.quadraticCurveTo(dx/2+50, 250, dx+50, 250-dy);
+            ctx.moveTo(40, 220); ctx.quadraticCurveTo(dx/2+40, 220, dx+40, 220-dy);
             ctx.stroke();
 
-            // Автовывод
-            if (hasBet && !hasTaken && x >= autoExit) take();
-            
-            if (x >= crashPoint) crash();
+            updateBotUI(x);
+            if (hasBet && !hasTaken && x >= autoOut) takeProfit();
+            if (x >= crash) boom(crash);
         }, 60);
     }
 
-    function take() {
+    function takeProfit() {
         hasTaken = true;
-        let win = (parseFloat(document.getElementById('betAmount').value) * x).toFixed(2);
-        const toast = document.getElementById('toast');
-        toast.innerText = `Вы забрали: ${win} TON`;
-        toast.classList.add('active');
-        
-        document.getElementById('btn').innerText = "Вы забрали";
-        document.getElementById('btn').disabled = true;
-        setTimeout(() => toast.classList.remove('active'), 2000);
+        let win = currentBet * x;
+        balance += win;
+        updateBalance();
+        document.getElementById('mainBtn').innerText = "Вы забрали";
+        document.getElementById('mainBtn').disabled = true;
     }
 
-    function crash() {
+    function boom(val) {
         clearInterval(loop);
         state = 'CRASH';
         document.getElementById('multiplier').style.color = "var(--red)";
         document.getElementById('rocket').style.display = 'none';
         
-        setTimeout(() => startWaiting(), 2000); // Через 2 сек новый раунд
+        // Add to history
+        let h = document.getElementById('history');
+        let tag = document.createElement('div');
+        tag.className = `h-tag ${val > 2 ? 'high' : ''}`;
+        tag.innerText = val;
+        h.prepend(tag); if(h.children.length > 5) h.lastChild.remove();
+
+        hasBet = false;
+        setTimeout(startCycle, 2000);
+    }
+
+    function updateBotUI(mult) {
+        const wrap = document.getElementById('live-bets');
+        let html = BOT_NAMES.map((n, i) => {
+            let b = (0.2 + i * 0.4);
+            let win = b * mult;
+            let gift = [...GIFTS].reverse().find(g => win >= g.p);
+            return `
+                <div class="bet-card">
+                    <div class="user-block">
+                        <div class="avatar">${n[0]}</div>
+                        <div><div style="font-size:14px;font-weight:700">${n}</div><div style="font-size:11px;color:var(--text-sec)">💎 ${b.toFixed(2)} x${mult.toFixed(2)}</div></div>
+                    </div>
+                    <div class="val-block ${gift ? 'win-gold' : 'win-green'}">
+                        ${gift ? `<span>${gift.i}</span> ${gift.n}` : win.toFixed(2)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        wrap.innerHTML = html;
     }
 
     window.onload = init;
 </script>
 </body>
 </html>
+
 
 
 
