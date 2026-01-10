@@ -7,14 +7,13 @@ from fastapi.responses import HTMLResponse
 TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
 WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK"
 
-logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-# Баланс сразу 100 TON
 def init_db():
     with sqlite3.connect("wheel.db") as conn:
+        # Устанавливаем баланс 100.00 по умолчанию
         conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 100.00)")
         conn.commit()
 
@@ -23,17 +22,8 @@ async def start(m: types.Message):
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🎡 Начать PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer(f"<b>💎 Твой баланс: 100.00 TON</b>\nЖми кнопку для входа!", reply_markup=kb)
-
-@app.get("/api/bots")
-async def get_bots():
-    names = ["Gusati", "Andre", "NeverBye", "Enzu", "misha", "sociofob"]
-    avatars = [f"https://api.dicebear.com/7.x/avataaars/svg?seed={i}" for i in range(10)]
-    # Генерируем 3 случайных бота
-    return [{"name": random.choice(names), "avatar": random.choice(avatars), 
-             "bet": round(random.uniform(1.0, 10.0), 2), 
-             "color": random.choice(["#f6465d", "#0ecb81", "#0098ea", "#f0b90b"])} for _ in range(3)]
+    kb.add(types.InlineKeyboardButton("🎡 Открыть PvP Колесо", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer(f"<b>💎 Твой баланс: 100.00 TON</b>", reply_markup=kb)
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_game():
@@ -43,80 +33,115 @@ async def serve_game():
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .top { width: 100%; display: flex; justify-content: space-around; padding: 15px; background: #161a1e; font-weight: bold; }
-        .wheel-wrap { position: relative; width: 300px; height: 300px; margin-top: 30px; }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); background: #1e2329; }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
-        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #0b0e11; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid #2b3139; }
-        .btn { background: #0098ea; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 900; margin-top: 20px; width: 90%; }
-        .player-row { display: flex; align-items: center; justify-content: space-between; background: #1e2329; padding: 10px; margin: 5px; border-radius: 8px; width: 90%; font-size: 14px; }
-        .p-avatar { width: 25px; height: 25px; border-radius: 50%; margin-right: 10px; }
+        body { background: #0b0e11; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .header { display: flex; justify-content: space-around; padding: 15px; background: #161a1e; border-bottom: 1px solid #2b3139; }
+        .tab { color: #848e9c; font-weight: bold; }
+        .active { color: white; border-bottom: 2px solid #0098ea; }
+        
+        /* Колесо с гирляндой */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #2b3139; background: #1e2329; transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 20px solid white; z-index: 10; }
+        .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #0b0e11; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 3px solid #2b3139; }
+
+        /* Ставки и меню */
+        .bet-area { padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        input { background: #1e2329; border: 1px solid #2b3139; color: white; padding: 10px; border-radius: 8px; width: 80%; text-align: center; margin-bottom: 10px; }
+        .btn-bet { background: #0098ea; color: white; border: none; padding: 12px; border-radius: 10px; width: 85%; font-weight: bold; cursor: pointer; }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #161a1e; padding: 15px 0; border-top: 1px solid #2b3139; }
+        .foot-item { font-size: 12px; color: #848e9c; text-align: center; }
+        .player-row { width: 90%; display: flex; justify-content: space-between; padding: 8px; background: #1e2329; margin: 3px; border-radius: 6px; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="top"><div>Гифты</div><div>Стикеры</div></div>
-    <div style="margin-top:10px; color:#848e9c">БАНК: <span id="bank" style="color:white">0.00</span> TON</div>
-    <div class="wheel-wrap">
+    <div class="header"><div class="tab active">Гифты</div><div class="tab">Стикеры</div></div>
+    
+    <div style="text-align:center; padding: 10px; color:#848e9c">ВСЕГО: <span id="total" style="color:white">0.00</span> TON</div>
+
+    <div class="wheel-container">
         <div class="pointer"></div>
-        <div class="wheel" id="wheel"></div>
-        <div class="center-hub" id="timer">Ожидание</div>
+        <div id="wheel"></div>
+        <div class="center" id="status">ОЖИДАНИЕ</div>
     </div>
-    <div id="p-list" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:10px;"></div>
-    <button class="btn" id="mainBtn" onclick="startQueue()">ДОБАВИТЬ В PvP</button>
+
+    <div class="bet-area">
+        <input type="number" id="betAmount" value="1.0" step="0.1">
+        <button class="btn-bet" onclick="joinPvP()">ДОБАВИТЬ В PvP</button>
+    </div>
+
+    <div id="players" style="overflow-y: auto; flex-grow: 1; display:flex; flex-direction:column; align-items:center;"></div>
+
+    <div class="footer">
+        <div class="foot-item">⚔️ ПвП</div><div class="foot-item">🎡 Соло</div><div class="foot-item">🎒 Инвентарь</div><div class="foot-item">🏪 Магазин</div><div class="foot-item">👤 Профиль</div>
+    </div>
 
     <script>
-        let isStarted = false;
-        async function startQueue() {
-            if(isStarted) return;
-            isStarted = true;
-            document.getElementById('mainBtn').style.display = 'none';
+        let balance = 100.00;
+        let players = [];
+        let isSpinning = false;
+
+        function joinPvP() {
+            if (isSpinning) return;
+            const bet = parseFloat(document.getElementById('betAmount').value);
+            if (bet > balance) return alert('Недостаточно TON!');
             
-            let timeLeft = 15; // Таймер как на видео
-            const timerEl = document.getElementById('timer');
-            const res = await fetch('/api/bots');
-            const bots = await res.json();
+            balance -= bet;
+            players = [{name: "Ты", bet: bet, color: "#0098ea", avatar: "👤"}];
+            updateWheel();
+            startTimer();
+        }
+
+        function startTimer() {
+            let time = 15; // Таймер на 15 сек
+            const btn = document.querySelector('.btn-bet');
+            btn.disabled = true;
             
-            // Логика постепенного добавления ботов
-            let currentPlayers = [{name: "Ты", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You", bet: 10.0, color: "#6f42c1"}];
-            
-            let interval = setInterval(() => {
-                timerEl.innerText = timeLeft > 9 ? "00:" + timeLeft : "00:0" + timeLeft;
-                if(timeLeft == 10) addBot(bots[0], currentPlayers);
-                if(timeLeft == 5) addBot(bots[1], currentPlayers);
-                if(timeLeft == 2) addBot(bots[2], currentPlayers);
+            const timer = setInterval(() => {
+                document.getElementById('status').innerHTML = `00:${time < 10 ? '0'+time : time}`;
                 
-                if(timeLeft <= 0) {
-                    clearInterval(interval);
-                    spinWheel();
+                // Боты залетают по времени
+                if (time == 12) addBot("Gusati", 0.5, "#f6465d");
+                if (time == 8) addBot("Andre", 2.1, "#0ecb81");
+                if (time == 3) addBot("NeverBye", 1.5, "#f0b90b");
+
+                if (time <= 0) {
+                    clearInterval(timer);
+                    spin();
                 }
-                timeLeft--;
+                time--;
             }, 1000);
         }
 
-        function addBot(bot, players) {
-            players.push(bot);
-            updateUI(players);
+        function addBot(name, bet, color) {
+            players.push({name, bet, color, avatar: "🤖"});
+            updateWheel();
         }
 
-        function updateUI(players) {
+        function updateWheel() {
+            let total = players.reduce((s, p) => s + p.bet, 0);
+            document.getElementById('total').innerText = total.toFixed(2);
             let grad = ""; let start = 0;
-            let total = players.reduce((s, b) => s + b.bet, 0);
             let html = "";
             players.forEach(p => {
                 let deg = (p.bet / total) * 360;
-                grad += `${p.color} ${start}deg ${start + deg}deg, `;
+                grad += `${p.color} ${start}deg ${start+deg}deg, `;
                 start += deg;
-                html += `<div class="player-row"><div><img src="${p.avatar}" class="p-avatar">${p.name}</div><b>${p.bet} TON</b></div>`;
+                html += `<div class="player-row"><span>${p.avatar} ${p.name}</span><b>${p.bet} TON</b></div>`;
             });
             document.getElementById('wheel').style.background = `conic-gradient(${grad.slice(0,-2)})`;
-            document.getElementById('p-list').innerHTML = html;
-            document.getElementById('bank').innerText = total.toFixed(2);
+            document.getElementById('players').innerHTML = html;
         }
 
-        function spinWheel() {
-            document.getElementById('timer').innerText = "ИГРА";
-            document.getElementById('wheel').style.transform = `rotate(${Math.floor(Math.random() * 3600) + 1440}deg)`;
+        function spin() {
+            isSpinning = true;
+            document.getElementById('status').innerText = "ИГРА";
+            let deg = Math.floor(Math.random() * 3600) + 1800;
+            document.getElementById('wheel').style.transform = `rotate(${deg}deg)`;
+            setTimeout(() => {
+                alert("Раунд завершен!");
+                location.reload(); // Перезагрузка для нового раунда
+            }, 5500);
         }
     </script>
 </body>
