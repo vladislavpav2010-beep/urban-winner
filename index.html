@@ -1,10 +1,14 @@
-import os, logging, asyncio, sqlite3, uvicorn
+import os, logging, asyncio, sqlite3, random, uvicorn
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-# --- НАСТРОЙКИ ---
+# --- ДАННЫЕ ДЛЯ БОТОВ ---
+BOT_NAMES = ["Gusati", "Andre", "NeverBye", "Enzu", "nikita", "Иван", "MEQTID", "sociofob"]
+# Сгенерированные аватарки (можно заменить на свои ссылки)
+BOT_AVATARS = [f"https://api.dicebear.com/7.x/avataaars/svg?seed={i}" for i in range(20)]
+
 TOKEN = "ТВОЙ_ТОКЕН"
 WEBAPP_URL = "https://твоя-ссылка.ngrok-free.app"
 
@@ -12,20 +16,31 @@ bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-# --- БД (Баланс как на скринах) ---
 def init_db():
-    conn = sqlite3.connect("wheel.db")
-    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 8.54)")
+    conn = sqlite3.connect("sigma.db")
+    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 112.97)")
     conn.commit()
     conn.close()
 
 @dp.message_handler(commands=['start'])
 async def start(m: types.Message):
     kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton("🎡 Крутить Колесо", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer("<b>Добро пожаловать в Колесо Фортуны!</b>", reply_markup=kb)
+    kb.add(types.KeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer("<b>Бот запущен!</b>", reply_markup=kb)
 
-# --- ИНТЕРФЕЙС КОЛЕСА ---
+# Эндпоинт для получения списка случайных ботов
+@app.get("/api/bots")
+async def get_bots():
+    count = random.randint(2, 5) # Генерируем от 2 до 5 ботов для вида
+    bots = []
+    for _ in range(count):
+        bots.append({
+            "name": random.choice(BOT_NAMES),
+            "avatar": random.choice(BOT_AVATARS),
+            "bet": round(random.uniform(0.01, 0.1), 2) # Макс ставка 0.1 TON
+        })
+    return bots
+
 @app.get("/", response_class=HTMLResponse)
 async def game():
     return """
@@ -35,66 +50,39 @@ async def game():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { background: #0b0e11; color: white; font-family: sans-serif; text-align: center; margin: 0; overflow: hidden; }
-        .header { display: flex; justify-content: space-around; padding: 20px; background: #161a1e; }
-        
-        /* Колесо как на скрине 1000042178.jpg */
-        .wheel-container { position: relative; margin: 50px auto; width: 300px; height: 300px; }
-        #wheel { 
-            width: 100%; height: 100%; border-radius: 50%; border: 5px solid #2b3139;
-            background: conic-gradient(#0ecb81 0deg 120deg, #f6465d 120deg 240deg, #0098ea 240deg 360deg);
-            transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
-            position: relative;
-        }
-        .pointer { 
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 20px solid white; z-index: 10;
-        }
-        .center-timer {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: black; width: 80px; height: 80px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;
-        }
-
-        .footer-menu { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #161a1e; padding: 15px 0; }
-        .btn-spin { background: #0098ea; border: none; padding: 15px 40px; border-radius: 10px; color: white; font-weight: bold; margin-top: 20px; }
+        body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; }
+        .user-bet { display: flex; align-items: center; padding: 10px; background: #161a1e; margin: 5px; border-radius: 10px; }
+        .avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
+        .name { flex-grow: 1; font-size: 14px; }
+        .bet-val { color: #0098ea; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>Гифты</div>
-        <div>Стикеры</div>
-    </div>
-    
-    <div style="margin-top: 10px; color: #848e9c;">ВСЕГО: 8.54 TON</div>
-
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <div id="wheel"></div>
-        <div class="center-timer" id="timer">00:00</div>
-    </div>
-
-    <button class="btn-spin" onclick="spin()">ДОБАВИТЬ В PvP</button>
-
-    <div class="footer-menu">
-        <div>ПвП</div>
-        <div>Соло</div>
-        <div>Инвентарь</div>
-        <div>Магазин</div>
-        <div>Профиль</div>
+    <div id="game-ui" style="text-align:center; padding: 20px;">
+        <h2 id="mult">x1.00</h2>
+        <div id="bot-list"></div>
     </div>
 
     <script>
-        function spin() {
-            let wheel = document.getElementById('wheel');
-            let randomDeg = Math.floor(Math.random() * 3600) + 720; // Минимум 2 полных оборота
-            wheel.style.transform = "rotate(" + randomDeg + "deg)";
-            
-            setTimeout(() => {
-                alert("Раунд завершен!");
-            }, 4000);
+        // Функция обновления списка ботов
+        function refreshBots() {
+            fetch('/api/bots').then(r => r.json()).then(bots => {
+                const list = document.getElementById('bot-list');
+                list.innerHTML = '<h3>Ставки в раунде:</h3>';
+                bots.forEach(b => {
+                    list.innerHTML += `
+                        <div class="user-bet">
+                            <img src="${b.avatar}" class="avatar">
+                            <div class="name">${b.name}</div>
+                            <div class="bet-val">💎 ${b.bet}</div>
+                        </div>`;
+                });
+            });
         }
+        
+        // Обновляем ботов каждые 5 секунд для вида активности
+        setInterval(refreshBots, 5000);
+        refreshBots();
     </script>
 </body>
 </html>
@@ -105,4 +93,3 @@ if __name__ == "__main__":
     from threading import Thread
     Thread(target=lambda: executor.start_polling(dp, skip_updates=True)).start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
