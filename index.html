@@ -4,15 +4,14 @@ from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-# --- НАСТРОЙКИ ---
+# --- ТВОИ НАСТРОЙКИ ---
 TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
-WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Ссылка из ngrok ОБЯЗАТЕЛЬНО с https://
+WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Обязательно с https://
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-# База данных с балансом 100 TON
 def init_db():
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 100.00)")
@@ -23,102 +22,96 @@ async def start(m: types.Message):
     with sqlite3.connect("wheel.db") as conn:
         conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🎡 Начать PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer(f"<b>💎 Баланс: 100.00 TON</b>", reply_markup=kb)
+    # Заменил ракетку на колесо 🎡
+    kb.add(types.InlineKeyboardButton("🎡 Играть в PvP", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer("<b>💎 Твой баланс: 100.00 TON</b>\nНажми кнопку ниже, чтобы начать игру!", reply_markup=kb)
 
-# ГЛАВНОЕ ИСПРАВЛЕНИЕ: Чистый HTML без текста кода
+# ГЛАВНОЕ: Очистка от лишнего текста через правильный заголовок
 @app.get("/", response_class=HTMLResponse)
-async def game():
+async def serve_game():
     return """
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; height: 100vh; }
-        .header { width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-bottom: 1px solid #2b3139; }
-        .tab { color: #848e9c; font-size: 14px; font-weight: bold; }
-        .active { color: white; border-bottom: 2px solid #0098ea; padding-bottom: 5px; }
+        .header { width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-bottom: 1px solid #2b3139; font-size: 14px; font-weight: bold; }
+        .active-tab { color: white; border-bottom: 2px solid #0098ea; padding-bottom: 5px; }
+        .bal-top { margin: 15px 0; font-size: 18px; font-weight: bold; color: #f0b90b; }
         
-        .wheel-wrap { position: relative; width: 280px; height: 280px; margin: 30px auto; }
+        .wheel-box { position: relative; width: 280px; height: 280px; margin-top: 10px; }
         #wheel { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #2b3139; background: #1e2329; transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1); }
-        .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
-        .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 75px; height: 75px; background: #0b0e11; border-radius: 50%; border: 3px solid #2b3139; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 5; }
+        .timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #0b0e11; border-radius: 50%; border: 3px solid #2b3139; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
 
-        .bet-ui { width: 90%; margin-top: 10px; }
-        input { width: 100%; background: #1e2329; border: 1px solid #2b3139; color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 15px; font-size: 16px; box-sizing: border-box; }
-        .btn { width: 100%; background: #0098ea; border: none; padding: 15px; color: white; border-radius: 12px; font-weight: bold; font-size: 16px; }
+        .ui-bet { width: 90%; margin-top: 20px; z-index: 20; }
+        input { width: 100%; background: #1e2329; border: 1px solid #2b3139; color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn-play { width: 100%; background: #0098ea; border: none; padding: 15px; color: white; border-radius: 12px; font-weight: bold; font-size: 16px; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-top: 1px solid #2b3139; }
-        .f-item { font-size: 11px; color: #848e9c; text-align: center; }
-        .f-item.active { color: #0098ea; }
-        .p-list { width: 100%; overflow-y: auto; flex-grow: 1; padding-bottom: 70px; }
-        .p-row { display: flex; justify-content: space-between; padding: 10px 20px; background: #1e2329; margin: 4px 10px; border-radius: 8px; font-size: 13px; }
+        /* Исправленное нижнее меню БЕЗ ТЕКСТА КОДА */
+        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 0; background: #161a1e; border-top: 1px solid #2b3139; z-index: 100; }
+        .f-btn { font-size: 11px; color: #848e9c; text-align: center; }
+        .f-btn.active { color: #0098ea; }
     </style>
 </head>
 <body>
-    <div class="header"><div class="tab active">Гифты</div><div class="tab">Стикеры</div></div>
-    <div style="margin-top:15px; font-weight:bold; color:#0ecb81">100.00 TON</div>
+    <div class="header"><div class="active-tab">Гифты</div><div>Стикеры</div></div>
+    <div class="bal-top">100.00 TON</div>
 
-    <div class="wheel-wrap">
-        <div class="pointer"></div>
+    <div class="wheel-box">
+        <div class="arrow"></div>
         <div id="wheel"></div>
-        <div class="center" id="status">00:15</div>
+        <div class="timer-center" id="status">00:15</div>
     </div>
 
-    <div class="bet-ui" id="ui">
-        <input type="number" id="val" value="1.0">
-        <button class="btn" onclick="go()">ДОБАВИТЬ В PvP</button>
+    <div class="ui-bet" id="betBlock">
+        <input type="number" id="bet" value="1.0">
+        <button class="btn-play" onclick="start()">ДОБАВИТЬ В PvP</button>
     </div>
-
-    <div class="p-list" id="list"></div>
 
     <div class="footer">
-        <div class="f-item active">⚔️ ПвП</div><div class="f-item">🎡 Соло</div><div class="f-item">🎒 Инвентарь</div><div class="f-item">👤 Профиль</div>
+        <div class="f-btn active">⚔️ ПвП</div><div class="f-btn">🎡 Соло</div><div class="f-btn">🎒 Инв.</div><div class="f-btn">👤 Профиль</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        tg.expand(); // Открываем на весь экран
         let players = [];
 
-        function go() {
-            document.getElementById('ui').style.display = 'none';
-            players = [{name: "Ты", bet: parseFloat(document.getElementById('val').value), color: "#0098ea"}];
-            update();
-            let s = 15;
-            let t = setInterval(() => {
-                s--;
-                document.getElementById('status').innerText = `00:${s<10?'0'+s:s}`;
-                // Боты ставят до 0.10 TON
-                if(s==12) add("Gusati", 0.05, "#f6465d");
-                if(s==8) add("Andre", 0.10, "#0ecb81");
-                if(s==3) add("NeverBye", 0.07, "#f0b90b");
-                if(s<=0) { clearInterval(t); spin(); }
+        function start() {
+            document.getElementById('betBlock').style.visibility = 'hidden';
+            let time = 15;
+            let timer = setInterval(() => {
+                time--;
+                document.getElementById('status').innerText = `00:${time < 10 ? '0'+time : time}`;
+                
+                // Боты ставят по 0.10
+                if(time == 12) addPlayer("#f6465d", 0.08);
+                if(time == 8) addPlayer("#0ecb81", 0.10);
+                if(time == 3) addPlayer("#f0b90b", 0.05);
+
+                if(time <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('status').innerText = "ИГРА";
+                    let deg = 1800 + Math.floor(Math.random() * 3600);
+                    document.getElementById('wheel').style.transform = `rotate(${deg}deg)`;
+                }
             }, 1000);
         }
 
-        function add(n, b, c) { players.push({name: n, bet: b, color: c}); update(); }
-
-        function update() {
+        function addPlayer(color, bet) {
+            players.push({color, bet});
             let total = players.reduce((a, b) => a + b.bet, 0);
-            let g = ""; let start = 0; let h = "";
+            let g = ""; let s = 0;
             players.forEach(p => {
                 let d = (p.bet / total) * 360;
-                g += `${p.color} ${start}deg ${start+d}deg, `;
-                start += d;
-                h += `<div class="p-row"><span>👤 ${p.name}</span><b>${p.bet.toFixed(2)} TON</b></div>`;
+                g += `${p.color} ${s}deg ${s+d}deg, `;
+                s += d;
             });
             document.getElementById('wheel').style.background = `conic-gradient(${g.slice(0,-2)})`;
-            document.getElementById('list').innerHTML = h;
-        }
-
-        function spin() {
-            document.getElementById('status').innerText = "ИГРА";
-            document.getElementById('wheel').style.transform = `rotate(${1800 + Math.random()*3600}deg)`;
-            setTimeout(() => { location.reload(); }, 6000);
         }
     </script>
 </body>
@@ -130,5 +123,3 @@ if __name__ == "__main__":
     from threading import Thread
     Thread(target=lambda: executor.start_polling(dp)).start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
