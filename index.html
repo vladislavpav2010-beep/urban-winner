@@ -2,208 +2,229 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<title>Crash DEMO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-:root { --bg:#07080a; --card:#121418; --blue:#0098ea; --green:#0ecb81; --red:#f6465d; --text:#707a8a; }
-* { box-sizing:border-box; font-family:'Inter',sans-serif; margin:0; padding:0; color:white; outline:none; }
-body { background:var(--bg); overflow:hidden; display:flex; flex-direction:column; height:100vh; }
-
-/* HEADER */
-.header { display:flex; justify-content:space-between; padding:10px 16px; align-items:center; }
-.online { color:var(--green); font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px; }
-.balance { background:#1e2329; padding:6px 14px; border-radius:50px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:6px; }
-
-/* GAME */
-.game-view { position:relative; height:260px; background: radial-gradient(circle at 50% 50%, #10141a 0%, #07080a 100%); overflow:hidden; }
-canvas { position:absolute; inset:0; }
-.mult { position:absolute; width:100%; text-align:center; top:35%; font-size:60px; font-weight:900; z-index:10; }
-.cd { position:absolute; width:100%; text-align:center; top:30%; font-size:80px; font-weight:900; z-index:11; }
-.history { position:absolute; top:10px; left:15px; display:flex; gap:6px; z-index:12; }
-.h-tag { background:#1e2329; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; color:#888; }
-
-/* MODAL */
-#modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; align-items:center; justify-content:center; z-index:2000; }
-.modal-box { background:#1c1f24; width:85%; border-radius:20px; padding:25px; text-align:center; border:1px solid #2a2e35; }
-.modal-box h3 { font-size:16px; margin-bottom:10px; }
-.modal-box p { color:var(--text); font-size:14px; margin-bottom:20px; }
-.modal-btn { background:#2a2e35; width:100%; padding:12px; border-radius:12px; border:none; font-weight:700; color:var(--blue); font-size:16px; }
-
-/* TABS */
-.tabs { display:flex; background:#161a1e; margin:10px 16px; border-radius:10px; padding:4px; }
-.tab { flex:1; text-align:center; padding:8px; font-size:11px; font-weight:800; color:var(--text); border-radius:7px; cursor:pointer; }
-.tab.active { background:#1e2329; color:white; }
-
-/* CONTROLS */
-.bet-area { padding:0 16px; display:flex; flex-direction:column; gap:8px; }
-.row { display:flex; gap:8px; }
-.field { flex:1; background:#1e2329; padding:8px 12px; border-radius:12px; border:1px solid #2a2e35; }
-.field label { font-size:9px; color:var(--text); font-weight:800; display:block; margin-bottom:2px; }
-.field input { background:transparent; border:none; font-size:17px; font-weight:800; width:100%; }
-.btn-main { height:52px; border-radius:14px; border:none; background:var(--blue); font-size:16px; font-weight:800; margin-top:5px; cursor:pointer; }
-.btn-main.take { background:var(--green); }
-
-/* LIST */
-.list { flex:1; overflow-y:auto; padding:15px 16px; }
-.item { background:#161a1e; padding:12px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.nav { display:flex; padding:12px 0; border-top:1px solid #1a1d23; background:#0c0d10; }
-.nav-i { flex:1; text-align:center; font-size:10px; color:var(--text); opacity:0.5; font-weight:700; }
-.nav-i.active { color:var(--blue); opacity:1; }
+body{
+  margin:0;
+  background:#0b0b0b;
+  color:#fff;
+  font-family:Arial;
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 14px;
+}
+.balance{
+  background:#111;
+  padding:6px 14px;
+  border-radius:20px;
+}
+#game{
+  text-align:center;
+  padding-top:20px;
+}
+#mult{
+  font-size:42px;
+  font-weight:bold;
+}
+#rocket{
+  width:40px;
+  margin:30px auto;
+  transform:rotate(-45deg);
+}
+.controls{
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+}
+.controls input{
+  width:45%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+}
+button{
+  width:90%;
+  margin:10px auto;
+  padding:14px;
+  font-size:16px;
+  border:none;
+  border-radius:12px;
+  background:#2196f3;
+  color:#fff;
+}
+.history{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.hist{
+  background:#222;
+  margin:4px;
+  padding:4px 8px;
+  border-radius:10px;
+  font-size:12px;
+}
+.hidden{display:none}
+.menu{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#111;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+.menu div{opacity:.5}
+.menu .active{opacity:1;color:#4da}
+.panel{
+  padding:15px;
+}
 </style>
 </head>
+
 <body>
 
-<div id="modal">
-    <div class="modal-box">
-        <h3>Подтвердите действие</h3>
-        <p>Вы забрали выигрыш!</p>
-        <button class="modal-btn" onclick="closeModal()">OK</button>
-    </div>
+<div class="top">
+  <div>🟢 <span id="online">123</span> онлайн</div>
+  <div class="balance">💎 <span id="bal">100.00</span></div>
 </div>
 
-<div class="header">
-    <div class="online">● 124 онлайн</div>
-    <div class="balance">💎 <span id="balance">112.97</span></div>
+<div id="crash" class="panel">
+  <div id="game">
+    <div id="mult">x1.00</div>
+    <img id="rocket" src="https://cdn-icons-png.flaticon.com/512/3212/3212608.png">
+  </div>
+
+  <div class="controls">
+    <input id="bet" type="number" value="10">
+    <input id="auto" type="number" value="1.50" step="0.01">
+  </div>
+
+  <button onclick="placeBet()">Сделать ставку</button>
+
+  <div class="history" id="history"></div>
 </div>
 
-<div class="game-view">
-    <div class="history" id="history"></div>
-    <canvas id="canvas"></canvas>
-    <div class="mult" id="mult">x1.00</div>
-    <div class="cd" id="cd">5</div>
+<div id="top" class="panel hidden">
+  <h3>🏆 ТОП выигрышей</h3>
+  <div id="toplist"></div>
 </div>
 
-<div class="tabs">
-    <div class="tab active" onclick="switchTab(0)">СТАВКИ</div>
-    <div class="tab" onclick="switchTab(1)">ИНВЕНТАРЬ</div>
-    <div class="tab" onclick="switchTab(2)">ПРОФИЛЬ</div>
+<div id="profile" class="panel hidden">
+  <h3>👤 Профиль</h3>
+  Ник: <b id="nick"></b><br><br>
+  Баланс: 💎 <span id="bal2"></span><br><br>
+  Реф.код: <b id="ref"></b><br><br>
+  <button onclick="topUp()">➕ Пополнить (DEMO)</button>
+  <button onclick="withdraw()">➖ Вывести (DEMO)</button>
 </div>
 
-<div class="bet-area" id="tab0">
-    <div class="row">
-        <div class="field"><label>СУММА</label><input type="number" id="bet" value="10.0"></div>
-        <div class="field"><label>АВТОВЫВОД</label><input type="number" id="auto" value="1.50"></div>
-    </div>
-    <button class="btn-main" id="btn" onclick="handle()">Сделать ставку</button>
-    <div style="margin-top:6px; display:flex; gap:10px;">
-        <button class="btn-main" style="flex:1; background:#0ecb81;" onclick="topUp()">Пополнить +100</button>
-        <button class="btn-main" style="flex:1; background:#f6465d;" onclick="withdraw()">Вывести -50</button>
-    </div>
-</div>
-
-<div class="list" id="list"></div>
-
-<div class="nav">
-    <div class="nav-i">🏆<br>Топ</div>
-    <div class="nav-i active">🚀<br>Краш</div>
-    <div class="nav-i">👤<br>Профиль</div>
+<div class="menu">
+  <div onclick="tab('top')">🏆<br>Топ</div>
+  <div class="active" onclick="tab('crash')">🚀<br>Краш</div>
+  <div onclick="tab('profile')">👤<br>Профиль</div>
 </div>
 
 <script>
-let bal = 112.97, state='WAITING', x=1.0, currentBet=0, hasBet=false, hasTaken=false, loop;
-const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth; canvas.height = 260;
-let historyArr = [];
+let bal=100;
+let mult=1;
+let playing=false;
+let bet=0;
+let auto=0;
+let hist=[];
+let nick="Player"+Math.floor(Math.random()*1000);
+let refCode=Math.random().toString(36).substr(2,6);
 
-function start(){
-    state='WAITING'; x=1.0; hasBet=false; hasTaken=false;
-    document.getElementById('cd').style.display='block';
-    document.getElementById('mult').style.display='none';
-    document.getElementById('btn').innerText="Сделать ставку";
-    document.getElementById('btn').className="btn-main";
-    document.getElementById('btn').disabled=false;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+document.getElementById("nick").innerText=nick;
+document.getElementById("ref").innerText=refCode;
 
-    let time=5;
-    let t = setInterval(()=>{
-        document.getElementById('cd').innerText=time;
-        time--;
-        if(time<0){ clearInterval(t); launch(); }
-    },1000);
+function update(){
+  document.getElementById("bal").innerText=bal.toFixed(2);
+  document.getElementById("bal2").innerText=bal.toFixed(2);
 }
 
-function handle(){
-    if(state==='WAITING' && !hasBet){
-        let s=parseFloat(document.getElementById('bet').value);
-        if(s<=bal){ bal-=s; currentBet=s; hasBet=true; update(); document.getElementById('btn').innerText="Ставка принята"; document.getElementById('btn').disabled=true; addFakePlayers(); }
-    } else if(state==='FLIGHT' && hasBet && !hasTaken){ take(); }
+function tab(t){
+  ["crash","top","profile"].forEach(x=>{
+    document.getElementById(x).classList.add("hidden");
+  });
+  document.getElementById(t).classList.remove("hidden");
 }
 
-function launch(){
-    state='FLIGHT'; document.getElementById('cd').style.display='none'; document.getElementById('mult').style.display='block';
-    if(hasBet){ document.getElementById('btn').innerText="Забрать"; document.getElementById('btn').className="btn-main take"; document.getElementById('btn').disabled=false; }
-    let crash=(Math.random()*4 +1.1).toFixed(2);
-    loop=setInterval(()=>{
-        x+=x*0.012;
-        document.getElementById('mult').innerText=`x${x.toFixed(2)}`;
-        draw(x);
-        if(hasBet && !hasTaken && x>=parseFloat(document.getElementById('auto').value)) take();
-        if(x>=crash) stop(crash);
-    },60);
+function placeBet(){
+  if(playing) return;
+  bet=+document.getElementById("bet").value;
+  auto=+document.getElementById("auto").value;
+  if(bet>bal) return alert("Недостаточно баланса");
+  bal-=bet;
+  mult=1;
+  playing=true;
+  crash();
+  update();
 }
 
-function draw(v){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle='#1a1d23'; ctx.lineWidth=1;
-    for(let i=0;i<canvas.width;i+=45){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
-    for(let i=0;i<canvas.height;i+=45){ ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
-    let tx = Math.min((v-1)*65 + 40, canvas.width-60), ty = 220-Math.min((v-1)*50,180);
-    ctx.beginPath(); ctx.strokeStyle='#0ecb81'; ctx.lineWidth=4; ctx.moveTo(40,220); ctx.quadraticCurveTo(tx/2+20,220,tx,ty); ctx.stroke();
-    ctx.fillStyle="white"; ctx.beginPath(); ctx.ellipse(tx,ty,20,10,-0.4,0,Math.PI*2); ctx.fill();
-}
-
-function take(){
-    hasTaken=true; bal+=currentBet*x; update(); showModal(); document.getElementById('btn').innerText="Вы забрали"; document.getElementById('btn').disabled=true; addToList('Вы', currentBet, x.toFixed(2));
-}
-
-function stop(v){
-    clearInterval(loop); document.getElementById('mult').style.color='var(--red)';
-    historyArr.unshift(v);
-    renderHistory();
-    setTimeout(()=>{ document.getElementById('mult').style.color='white'; start(); },2000);
-}
-
-function update(){ document.getElementById('balance').innerText=bal.toFixed(2); }
-function showModal(){ document.getElementById('modal').style.display='flex'; }
-function closeModal(){ document.getElementById('modal').style.display='none'; }
-
-function renderHistory(){
-    const h=document.getElementById('history'); h.innerHTML='';
-    historyArr.slice(0,10).forEach(x=>{
-        let tag=document.createElement('div'); tag.className='h-tag'; tag.innerText=x; h.appendChild(tag);
-    });
-}
-
-// Список ставок игроков (демо)
-function addToList(name, bet, mult){
-    const l=document.getElementById('list');
-    let item=document.createElement('div'); item.className='item';
-    item.innerHTML=`<div><b>${name}</b> 💎 ${bet.toFixed(2)} x${mult}</div>`;
-    l.prepend(item);
-}
-
-// Добавляем рандомных игроков
-function addFakePlayers(){
-    let names=['Alice','Bob','Charlie','Eve','Zara'];
-    for(let i=0;i<3;i++){
-        let bet=Math.floor(Math.random()*50+5);
-        let mult=(Math.random()*3+1).toFixed(2);
-        addToList(names[Math.floor(Math.random()*names.length)], bet, mult);
+function crash(){
+  let crashAt=(Math.random()*3+1).toFixed(2);
+  let interval=setInterval(()=>{
+    mult+=0.01;
+    document.getElementById("mult").innerText="x"+mult.toFixed(2);
+    document.getElementById("rocket").style.marginLeft=(mult*20)+"px";
+    if(mult>=crashAt){
+      clearInterval(interval);
+      end(false,crashAt);
     }
+    if(auto && mult>=auto){
+      clearInterval(interval);
+      end(true,mult);
+    }
+  },50);
 }
 
-// Пополнение/вывод
-function topUp(){ bal+=100; update(); }
-function withdraw(){ bal=Math.max(0,bal-50); update(); }
-
-// Переключение вкладок
-function switchTab(i){
-    const tabs=document.querySelectorAll('.tab');
-    const tabContents=[document.getElementById('tab0')];
-    tabs.forEach((t,j)=>{ t.classList.toggle('active', i===j); });
-    tabContents.forEach((c,j)=>{ c.style.display = (i===j?'flex':'none'); });
+function end(win,m){
+  playing=false;
+  if(win){
+    let w=bet*m;
+    bal+=w;
+    addTop(w);
+  }
+  hist.unshift(m.toFixed(2));
+  hist=hist.slice(0,10);
+  drawHist();
+  update();
 }
 
-window.onload=start;
+function drawHist(){
+  let h=document.getElementById("history");
+  h.innerHTML="";
+  hist.forEach(x=>{
+    let d=document.createElement("div");
+    d.className="hist";
+    d.innerText="x"+x;
+    h.appendChild(d);
+  });
+}
+
+function addTop(w){
+  let t=document.getElementById("toplist");
+  let d=document.createElement("div");
+  d.innerText=nick+" выиграл "+w.toFixed(2);
+  t.prepend(d);
+}
+
+function topUp(){
+  let a=+prompt("Сумма DEMO");
+  if(a>0){ bal+=a; update(); }
+}
+
+function withdraw(){
+  let a=+prompt("Сумма DEMO");
+  if(a>0 && a<=bal){ bal-=a; update(); }
+}
+
+update();
 </script>
+
 </body>
 </html>
