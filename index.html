@@ -4,7 +4,8 @@ from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI"
+# --- НАСТРОЙКИ ---
+TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
 WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Обязательно https://
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
@@ -15,8 +16,9 @@ app = FastAPI()
 async def start(m: types.Message):
     kb = types.InlineKeyboardMarkup()
     kb.add(types.InlineKeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer("<b>💎 Твой баланс: 100.00 TON</b>", reply_markup=kb)
+    await m.answer(f"<b>💎 Баланс: 100.00 TON</b>", reply_markup=kb)
 
+# Главная функция — ТЕПЕРЬ БЕЗ ВИДИМОГО КОДА НА ЭКРАНЕ
 @app.get("/", response_class=HTMLResponse)
 async def serve_game():
     return """
@@ -31,21 +33,17 @@ async def serve_game():
         * { box-sizing:border-box; font-family: sans-serif; margin:0; padding:0; color:white; }
         body { background:var(--bg); overflow:hidden; display:flex; flex-direction:column; height:100vh; }
 
-        /* Шапка */
         .header { display:flex; justify-content:space-between; padding:15px; align-items:center; }
-        .online { color:var(--green); font-size:12px; font-weight:bold; }
-        .balance-wrap { background:#1e2329; padding:6px 10px 6px 15px; border-radius:50px; display:flex; align-items:center; gap:8px; cursor:pointer; }
-        .plus { background:white; color:black; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+        .balance { background:#1e2329; padding:6px 15px; border-radius:50px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:5px; }
+        .plus { background:white; color:black; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; }
 
-        /* Центр */
         .game-area { flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; }
-        .multiplier { font-size:80px; font-weight:900; }
-        .status-txt { color:var(--text); font-size:14px; margin-top:10px; text-transform:uppercase; }
+        .multiplier { font-size:90px; font-weight:900; }
+        .timer { color:var(--text); font-size:14px; margin-top:10px; }
 
-        /* Управление */
-        .controls { padding:20px; background:#0c0d10; border-radius:24px 24px 0 0; }
+        .controls { background:#0c0d10; padding:20px; border-radius:24px 24px 0 0; }
         .tabs { display:flex; background:#1e2329; border-radius:12px; padding:4px; margin-bottom:15px; }
-        .tab { flex:1; text-align:center; padding:8px; font-size:11px; font-weight:bold; color:var(--text); border-radius:8px; }
+        .tab { flex:1; text-align:center; padding:10px; font-size:11px; font-weight:bold; color:var(--text); border-radius:8px; }
         .tab.active { background:#2a2e35; color:white; }
 
         .inputs { display:flex; gap:10px; margin-bottom:15px; }
@@ -53,10 +51,9 @@ async def serve_game():
         .field label { font-size:9px; color:var(--text); display:block; margin-bottom:4px; font-weight:bold; }
         input { background:transparent; border:none; font-size:18px; font-weight:bold; width:100%; color:white; outline:none; }
 
-        .btn-main { width:100%; height:55px; border-radius:16px; border:none; background:var(--blue); font-size:18px; font-weight:bold; cursor:pointer; }
+        .btn-main { width:100%; height:58px; border-radius:18px; border:none; background:var(--blue); font-size:18px; font-weight:bold; }
         .btn-main.take { background:var(--green); }
 
-        /* Навигация */
         .nav { display:flex; padding:15px 0; background:#0c0d10; border-top:1px solid #1a1d23; }
         .nav-i { flex:1; text-align:center; font-size:10px; color:var(--text); opacity:0.6; }
         .nav-i.active { color:var(--blue); opacity:1; }
@@ -64,16 +61,16 @@ async def serve_game():
 </head>
 <body>
     <div class="header">
-        <div class="online">● 158 онлайн</div>
-        <div class="balance-wrap" onclick="topUp()">
-            <span style="color:#0ecb81">💎 <span id="bal_val">100.00</span> TON</span>
+        <div style="color:var(--green); font-size:12px; font-weight:bold;">● 158 онлайн</div>
+        <div class="balance">
+            <span>100.00 <span style="color:var(--green)">TON</span></span>
             <div class="plus">+</div>
         </div>
     </div>
 
     <div class="game-area">
         <div class="multiplier" id="mult">1.00</div>
-        <div class="status-txt" id="state_txt">Ожидание</div>
+        <div class="timer" id="status">ОЖИДАНИЕ</div>
     </div>
 
     <div class="controls">
@@ -86,7 +83,7 @@ async def serve_game():
             <div class="field"><label>СУММА (TON)</label><input type="number" id="bet" value="10.0"></div>
             <div class="field"><label>АВТОВЫВОД</label><input type="number" id="auto" value="2.00"></div>
         </div>
-        <button class="btn-main" id="main_btn" onclick="handle()">Сделать ставку</button>
+        <button class="btn-main" id="btn" onclick="handleClick()">Сделать ставку</button>
     </div>
 
     <div class="nav">
@@ -98,93 +95,45 @@ async def serve_game():
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        let balance = 100.0, x = 1.0, state = 'WAIT', currentBet = 0, loop;
+        let x = 1.0, isFlying = false, loop;
 
-        function handle() {
-            if(state === 'WAIT') {
-                let s = parseFloat(document.getElementById('bet').value);
-                if(s <= balance) {
-                    balance -= s; currentBet = s;
-                    document.getElementById('bal_val').innerText = balance.toFixed(2);
-                    state = 'READY';
-                    document.getElementById('main_btn').innerText = "СТАВКА ПРИНЯТА";
-                    document.getElementById('main_btn').disabled = true;
-                }
-            } else if(state === 'FLY') {
-                take();
+        function handleClick() {
+            if (!isFlying) {
+                // Имитация старта
+                isFlying = true;
+                document.getElementById('btn').innerText = "ЗАБРАТЬ";
+                document.getElementById('btn').className = "btn-main take";
+                startFlight();
+            } else {
+                // Забрать выигрыш
+                tg.showAlert("Вы забрали " + (document.getElementById('bet').value * x).toFixed(2) + " TON!");
+                reset();
             }
         }
 
-        function startFly() {
-            state = 'FLY';
-            document.getElementById('state_txt').innerText = "В ПОЛЕТЕ";
-            document.getElementById('main_btn').disabled = false;
-            document.getElementById('main_btn').innerText = "ЗАБРАТЬ";
-            document.getElementById('main_btn').className = "btn-main take";
-            
-            let crash = (1.1 + Math.random() * 4).toFixed(2);
+        function startFlight() {
+            let crash = (1.2 + Math.random() * 3).toFixed(2);
             loop = setInterval(() => {
-                x += x * 0.01;
+                x += 0.01 * x;
                 document.getElementById('mult').innerText = x.toFixed(2);
-                
-                // Умный автовывод
-                let autoVal = parseFloat(document.getElementById('auto').value);
-                if(x >= autoVal && state === 'FLY') take();
-
-                if(x >= crash) {
+                if (x >= crash) {
                     clearInterval(loop);
-                    explode();
+                    document.getElementById('mult').style.color = "var(--red)";
+                    document.getElementById('btn').innerText = "ВЗРЫВ";
+                    document.getElementById('btn').className = "btn-main";
+                    setTimeout(reset, 2000);
                 }
-            }, 60);
-        }
-
-        function take() {
-            if(state !== 'FLY') return;
-            clearInterval(loop);
-            let win = currentBet * x;
-            balance += win;
-            document.getElementById('bal_val').innerText = balance.toFixed(2);
-            tg.showAlert(`Вы выиграли ${win.toFixed(2)} TON!`);
-            reset();
-        }
-
-        function explode() {
-            state = 'CRASH';
-            document.getElementById('mult').style.color = "var(--red)";
-            document.getElementById('state_txt').innerText = "ВЗРЫВ";
-            document.getElementById('main_btn').innerText = "СГОРЕЛО";
-            document.getElementById('main_btn').className = "btn-main";
-            document.getElementById('main_btn').disabled = true;
-            setTimeout(reset, 2000);
+            }, 70);
         }
 
         function reset() {
-            x = 1.0; state = 'WAIT';
+            clearInterval(loop);
+            x = 1.0; isFlying = false;
             document.getElementById('mult').innerText = "1.00";
             document.getElementById('mult').style.color = "white";
-            document.getElementById('state_txt').innerText = "Ожидание";
-            document.getElementById('main_btn').innerText = "Сделать ставку";
-            document.getElementById('main_btn').disabled = false;
-            document.getElementById('main_btn').className = "btn-main";
-            
-            // Автоматический старт через 5 секунд
-            let cd = 5;
-            let timer = setInterval(() => {
-                document.getElementById('state_txt').innerText = `Старт через ${cd}`;
-                cd--;
-                if(cd < 0) { clearInterval(timer); startFly(); }
-            }, 1000);
+            document.getElementById('btn').innerText = "Сделать ставку";
+            document.getElementById('btn').className = "btn-main";
         }
-
-        function topUp() {
-            tg.showPopup({
-                title: 'Пополнение TON',
-                message: 'Отправьте TON на свой уникальный адрес в Crypto Bot.',
-                buttons: [{text: 'ОК', type: 'ok'}]
-            });
-        }
-
-        window.onload = reset;
     </script>
 </body>
 </html>
