@@ -3,216 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crash Demo Smart</title>
+<title>Crash</title>
 
 <style>
 body{
   margin:0;
-  font-family:system-ui,Arial;
+  font-family:system-ui;
   background:#07090f;
   color:#fff;
 }
+.wrapper{padding:14px}
 
-.wrapper{ padding:14px; }
-
-/* ===== TOP BAR ===== */
-.topbar{
+/* TOP */
+.top{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
 }
 .badge{
   background:#141a22;
-  padding:6px 12px;
+  padding:6px 14px;
   border-radius:20px;
   font-weight:700;
-  font-size:14px;
 }
 
-/* ===== GAME ===== */
+/* GAME */
 .game{
+  margin-top:10px;
   height:260px;
   border-radius:22px;
   background:radial-gradient(circle at top,#1a2450,#07090f);
   position:relative;
   overflow:hidden;
 }
-
 .mult{
   position:absolute;
-  top:38%;
+  top:40%;
   width:100%;
   text-align:center;
-  font-size:46px;
+  font-size:44px;
   font-weight:900;
 }
+.count{
+  position:absolute;
+  top:45%;
+  width:100%;
+  text-align:center;
+  font-size:32px;
+  opacity:.7;
+}
 
+/* ROCKET */
 .rocket{
   position:absolute;
-  width:26px;
-  height:52px;
-  left:30px;
-  bottom:30px;
-  background:linear-gradient(#fff,#cfd6ff);
-  clip-path:polygon(50% 0,100% 20%,80% 100%,20% 100%,0 20%);
-  transition:left .05s linear,bottom .05s linear;
+  left:20px;
+  bottom:20px;
+  width:32px;
+  height:64px;
+  background:#fff;
+  clip-path:polygon(50% 0,100% 25%,80% 100%,20% 100%,0 25%);
 }
 .fire{
   position:absolute;
-  bottom:-20px;
+  bottom:-18px;
   left:50%;
   transform:translateX(-50%);
-  width:16px;
-  height:24px;
-  background:linear-gradient(180deg,#ffb300,#ff4d00);
+  width:14px;
+  height:22px;
+  background:orange;
   border-radius:50%;
   animation:fire .2s infinite alternate;
 }
-@keyframes fire{from{height:18px}to{height:28px}}
+@keyframes fire{from{height:16px}to{height:26px}}
 
-/* ===== CONTROLS ===== */
-.controls{ margin-top:14px; }
-
-input{
+/* CONTROLS */
+.controls{margin-top:12px}
+input,button{
   width:100%;
-  padding:10px;
-  margin-bottom:8px;
-  border-radius:10px;
+  height:48px;
+  border-radius:12px;
   border:none;
+  margin-bottom:8px;
+}
+input{
   background:#141a22;
   color:#fff;
+  padding-left:12px;
 }
-
 button{
-  width:100%;
-  height:52px;
-  border:none;
-  border-radius:14px;
   background:#3aa3ff;
-  font-size:16px;
   font-weight:800;
 }
-button.take{ background:#2de38c; color:#000; }
-button:disabled{ opacity:.5; }
+button.take{background:#2de38c;color:#000}
 
-/* ===== HISTORY ===== */
-.history{
+/* BET LIST */
+.list{
   margin-top:10px;
-  display:flex;
-  gap:6px;
-  overflow-x:auto;
-}
-.hist{
-  background:#1b1b1b;
-  padding:6px 10px;
-  border-radius:10px;
   font-size:13px;
 }
-
-/* ===== BOTTOM NAV ===== */
-.bottom{
-  position:fixed;
-  bottom:0; left:0;
-  width:100%;
-  background:#0c111a;
+.row{
   display:flex;
-  justify-content:space-around;
-  padding:10px 0;
+  justify-content:space-between;
+  opacity:.85;
 }
-.nav{
-  text-align:center;
-  font-size:12px;
-  opacity:.6;
-}
-.nav.active{ opacity:1; color:#3aa3ff; }
+.bot{color:#aaa}
 </style>
 </head>
 
 <body>
 <div class="wrapper">
 
-  <!-- TOP -->
-  <div class="topbar">
-    <div class="badge">👥 111</div>
-    <div class="badge">💎 <span id="bal">1000.00</span> ＋</div>
-  </div>
-
-  <!-- GAME -->
-  <div class="game">
-    <div class="mult" id="mult">x1.00</div>
-    <div class="rocket" id="rocket"><div class="fire"></div></div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls">
-    <input id="bet" type="number" placeholder="Сумма ставки">
-    <input id="auto" type="number" step="0.01" placeholder="Автовывод x">
-    <button id="btn">СДЕЛАТЬ СТАВКУ</button>
-  </div>
-
-  <div class="history" id="history"></div>
+<div class="top">
+  <div class="badge">👥 <span id="online">111</span></div>
+  <div class="badge">💎 <span id="bal">1000.00</span></div>
 </div>
 
-<!-- BOTTOM MENU -->
-<div class="bottom">
-  <div class="nav">🏆<br>Топ</div>
-  <div class="nav active">🚀<br>Краш</div>
-  <div class="nav">👤<br>Профиль</div>
+<div class="game">
+  <div class="mult" id="mult">ОЖИДАНИЕ</div>
+  <div class="count" id="count"></div>
+  <div class="rocket" id="rocket"><div class="fire"></div></div>
+</div>
+
+<div class="controls">
+  <input id="bet" type="number" placeholder="Ставка">
+  <input id="auto" type="number" step="0.01" placeholder="Автовывод">
+  <button id="btn">СДЕЛАТЬ СТАВКУ</button>
+</div>
+
+<div class="list" id="list"></div>
+
 </div>
 
 <script>
-let bal=1000,state='WAIT',x=1,crashPoint=0,timer=null,bet=0,hasTaken=false;
-const mult=document.getElementById('mult'),
-rocket=document.getElementById('rocket'),
-btn=document.getElementById('btn'),
-betInput=document.getElementById('bet'),
-autoInput=document.getElementById('auto'),
-historyEl=document.getElementById('history');
+let bal=1000,state='WAIT',x=1,crash=0,timer,countdown;
+let bet=0,taken=false;
+const mult=multEl=document.getElementById('mult');
+const countEl=document.getElementById('count');
+const rocket=document.getElementById('rocket');
+const btn=document.getElementById('btn');
+const list=document.getElementById('list');
 
-const upd=()=>balEl.innerText=bal.toFixed(2);
+function updBal(){balEl.innerText=bal.toFixed(2)}
 const balEl=document.getElementById('bal');
 
-function start(){
- if(state!=='WAIT')return;
- bet=parseFloat(betInput.value);
- if(!bet||bet>bal)return alert('Неверная ставка');
- bal-=bet; upd();
- x=1; hasTaken=false; state='FLY';
- crashPoint=(Math.random()*8+1.1).toFixed(2);
- btn.innerText='ЗАБРАТЬ'; btn.classList.add('take');
- timer=setInterval(fly,50);
+function startCountdown(){
+  state='COUNT';
+  let c=5;
+  mult.innerText='СТАРТ ЧЕРЕЗ';
+  countEl.innerText=c;
+  countdown=setInterval(()=>{
+    c--;
+    countEl.innerText=c;
+    if(c<=0){
+      clearInterval(countdown);
+      countEl.innerText='';
+      startFly();
+    }
+  },1000);
 }
+
+function startFly(){
+  state='FLY';
+  x=1;
+  taken=false;
+  crash=(Math.random()*8+1.2).toFixed(2);
+  timer=setInterval(fly,50);
+}
+
 function fly(){
- x+=x*0.012;
- if(x>=crashPoint)return crash();
- if(autoInput.value&&x>=autoInput.value&&!hasTaken)take();
- mult.innerText='x'+x.toFixed(2);
- rocket.style.left=30+x*25+'px';
- rocket.style.bottom=30+x*12+'px';
+  x+=x*0.015;
+  if(x>=crash){doCrash();return}
+  mult.innerText='x'+x.toFixed(2);
+  rocket.style.left=20+x*22+'px';
+  rocket.style.bottom=20+x*10+'px';
+  if(auto.value && x>=auto.value && !taken)take();
 }
+
 function take(){
- if(hasTaken)return;
- hasTaken=true;
- bal+=bet*x; upd();
+  if(taken)return;
+  taken=true;
+  bal+=bet*x;
+  updBal();
 }
-function crash(){
- clearInterval(timer);
- add(crashPoint);
- state='WAIT';
- btn.innerText='СДЕЛАТЬ СТАВКУ';
- btn.classList.remove('take');
- rocket.style.left='30px';
- rocket.style.bottom='30px';
+
+function doCrash(){
+  clearInterval(timer);
+  mult.innerText='x'+crash;
+  state='WAIT';
+  rocket.style.left='20px';
+  rocket.style.bottom='20px';
+  setTimeout(startCountdown,2000);
 }
-function add(v){
- const d=document.createElement('div');
- d.className='hist'; d.innerText='x'+(+v).toFixed(2);
- historyEl.prepend(d);
- if(historyEl.children.length>10)historyEl.lastChild.remove();
+
+/* BUTTON */
+btn.onclick=()=>{
+  if(state!=='WAIT')return;
+  bet=+betInput.value;
+  if(!bet||bet>bal)return alert('Ошибка ставки');
+  bal-=bet; updBal();
+  addRow('Вы',bet,'ставка');
+  startCountdown();
+};
+
+/* BOTS */
+function botAction(){
+  if(state!=='FLY')return;
+  if(Math.random()<0.15){
+    const m=(Math.random()*4+1.1).toFixed(2);
+    addRow('Бот',0,'x'+m,true);
+  }
 }
-btn.onclick=()=>state==='WAIT'?start():take();
-upd();
+setInterval(botAction,300);
+
+/* LIST */
+function addRow(name,amt,res,bot=false){
+  const d=document.createElement('div');
+  d.className='row'+(bot?' bot':'');
+  d.innerHTML=`<span>${name}</span><span>${res}</span>`;
+  list.prepend(d);
+  if(list.children.length>6)list.lastChild.remove();
+}
+
+updBal();
 </script>
 </body>
 </html>
