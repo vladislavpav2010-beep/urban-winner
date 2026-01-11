@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 
 # --- НАСТРОЙКИ ---
 TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
-WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Обязательно https://
+WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Ссылка должна начинаться с https://
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
@@ -15,10 +15,10 @@ app = FastAPI()
 @dp.message_handler(commands=['start'])
 async def start(m: types.Message):
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🚀 Играть", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer(f"<b>💎 Баланс: 100.00 TON</b>", reply_markup=kb)
+    kb.add(types.InlineKeyboardButton("🚀 Начать игру", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer(f"<b>💎 Баланс: 100.00 TON</b>\nУдачи!", reply_markup=kb)
 
-# Главная функция — ТЕПЕРЬ БЕЗ ВИДИМОГО КОДА НА ЭКРАНЕ
+# Чистый интерфейс без кода на экране
 @app.get("/", response_class=HTMLResponse)
 async def serve_game():
     return """
@@ -29,32 +29,37 @@ async def serve_game():
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg:#07080a; --card:#121418; --blue:#0098ea; --green:#0ecb81; --red:#f6465d; --text:#707a8a; }
-        * { box-sizing:border-box; font-family: sans-serif; margin:0; padding:0; color:white; }
+        :root { --bg:#07080a; --blue:#0098ea; --green:#0ecb81; --red:#f6465d; --text:#707a8a; }
+        * { box-sizing:border-box; font-family: sans-serif; margin:0; padding:0; color:white; outline:none; }
         body { background:var(--bg); overflow:hidden; display:flex; flex-direction:column; height:100vh; }
 
+        /* Верх: онлайн и баланс TON */
         .header { display:flex; justify-content:space-between; padding:15px; align-items:center; }
-        .balance { background:#1e2329; padding:6px 15px; border-radius:50px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:5px; }
-        .plus { background:white; color:black; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; }
+        .balance { background:#1e2329; padding:6px 15px; border-radius:50px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:6px; }
+        .plus { background:white; color:black; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
 
-        .game-area { flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; }
+        /* Игровое поле: множитель */
+        .game-view { flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
         .multiplier { font-size:90px; font-weight:900; }
-        .timer { color:var(--text); font-size:14px; margin-top:10px; }
+        .status { color:var(--text); font-size:12px; margin-top:10px; text-transform:uppercase; letter-spacing:1px; }
 
+        /* Панель управления */
         .controls { background:#0c0d10; padding:20px; border-radius:24px 24px 0 0; }
         .tabs { display:flex; background:#1e2329; border-radius:12px; padding:4px; margin-bottom:15px; }
         .tab { flex:1; text-align:center; padding:10px; font-size:11px; font-weight:bold; color:var(--text); border-radius:8px; }
         .tab.active { background:#2a2e35; color:white; }
 
+        /* Поля ввода: Сумма и Автовывод */
         .inputs { display:flex; gap:10px; margin-bottom:15px; }
         .field { flex:1; background:#1e2329; padding:10px; border-radius:12px; border:1px solid #2a2e35; }
         .field label { font-size:9px; color:var(--text); display:block; margin-bottom:4px; font-weight:bold; }
-        input { background:transparent; border:none; font-size:18px; font-weight:bold; width:100%; color:white; outline:none; }
+        input { background:transparent; border:none; font-size:18px; font-weight:bold; width:100%; color:white; }
 
-        .btn-main { width:100%; height:58px; border-radius:18px; border:none; background:var(--blue); font-size:18px; font-weight:bold; }
+        .btn-main { width:100%; height:58px; border-radius:18px; border:none; background:var(--blue); font-size:18px; font-weight:bold; transition: 0.2s; }
         .btn-main.take { background:var(--green); }
 
-        .nav { display:flex; padding:15px 0; background:#0c0d10; border-top:1px solid #1a1d23; }
+        /* Нижнее меню: Ставки, Инвентарь, Профиль */
+        .nav { display:flex; padding:12px 0; background:#0c0d10; border-top:1px solid #1a1d23; }
         .nav-i { flex:1; text-align:center; font-size:10px; color:var(--text); opacity:0.6; }
         .nav-i.active { color:var(--blue); opacity:1; }
     </style>
@@ -68,9 +73,9 @@ async def serve_game():
         </div>
     </div>
 
-    <div class="game-area">
+    <div class="game-view">
         <div class="multiplier" id="mult">1.00</div>
-        <div class="timer" id="status">ОЖИДАНИЕ</div>
+        <div class="status" id="state">Ожидание...</div>
     </div>
 
     <div class="controls">
@@ -83,7 +88,7 @@ async def serve_game():
             <div class="field"><label>СУММА (TON)</label><input type="number" id="bet" value="10.0"></div>
             <div class="field"><label>АВТОВЫВОД</label><input type="number" id="auto" value="2.00"></div>
         </div>
-        <button class="btn-main" id="btn" onclick="handleClick()">Сделать ставку</button>
+        <button class="btn-main" id="main_btn" onclick="handleAction()">Сделать ставку</button>
     </div>
 
     <div class="nav">
@@ -95,44 +100,55 @@ async def serve_game():
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        let x = 1.0, isFlying = false, loop;
+        let x = 1.0, isFlying = false, loop, balance = 100.0;
 
-        function handleClick() {
+        function handleAction() {
+            const btn = document.getElementById('main_btn');
             if (!isFlying) {
-                // Имитация старта
+                // Старт полета
                 isFlying = true;
-                document.getElementById('btn').innerText = "ЗАБРАТЬ";
-                document.getElementById('btn').className = "btn-main take";
+                btn.innerText = "ЗАБРАТЬ";
+                btn.className = "btn-main take";
+                document.getElementById('state').innerText = "В ПОЛЕТЕ";
                 startFlight();
             } else {
                 // Забрать выигрыш
-                tg.showAlert("Вы забрали " + (document.getElementById('bet').value * x).toFixed(2) + " TON!");
-                reset();
+                let win = (document.getElementById('bet').value * x).toFixed(2);
+                tg.showAlert("Успех! Вы выиграли " + win + " TON");
+                resetGame();
             }
         }
 
         function startFlight() {
-            let crash = (1.2 + Math.random() * 3).toFixed(2);
+            let crashPoint = (1.2 + Math.random() * 4).toFixed(2);
             loop = setInterval(() => {
-                x += 0.01 * x;
+                x += x * 0.01;
                 document.getElementById('mult').innerText = x.toFixed(2);
-                if (x >= crash) {
+                
+                // Автовывод
+                if (x >= document.getElementById('auto').value) {
+                    handleAction();
+                }
+
+                if (x >= crashPoint) {
                     clearInterval(loop);
                     document.getElementById('mult').style.color = "var(--red)";
-                    document.getElementById('btn').innerText = "ВЗРЫВ";
-                    document.getElementById('btn').className = "btn-main";
-                    setTimeout(reset, 2000);
+                    document.getElementById('state').innerText = "ВЗРЫВ";
+                    document.getElementById('main_btn').innerText = "СГОРЕЛО";
+                    document.getElementById('main_btn').className = "btn-main";
+                    setTimeout(resetGame, 2000);
                 }
-            }, 70);
+            }, 60);
         }
 
-        function reset() {
+        function resetGame() {
             clearInterval(loop);
             x = 1.0; isFlying = false;
             document.getElementById('mult').innerText = "1.00";
             document.getElementById('mult').style.color = "white";
-            document.getElementById('btn').innerText = "Сделать ставку";
-            document.getElementById('btn').className = "btn-main";
+            document.getElementById('state').innerText = "Ожидание...";
+            document.getElementById('main_btn').innerText = "Сделать ставку";
+            document.getElementById('main_btn').className = "btn-main";
         }
     </script>
 </body>
