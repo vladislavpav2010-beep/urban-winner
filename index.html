@@ -2,235 +2,217 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>GoStyle Crash</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crash Demo Smart</title>
 
 <style>
-:root{
-  --bg:#05070b;
-  --panel:#0e1218;
-  --card:#141a22;
-  --blue:#3aa3ff;
-  --green:#2de38c;
-  --red:#ff4d5a;
-  --text:#9aa4b2;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Inter,system-ui,Arial;
-}
-
 body{
-  background:radial-gradient(circle at top,#0b1020,#05070b);
+  margin:0;
+  font-family:system-ui,Arial;
+  background:#07090f;
   color:#fff;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
 }
 
-/* HEADER */
-.header{
-  padding:14px 18px;
+.wrapper{ padding:14px; }
+
+/* ===== TOP BAR ===== */
+.topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  margin-bottom:10px;
 }
-.balance{
-  background:var(--card);
-  padding:8px 16px;
-  border-radius:30px;
+.badge{
+  background:#141a22;
+  padding:6px 12px;
+  border-radius:20px;
   font-weight:700;
   font-size:14px;
 }
 
-/* GAME */
+/* ===== GAME ===== */
 .game{
-  margin:0 14px;
   height:260px;
   border-radius:22px;
-  background:
-    radial-gradient(circle at 50% 20%,#1a2240 0%,#0b1020 45%,#05070b 100%);
+  background:radial-gradient(circle at top,#1a2450,#07090f);
   position:relative;
   overflow:hidden;
-  box-shadow:0 30px 80px rgba(0,0,0,.6);
 }
 
 .mult{
   position:absolute;
-  top:40%;
+  top:38%;
   width:100%;
   text-align:center;
-  font-size:56px;
+  font-size:46px;
   font-weight:900;
-  letter-spacing:1px;
 }
 
-canvas{
-  position:absolute;
-  inset:0;
-}
-
-/* ROCKET */
 .rocket{
   position:absolute;
-  width:46px;
-  height:90px;
-  left:40px;
-  bottom:40px;
-  animation:fly 6s linear infinite;
-}
-.rocket:before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,#fff,#cfd6ff);
+  width:26px;
+  height:52px;
+  left:30px;
+  bottom:30px;
+  background:linear-gradient(#fff,#cfd6ff);
   clip-path:polygon(50% 0,100% 20%,80% 100%,20% 100%,0 20%);
-  border-radius:6px;
+  transition:left .05s linear,bottom .05s linear;
 }
 .fire{
   position:absolute;
-  bottom:-24px;
+  bottom:-20px;
   left:50%;
   transform:translateX(-50%);
-  width:18px;
-  height:28px;
+  width:16px;
+  height:24px;
   background:linear-gradient(180deg,#ffb300,#ff4d00);
   border-radius:50%;
-  filter:blur(1px);
   animation:fire .2s infinite alternate;
 }
+@keyframes fire{from{height:18px}to{height:28px}}
 
-@keyframes fly{
-  0%{transform:translate(0,0)}
-  100%{transform:translate(220px,-140px)}
-}
-@keyframes fire{
-  from{height:20px}
-  to{height:30px}
-}
+/* ===== CONTROLS ===== */
+.controls{ margin-top:14px; }
 
-/* CONTROLS */
-.controls{
-  margin:16px 14px 0;
-  background:var(--panel);
-  border-radius:20px;
-  padding:16px;
-}
-.row{
-  display:flex;
-  gap:10px;
-}
-.box{
-  flex:1;
-  background:var(--card);
-  border-radius:14px;
-  padding:10px 12px;
-}
-.box span{
-  font-size:10px;
-  color:var(--text);
-}
-.box b{
-  display:block;
-  margin-top:4px;
-  font-size:16px;
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:8px;
+  border-radius:10px;
+  border:none;
+  background:#141a22;
+  color:#fff;
 }
 
-.btn{
-  margin-top:12px;
+button{
   width:100%;
   height:52px;
-  border-radius:16px;
   border:none;
-  background:linear-gradient(135deg,#3aa3ff,#5fd0ff);
+  border-radius:14px;
+  background:#3aa3ff;
   font-size:16px;
   font-weight:800;
-  color:#000;
+}
+button.take{ background:#2de38c; color:#000; }
+button:disabled{ opacity:.5; }
+
+/* ===== HISTORY ===== */
+.history{
+  margin-top:10px;
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+}
+.hist{
+  background:#1b1b1b;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:13px;
 }
 
-/* NAV */
-.nav{
-  margin-top:auto;
-  background:#070a10;
+/* ===== BOTTOM NAV ===== */
+.bottom{
+  position:fixed;
+  bottom:0; left:0;
+  width:100%;
+  background:#0c111a;
   display:flex;
+  justify-content:space-around;
   padding:10px 0;
-  border-top:1px solid #111;
 }
-.nav div{
-  flex:1;
+.nav{
   text-align:center;
-  font-size:11px;
-  color:var(--text);
+  font-size:12px;
+  opacity:.6;
 }
-.nav .active{
-  color:var(--blue);
-}
+.nav.active{ opacity:1; color:#3aa3ff; }
 </style>
 </head>
 
 <body>
+<div class="wrapper">
 
-<div class="header">
-  <div>🚀 GoStyle</div>
-  <div class="balance">💎 1 250.00</div>
-</div>
-
-<div class="game">
-  <canvas id="c"></canvas>
-
-  <div class="mult">x1.00</div>
-
-  <div class="rocket">
-    <div class="fire"></div>
+  <!-- TOP -->
+  <div class="topbar">
+    <div class="badge">👥 111</div>
+    <div class="badge">💎 <span id="bal">1000.00</span> ＋</div>
   </div>
-</div>
 
-<div class="controls">
-  <div class="row">
-    <div class="box">
-      <span>СУММА</span>
-      <b>100.00</b>
-    </div>
-    <div class="box">
-      <span>АВТОВЫВОД</span>
-      <b>x1.80</b>
-    </div>
+  <!-- GAME -->
+  <div class="game">
+    <div class="mult" id="mult">x1.00</div>
+    <div class="rocket" id="rocket"><div class="fire"></div></div>
   </div>
-  <button class="btn">СДЕЛАТЬ СТАВКУ</button>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <input id="bet" type="number" placeholder="Сумма ставки">
+    <input id="auto" type="number" step="0.01" placeholder="Автовывод x">
+    <button id="btn">СДЕЛАТЬ СТАВКУ</button>
+  </div>
+
+  <div class="history" id="history"></div>
 </div>
 
-<div class="nav">
-  <div>🏆<br>ТОП</div>
-  <div class="active">🚀<br>CRASH</div>
-  <div>👤<br>ПРОФИЛЬ</div>
+<!-- BOTTOM MENU -->
+<div class="bottom">
+  <div class="nav">🏆<br>Топ</div>
+  <div class="nav active">🚀<br>Краш</div>
+  <div class="nav">👤<br>Профиль</div>
 </div>
 
 <script>
-const c=document.getElementById('c'),ctx=c.getContext('2d');
-c.width=innerWidth;
-c.height=260;
+let bal=1000,state='WAIT',x=1,crashPoint=0,timer=null,bet=0,hasTaken=false;
+const mult=document.getElementById('mult'),
+rocket=document.getElementById('rocket'),
+btn=document.getElementById('btn'),
+betInput=document.getElementById('bet'),
+autoInput=document.getElementById('auto'),
+historyEl=document.getElementById('history');
 
-let x=1;
-setInterval(()=>{
-  x+=0.02;
-  document.querySelector('.mult').innerText='x'+x.toFixed(2);
-  draw();
-},60);
+const upd=()=>balEl.innerText=bal.toFixed(2);
+const balEl=document.getElementById('bal');
 
-function draw(){
-  ctx.clearRect(0,0,c.width,c.height);
-  ctx.strokeStyle='rgba(255,255,255,.05)';
-  for(let i=0;i<c.width;i+=40){
-    ctx.beginPath();
-    ctx.moveTo(i,0);
-    ctx.lineTo(i,c.height);
-    ctx.stroke();
-  }
+function start(){
+ if(state!=='WAIT')return;
+ bet=parseFloat(betInput.value);
+ if(!bet||bet>bal)return alert('Неверная ставка');
+ bal-=bet; upd();
+ x=1; hasTaken=false; state='FLY';
+ crashPoint=(Math.random()*8+1.1).toFixed(2);
+ btn.innerText='ЗАБРАТЬ'; btn.classList.add('take');
+ timer=setInterval(fly,50);
 }
+function fly(){
+ x+=x*0.012;
+ if(x>=crashPoint)return crash();
+ if(autoInput.value&&x>=autoInput.value&&!hasTaken)take();
+ mult.innerText='x'+x.toFixed(2);
+ rocket.style.left=30+x*25+'px';
+ rocket.style.bottom=30+x*12+'px';
+}
+function take(){
+ if(hasTaken)return;
+ hasTaken=true;
+ bal+=bet*x; upd();
+}
+function crash(){
+ clearInterval(timer);
+ add(crashPoint);
+ state='WAIT';
+ btn.innerText='СДЕЛАТЬ СТАВКУ';
+ btn.classList.remove('take');
+ rocket.style.left='30px';
+ rocket.style.bottom='30px';
+}
+function add(v){
+ const d=document.createElement('div');
+ d.className='hist'; d.innerText='x'+(+v).toFixed(2);
+ historyEl.prepend(d);
+ if(historyEl.children.length>10)historyEl.lastChild.remove();
+}
+btn.onclick=()=>state==='WAIT'?start():take();
+upd();
 </script>
-
 </body>
 </html>
