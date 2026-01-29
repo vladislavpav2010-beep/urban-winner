@@ -1,159 +1,105 @@
-import uvicorn
-from aiogram import Bot, Dispatcher, executor, types
+import uvicorn, asyncio, os
+from aiogram import Bot, Dispatcher, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-# --- НАСТРОЙКИ ---
-TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
-WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK" # Ссылка должна начинаться с https://
+# ===== НАСТРОЙКИ =====
+TOKEN = os.getenv("BOT_TOKEN")        # токен в переменной окружения
+WEBAPP_URL = os.getenv("WEBAPP_URL")  # https://xxxx.ngrok.io
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-@dp.message_handler(commands=['start'])
+# ===== BOT =====
+@dp.message_handler(commands=["start"])
 async def start(m: types.Message):
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton("🚀 Начать игру", web_app=WebAppInfo(url=WEBAPP_URL)))
-    await m.answer(f"<b>💎 Баланс: 100.00 TON</b>\nУдачи!", reply_markup=kb)
+    kb.add(types.InlineKeyboardButton(
+        "🚀 Начать игру",
+        web_app=WebAppInfo(url=WEBAPP_URL)
+    ))
+    await m.answer("💎 Баланс: 100.00 TON", reply_markup=kb)
 
-# Чистый интерфейс без кода на экране
+# ===== WEB APP =====
 @app.get("/", response_class=HTMLResponse)
-async def serve_game():
+async def game():
     return """
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg:#07080a; --blue:#0098ea; --green:#0ecb81; --red:#f6465d; --text:#707a8a; }
-        * { box-sizing:border-box; font-family: sans-serif; margin:0; padding:0; color:white; outline:none; }
-        body { background:var(--bg); overflow:hidden; display:flex; flex-direction:column; height:100vh; }
-
-        /* Верх: онлайн и баланс TON */
-        .header { display:flex; justify-content:space-between; padding:15px; align-items:center; }
-        .balance { background:#1e2329; padding:6px 15px; border-radius:50px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:6px; }
-        .plus { background:white; color:black; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
-
-        /* Игровое поле: множитель */
-        .game-view { flex-grow:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .multiplier { font-size:90px; font-weight:900; }
-        .status { color:var(--text); font-size:12px; margin-top:10px; text-transform:uppercase; letter-spacing:1px; }
-
-        /* Панель управления */
-        .controls { background:#0c0d10; padding:20px; border-radius:24px 24px 0 0; }
-        .tabs { display:flex; background:#1e2329; border-radius:12px; padding:4px; margin-bottom:15px; }
-        .tab { flex:1; text-align:center; padding:10px; font-size:11px; font-weight:bold; color:var(--text); border-radius:8px; }
-        .tab.active { background:#2a2e35; color:white; }
-
-        /* Поля ввода: Сумма и Автовывод */
-        .inputs { display:flex; gap:10px; margin-bottom:15px; }
-        .field { flex:1; background:#1e2329; padding:10px; border-radius:12px; border:1px solid #2a2e35; }
-        .field label { font-size:9px; color:var(--text); display:block; margin-bottom:4px; font-weight:bold; }
-        input { background:transparent; border:none; font-size:18px; font-weight:bold; width:100%; color:white; }
-
-        .btn-main { width:100%; height:58px; border-radius:18px; border:none; background:var(--blue); font-size:18px; font-weight:bold; transition: 0.2s; }
-        .btn-main.take { background:var(--green); }
-
-        /* Нижнее меню: Ставки, Инвентарь, Профиль */
-        .nav { display:flex; padding:12px 0; background:#0c0d10; border-top:1px solid #1a1d23; }
-        .nav-i { flex:1; text-align:center; font-size:10px; color:var(--text); opacity:0.6; }
-        .nav-i.active { color:var(--blue); opacity:1; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{margin:0;background:#07080a;color:white;font-family:sans-serif}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+#x{font-size:72px;font-weight:900}
+button{width:80%;height:60px;font-size:20px;border:none;border-radius:16px}
+.start{background:#0098ea}
+.take{background:#0ecb81}
+</style>
 </head>
 <body>
-    <div class="header">
-        <div style="color:var(--green); font-size:12px; font-weight:bold;">● 158 онлайн</div>
-        <div class="balance">
-            <span>100.00 <span style="color:var(--green)">TON</span></span>
-            <div class="plus">+</div>
-        </div>
-    </div>
+<div class="center">
+<div id="x">1.00x</div>
+<p id="state">Ожидание</p>
+<button id="btn" class="start" onclick="action()">Сделать ставку</button>
+</div>
 
-    <div class="game-view">
-        <div class="multiplier" id="mult">1.00</div>
-        <div class="status" id="state">Ожидание...</div>
-    </div>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-    <div class="controls">
-        <div class="tabs">
-            <div class="tab active">СТАВКИ</div>
-            <div class="tab">ИНВЕНТАРЬ</div>
-            <div class="tab">ПРОФИЛЬ</div>
-        </div>
-        <div class="inputs">
-            <div class="field"><label>СУММА (TON)</label><input type="number" id="bet" value="10.0"></div>
-            <div class="field"><label>АВТОВЫВОД</label><input type="number" id="auto" value="2.00"></div>
-        </div>
-        <button class="btn-main" id="main_btn" onclick="handleAction()">Сделать ставку</button>
-    </div>
+let x=1.0, fly=false, loop;
 
-    <div class="nav">
-        <div class="nav-i">🏆<br>Топ</div>
-        <div class="nav-i active">🚀<br>Краш</div>
-        <div class="nav-i">👤<br>Профиль</div>
-    </div>
+function action(){
+  const btn=document.getElementById("btn");
+  if(!fly){
+    fly=true; x=1.0;
+    btn.innerText="ЗАБРАТЬ";
+    btn.className="take";
+    document.getElementById("state").innerText="В ПОЛЕТЕ";
+    start();
+  } else {
+    tg.showAlert("Вывод на "+x.toFixed(2)+"x");
+    reset();
+  }
+}
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        let x = 1.0, isFlying = false, loop, balance = 100.0;
+function start(){
+  let crash=(1.3+Math.random()*4).toFixed(2);
+  loop=setInterval(()=>{
+    x+=x*0.01;
+    document.getElementById("x").innerText=x.toFixed(2)+"x";
+    if(x>=crash){
+      clearInterval(loop);
+      document.getElementById("state").innerText="💥 CRASH";
+      document.getElementById("btn").innerText="СГОРЕЛО";
+      setTimeout(reset,2000);
+    }
+  },60);
+}
 
-        function handleAction() {
-            const btn = document.getElementById('main_btn');
-            if (!isFlying) {
-                // Старт полета
-                isFlying = true;
-                btn.innerText = "ЗАБРАТЬ";
-                btn.className = "btn-main take";
-                document.getElementById('state').innerText = "В ПОЛЕТЕ";
-                startFlight();
-            } else {
-                // Забрать выигрыш
-                let win = (document.getElementById('bet').value * x).toFixed(2);
-                tg.showAlert("Успех! Вы выиграли " + win + " TON");
-                resetGame();
-            }
-        }
-
-        function startFlight() {
-            let crashPoint = (1.2 + Math.random() * 4).toFixed(2);
-            loop = setInterval(() => {
-                x += x * 0.01;
-                document.getElementById('mult').innerText = x.toFixed(2);
-                
-                // Автовывод
-                if (x >= document.getElementById('auto').value) {
-                    handleAction();
-                }
-
-                if (x >= crashPoint) {
-                    clearInterval(loop);
-                    document.getElementById('mult').style.color = "var(--red)";
-                    document.getElementById('state').innerText = "ВЗРЫВ";
-                    document.getElementById('main_btn').innerText = "СГОРЕЛО";
-                    document.getElementById('main_btn').className = "btn-main";
-                    setTimeout(resetGame, 2000);
-                }
-            }, 60);
-        }
-
-        function resetGame() {
-            clearInterval(loop);
-            x = 1.0; isFlying = false;
-            document.getElementById('mult').innerText = "1.00";
-            document.getElementById('mult').style.color = "white";
-            document.getElementById('state').innerText = "Ожидание...";
-            document.getElementById('main_btn').innerText = "Сделать ставку";
-            document.getElementById('main_btn').className = "btn-main";
-        }
-    </script>
+function reset(){
+  clearInterval(loop);
+  fly=false;
+  document.getElementById("x").innerText="1.00x";
+  document.getElementById("state").innerText="Ожидание";
+  const btn=document.getElementById("btn");
+  btn.innerText="Сделать ставку";
+  btn.className="start";
+}
+</script>
 </body>
 </html>
 """
 
-if __name__ == "__main__":
+# ===== ЗАПУСК =====
+async def main():
+    asyncio.create_task(dp.start_polling())
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+if __name__ == "__main__":
+    asyncio.run(main())
