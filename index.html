@@ -2,260 +2,221 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Crash TON Ultimate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crash TON FULL</title>
 
 <style>
-:root {
-    --bg:#07080a;--card:#121418;--blue:#0098ea;
-    --green:#0ecb81;--red:#f6465d;--text-sec:#707a8a;--gold:#f3ba2f;
+:root{
+--bg:#07080a;--card:#121418;--blue:#0098ea;
+--green:#0ecb81;--red:#f6465d;--gold:#f3ba2f;--sec:#707a8a
 }
-*{box-sizing:border-box;font-family:Inter,sans-serif;}
-body{background:var(--bg);color:white;margin:0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-/* HEADER */
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:var(--bg);color:white;height:100vh;display:flex;flex-direction:column}
 .header{display:flex;justify-content:space-between;padding:12px 16px}
-.online-count{background:#ffffff10;padding:5px 12px;border-radius:20px;color:var(--green);font-weight:800}
-.balance-pill{background:#1e2329;padding:6px 14px;border-radius:50px;font-weight:800}
-
-/* GAME */
-.game-view{position:relative;height:260px;border-bottom:1px solid #1a1d23}
+.balance{background:#1e2329;padding:6px 14px;border-radius:50px;font-weight:900}
+.game{position:relative;height:260px;border-bottom:1px solid #1a1d23}
 canvas{position:absolute;inset:0}
-.multiplier-text{position:absolute;width:100%;top:35%;text-align:center;font-size:64px;font-weight:900}
-.countdown-text{position:absolute;width:100%;top:30%;text-align:center;font-size:90px;font-weight:900}
-
-.history-row{position:absolute;top:10px;left:10px;display:flex;gap:6px}
-.h-tag{background:#1e2329;padding:4px 8px;border-radius:6px;font-size:12px}
-.h-tag.high{color:var(--blue)}
-
-/* TABS */
-.tabs-nav{display:flex;background:var(--card);margin:12px;border-radius:12px;padding:4px}
-.tab-item{flex:1;text-align:center;padding:10px;font-weight:800;color:var(--text-sec);cursor:pointer;border-radius:8px}
-.tab-item.active{background:#1e2329;color:white}
-
-/* BET PANEL */
-.bet-panel{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
-.inputs-row{display:flex;gap:10px}
-.input-box{flex:1;background:#1c1f24;border-radius:12px;padding:10px;border:1px solid #2a2e35}
-.input-box label{font-size:10px;color:var(--text-sec);font-weight:800}
-.input-box input{background:none;border:none;color:white;font-size:18px;font-weight:800;width:100%}
-
-.btn-main{height:58px;border-radius:14px;border:none;font-size:18px;font-weight:900;background:var(--blue);color:white}
-.btn-main.collect{background:var(--green)}
-.btn-main:disabled{background:#1e2329;color:var(--text-sec)}
-
-/* LIST */
-.scroll-area{flex:1;overflow-y:auto;padding:0 16px}
-.bet-card{background:var(--card);padding:12px;border-radius:14px;display:flex;justify-content:space-between;margin-bottom:8px}
-
-/* BOTTOM */
-.bottom-nav{background:#0c0d10;display:flex;padding:10px 0;border-top:1px solid #1a1d23}
-.nav-btn{flex:1;text-align:center;color:var(--text-sec);font-size:10px;opacity:.6}
-.nav-btn.active{color:var(--blue);opacity:1}
-
-/* TOAST */
-#win-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
+.mult{position:absolute;width:100%;top:35%;text-align:center;font-size:64px;font-weight:900}
+.count{position:absolute;width:100%;top:30%;text-align:center;font-size:90px;font-weight:900}
+.history{position:absolute;top:10px;left:10px;display:flex;gap:6px}
+.h{background:#1e2329;padding:4px 8px;border-radius:6px;font-size:12px}
+.tabs{display:flex;background:var(--card);margin:12px;border-radius:12px;padding:4px}
+.tab{flex:1;text-align:center;padding:10px;font-weight:900;color:var(--sec);cursor:pointer;border-radius:8px}
+.tab.active{background:#1e2329;color:white}
+.panel{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px}
+.box{flex:1;background:#1c1f24;border-radius:12px;padding:10px}
+.box label{font-size:10px;color:var(--sec);font-weight:800}
+.box input{background:none;border:none;color:white;font-size:18px;font-weight:900;width:100%}
+.btn{height:58px;border-radius:14px;border:none;font-size:18px;font-weight:900;background:var(--blue);color:white}
+.btn.collect{background:var(--green)}
+.btn:disabled{background:#1e2329;color:var(--sec)}
+.list{flex:1;overflow:auto;padding:0 16px}
+.card{background:var(--card);padding:12px;border-radius:14px;display:flex;justify-content:space-between;margin-bottom:8px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
 background:#1c1f24;padding:14px 24px;border-radius:14px;border:1px solid var(--green);
 transition:.4s;z-index:999}
-#win-toast.show{transform:translateX(-50%) translateY(0)}
+.toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 
 <body>
 
-<div id="win-toast"><b>Вы забрали: 0.00 TON</b></div>
+<div class="toast" id="toast"><b>+0 TON</b></div>
 
 <div class="header">
-<div class="online-count">● 124 онлайн</div>
-<div class="balance-pill">💎 <span id="userBalance">112.97</span></div>
+<div>● online</div>
+<div class="balance">💎 <span id="bal">100.00</span></div>
 </div>
 
-<div class="game-view">
-<div class="history-row" id="historyBox"></div>
-<canvas id="gameCanvas"></canvas>
-<div id="multiplier" class="multiplier-text">x1.00</div>
-<div id="countdown" class="countdown-text">5</div>
+<div class="game">
+<div class="history" id="hist"></div>
+<canvas id="cv"></canvas>
+<div class="mult" id="mult">x1.00</div>
+<div class="count" id="count">5</div>
 </div>
 
-<div class="tabs-nav">
-<div class="tab-item active" onclick="setTab('bets')">СТАВКИ</div>
-<div class="tab-item" onclick="setTab('top')">ТОП</div>
-<div class="tab-item" onclick="setTab('prof')">ПРОФИЛЬ</div>
+<div class="tabs">
+<div class="tab active" onclick="tab('bets')">СТАВКИ</div>
+<div class="tab" onclick="tab('top')">ТОП</div>
+<div class="tab" onclick="tab('admin')">АДМИН</div>
 </div>
 
-<div class="bet-panel">
-<div class="inputs-row">
-<div class="input-box"><label>СУММА</label><input type="number" id="inpSum" value="10"></div>
-<div class="input-box"><label>АВТОВЫВОД</label><input type="number" id="inpAuto" value="1.50"></div>
+<div class="panel">
+<div class="row">
+<div class="box"><label>СУММА</label><input id="sum" type="number" value="10"></div>
+<div class="box"><label>АВТО</label><input id="auto" type="number" value="1.5"></div>
 </div>
-<button id="mainBtn" class="btn-main" onclick="onMainAction()">Сделать ставку</button>
+<button class="btn" id="btn" onclick="action()">Сделать ставку</button>
 </div>
 
-<div class="scroll-area" id="listContent"></div>
-
-<div class="bottom-nav">
-<div class="nav-btn active">🚀 Краш</div>
-<div class="nav-btn">🏆 Топ</div>
-<div class="nav-btn">👤 Профиль</div>
-</div>
+<div class="list" id="list"></div>
 
 <script>
-/* DATA */
-let balance=112.97,state='WAITING',x=1,currentBet=0,hasBet=false,hasTaken=false;
-const userProfile={id:8829103,name:"Forever Young",games:14,wins:6,profit:42.35};
-const leaders=[
-{name:"Alex",profit:312.4},
-{name:"Sanya",profit:198.2},
-{name:"Maks",profit:155.9},
-{name:"Vlad",profit:120.5},
-{name:"Den",profit:98.1}
+/* ================= CORE ================= */
+let balance=100,state="WAIT",x=1,bet=0,taken=false;
+const user={id:1,name:"YOU",role:"admin",banned:false,last:[]};
+const bans=[];
+const leaders=[];
+const toast=document.getElementById("toast");
+
+/* ================= CANVAS ================= */
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+cv.width=innerWidth;cv.height=260;
+const rocket=new Image();
+rocket.src="https://cdn-icons-png.flaticon.com/512/1043/1043514.png";
+
+/* ================= BOT ================= */
+const BOT_ENABLED=true;
+const bots=[
+{name:"BOT_A",bal:9999},
+{name:"BOT_B",bal:9999},
+{name:"BOT_C",bal:9999}
 ];
 
-let canvas,ctx,loop;
-let rocketImg=new Image();
-rocketImg.src='https://cdn-icons-png.flaticon.com/512/1043/1043514.png';
-
-function init(){
-canvas=document.getElementById('gameCanvas');
-canvas.width=window.innerWidth;
-canvas.height=260;
-ctx=canvas.getContext('2d');
-updateBalance();
-setTab('bets');
-startCycle();
+/* ================= ANTIFRAUD ================= */
+function antifraud(v){
+const n=Date.now();
+user.last.push(n);
+user.last=user.last.filter(t=>n-t<4000);
+if(user.last.length>5){ban(user.id);return false}
+return true
 }
-function updateBalance(){userBalance.innerText=balance.toFixed(2);}
 
-/* GAME */
-function startCycle(){
-state='WAITING';x=1;hasBet=false;hasTaken=false;
-countdown.style.display='block';
-multiplier.style.display='none';
-mainBtn.innerText="Сделать ставку";
-mainBtn.className="btn-main";
-mainBtn.disabled=false;
-ctx.clearRect(0,0,canvas.width,canvas.height);
+/* ================= BAN ================= */
+function ban(id){
+bans.push(id);
+alert("BAN");
+location.reload();
+}
 
+/* ================= GAME ================= */
+function start(){
+state="WAIT";x=1;taken=false;
+count.style.display="block";
+mult.style.display="none";
+btn.disabled=false;btn.textContent="Сделать ставку";
 let t=5;
-let timer=setInterval(()=>{
-countdown.innerText=t;
-t--;
-if(t<0){clearInterval(timer);launch();}
+const timer=setInterval(()=>{
+count.textContent=t--;
+if(t<0){clearInterval(timer);fly()}
 },1000);
 }
 
-function onMainAction(){
-if(state==='WAITING'&&!hasBet){
-let s=parseFloat(inpSum.value);
-if(s>0&&s<=balance){
-balance-=s;currentBet=s;hasBet=true;updateBalance();
-mainBtn.innerText="Ставка принята";
-mainBtn.disabled=true;
+function fly(){
+state="FLY";
+count.style.display="none";
+mult.style.display="block";
+if(bet>0){btn.textContent="Забрать";btn.className="btn collect"}
+const crash=(Math.random()*4+1.1).toFixed(2);
+const auto=+document.getElementById("auto").value;
+
+const loop=setInterval(()=>{
+x+=x*0.012;
+mult.textContent="x"+x.toFixed(2);
+ctx.clearRect(0,0,cv.width,cv.height);
+ctx.beginPath();
+ctx.strokeStyle="#0ecb81";ctx.lineWidth=5;
+ctx.moveTo(40,220);
+ctx.quadraticCurveTo((x-1)*40,220,(x-1)*60,220-(x-1)*45);
+ctx.stroke();
+ctx.drawImage(rocket,(x-1)*60,220-(x-1)*45,40,40);
+
+if(bet&&!taken&&x>=auto)collect();
+if(x>=crash){clearInterval(loop);boom(crash)}
+},60);
+
+/* BOT ACTION */
+if(BOT_ENABLED){
+bots.forEach(b=>{
+if(Math.random()>0.6)addBet(b.name,(Math.random()*2+1).toFixed(2))
+});
 }
-}else if(state==='FLIGHT'&&hasBet&&!hasTaken){
+}
+
+function boom(v){
+const h=document.createElement("div");
+h.className="h";h.textContent=v;
+hist.prepend(h);if(hist.children.length>6)hist.lastChild.remove();
+setTimeout(start,2000);
+}
+
+function action(){
+if(state==="WAIT"){
+const s=+sum.value;
+if(s<=0||s>balance||!antifraud(s))return;
+balance-=s;bet=s;
+update();
+btn.disabled=true;btn.textContent="Принято";
+}else if(state==="FLY"&&!taken){
 collect();
 }
 }
 
-function launch(){
-state='FLIGHT';
-countdown.style.display='none';
-multiplier.style.display='block';
-if(hasBet){
-mainBtn.innerText="Забрать";
-mainBtn.className="btn-main collect";
-mainBtn.disabled=false;
-}
-let crashAt=(Math.random()*4+1.1).toFixed(2);
-let autoOut=parseFloat(inpAuto.value);
-
-loop=setInterval(()=>{
-x+=x*0.012;
-multiplier.innerText=`x${x.toFixed(2)}`;
-
-let progress=(x-1)*60;
-let tx=Math.min(progress+40,canvas.width-60);
-let ty=220-Math.min((x-1)*45,180);
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-ctx.beginPath();
-ctx.strokeStyle="#0ecb81";ctx.lineWidth=5;
-ctx.moveTo(40,220);
-ctx.quadraticCurveTo(tx/2+20,220,tx,ty);
-ctx.stroke();
-ctx.drawImage(rocketImg,tx-25,ty-25,50,50);
-
-if(hasBet&&!hasTaken&&x>=autoOut)collect();
-if(x>=crashAt)explode(crashAt);
-},60);
-}
-
 function collect(){
-hasTaken=true;
-let win=currentBet*x;
-balance+=win;updateBalance();
-win-toast.innerHTML=`<b>Вы забрали: ${win.toFixed(2)} TON</b>`;
-win-toast.classList.add('show');
-mainBtn.innerText="Вы забрали";
-mainBtn.disabled=true;
-setTimeout(()=>win-toast.classList.remove('show'),2000);
+taken=true;
+const win=bet*x;
+balance+=win;
+toast.innerHTML="<b>+"+win.toFixed(2)+" TON</b>";
+toast.classList.add("show");
+setTimeout(()=>toast.classList.remove("show"),2000);
+btn.disabled=true;btn.textContent="Забрано";
+leaders.push({name:user.name,win});
+update();
 }
 
-function explode(val){
-clearInterval(loop);
-state='CRASH';
-multiplier.style.color="var(--red)";
-let hb=document.getElementById('historyBox');
-let tag=document.createElement('div');
-tag.className=`h-tag ${val>2?'high':''}`;
-tag.innerText=val;
-hb.prepend(tag);if(hb.children.length>6)hb.lastChild.remove();
-setTimeout(()=>{
-multiplier.style.color="white";
-startCycle();
-},2500);
+function update(){bal.textContent=balance.toFixed(2)}
+
+/* ================= LISTS ================= */
+function addBet(name,x){
+const d=document.createElement("div");
+d.className="card";
+d.innerHTML=`<div>${name}</div><div>x${x}</div>`;
+list.prepend(d);
 }
 
-/* TABS */
-function setTab(name){
-document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
-const list=listContent;
-
-if(name==='bets'){
-document.querySelectorAll('.tab-item')[0].classList.add('active');
+/* ================= TABS ================= */
+function tab(t){
+document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
+event.target.classList.add("active");
+list.innerHTML="";
+if(t==="bets"){addBet("BOT","1.45")}
+if(t==="top"){
+leaders.slice(-10).reverse().forEach(l=>{
+list.innerHTML+=`<div class="card"><div>${l.name}</div><div style="color:var(--gold)">+${l.win.toFixed(2)}</div></div>`
+})
+}
+if(t==="admin"){
 list.innerHTML=`
-<div class="bet-card"><b>Онлайн ставки</b><span style="color:var(--green)">LIVE</span></div>
-<div class="bet-card"><div>Игрок_1</div><div style="color:var(--green)">+2.4</div></div>
-<div class="bet-card"><div>Игрок_2</div><div style="color:var(--red)">-1.0</div></div>
-`;
-}
-
-if(name==='top'){
-document.querySelectorAll('.tab-item')[1].classList.add('active');
-list.innerHTML=`
-<div class="bet-card"><b>🏆 Таблица лидеров</b></div>
-${leaders.map((l,i)=>`
-<div class="bet-card">
-<div>#${i+1} ${l.name}</div>
-<div style="color:var(--gold)">+${l.profit} TON</div>
-</div>`).join('')}
-`;
-}
-
-if(name==='prof'){
-document.querySelectorAll('.tab-item')[2].classList.add('active');
-list.innerHTML=`
-<div class="bet-card"><b>👤 Профиль</b></div>
-<div class="bet-card"><div>ID</div><div>${userProfile.id}</div></div>
-<div class="bet-card"><div>Ник</div><div>${userProfile.name}</div></div>
-<div class="bet-card"><div>Игр</div><div>${userProfile.games}</div></div>
-<div class="bet-card"><div>Побед</div><div>${userProfile.wins}</div></div>
-<div class="bet-card"><div>Профит</div><div style="color:var(--green)">+${userProfile.profit} TON</div></div>
+<div class="card"><b>ADMIN</b></div>
+<div class="card"><button onclick="ban(1)">BAN USER</button></div>
 `;
 }
 }
 
-window.onload=init;
+/* ================= START ================= */
+update();
+start();
 </script>
 </body>
-</html>  
+</html>
