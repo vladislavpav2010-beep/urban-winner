@@ -1,105 +1,168 @@
-import uvicorn, asyncio, os
-from aiogram import Bot, Dispatcher, types
+import logging, sqlite3, uvicorn, random
+from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import WebAppInfo
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-# ===== НАСТРОЙКИ =====
-TOKEN = os.getenv("BOT_TOKEN")        # токен в переменной окружения
-WEBAPP_URL = os.getenv("WEBAPP_URL")  # https://xxxx.ngrok.io
+# Твой рабочий токен
+TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI" 
+# Сюда вставь ссылку из ngrok (например: https://abcd.ngrok-free.app)
+WEBAPP_URL = "ВСТАВЬ_ССЫЛКУ_ИЗ_NGROK"
 
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot)
 app = FastAPI()
 
-# ===== BOT =====
-@dp.message_handler(commands=["start"])
-async def start(m: types.Message):
-    kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton(
-        "🚀 Начать игру",
-        web_app=WebAppInfo(url=WEBAPP_URL)
-    ))
-    await m.answer("💎 Баланс: 100.00 TON", reply_markup=kb)
+def init_db():
+    with sqlite3.connect("wheel.db") as conn:
+        # Устанавливаем стартовый баланс 100 TON
+        conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, balance REAL DEFAULT 100.00)")
+        conn.commit()
 
-# ===== WEB APP =====
+@dp.message_handler(commands=['start'])
+async def start(m: types.Message):
+    with sqlite3.connect("wheel.db") as conn:
+        conn.execute("INSERT OR IGNORE INTO users (id) VALUES (?)", (m.from_user.id,))
+    
+    # Кнопка для открытия WebApp
+    kb = types.InlineKeyboardMarkup()
+    kb.add(types.InlineKeyboardButton("🎡 Открыть PvP Колесо", web_app=WebAppInfo(url=WEBAPP_URL)))
+    await m.answer(f"<b>💎 Твой баланс: 100.00 TON</b>\nНажми кнопку, чтобы войти в игру!", reply_markup=kb)
+
 @app.get("/", response_class=HTMLResponse)
-async def game():
+async def serve_game():
     return """
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-body{margin:0;background:#07080a;color:white;font-family:sans-serif}
-.center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
-#x{font-size:72px;font-weight:900}
-button{width:80%;height:60px;font-size:20px;border:none;border-radius:16px}
-.start{background:#0098ea}
-.take{background:#0ecb81}
-</style>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #0b0e11; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .header { display: flex; justify-content: space-around; padding: 15px; background: #161a1e; border-bottom: 1px solid #2b3139; }
+        .tab { color: #848e9c; font-weight: bold; font-size: 14px; }
+        .active { color: white; border-bottom: 2px solid #0098ea; padding-bottom: 5px; }
+        
+        /* Колесо с новогодней гирляндой как на видео */
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 25px auto; }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 10px solid #2b3139; background: #1e2329; transition: transform 5s cubic-bezier(0.1, 0, 0.2, 1); }
+        .pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
+        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 75px; height: 75px; background: #0b0e11; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #2b3139; font-size: 16px; }
+
+        /* Панель управления ставками */
+        .bet-box { padding: 15px; display: flex; flex-direction: column; align-items: center; background: #0b0e11; }
+        input { background: #1e2329; border: 1px solid #2b3139; color: white; padding: 12px; border-radius: 10px; width: 85%; text-align: center; margin-bottom: 15px; font-size: 16px; }
+        .btn-join { background: #0098ea; color: white; border: none; padding: 15px; border-radius: 12px; width: 90%; font-weight: bold; font-size: 16px; }
+
+        /* Нижнее меню */
+        .footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #161a1e; padding: 12px 0; border-top: 1px solid #2b3139; }
+        .f-item { font-size: 11px; color: #848e9c; text-align: center; opacity: 0.8; }
+        .f-item.active { color: #0098ea; opacity: 1; }
+
+        .players-list { overflow-y: auto; flex-grow: 1; width: 100%; padding-bottom: 70px; }
+        .p-row { display: flex; justify-content: space-between; padding: 12px 20px; background: #1e2329; margin: 4px 10px; border-radius: 10px; font-size: 14px; border-left: 4px solid #0098ea; }
+    </style>
 </head>
 <body>
-<div class="center">
-<div id="x">1.00x</div>
-<p id="state">Ожидание</p>
-<button id="btn" class="start" onclick="action()">Сделать ставку</button>
-</div>
+    <div class="header"><div class="tab active">Гифты</div><div class="tab">Стикеры</div></div>
+    
+    <div style="text-align:center; padding: 10px; font-size: 13px; color: #848e9c;">
+        Твой баланс: <span id="myBal" style="color:#0ecb81; font-weight:bold;">100.00</span> TON
+    </div>
 
-<script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <div id="wheel"></div>
+        <div class="center-hub" id="status">ОЖИДАНИЕ</div>
+    </div>
 
-let x=1.0, fly=false, loop;
+    <div id="betPanel" class="bet-box">
+        <input type="number" id="amount" value="1.0" min="0.1">
+        <button class="btn-join" onclick="placeBet()">ДОБАВИТЬ В PvP</button>
+    </div>
 
-function action(){
-  const btn=document.getElementById("btn");
-  if(!fly){
-    fly=true; x=1.0;
-    btn.innerText="ЗАБРАТЬ";
-    btn.className="take";
-    document.getElementById("state").innerText="В ПОЛЕТЕ";
-    start();
-  } else {
-    tg.showAlert("Вывод на "+x.toFixed(2)+"x");
-    reset();
-  }
-}
+    <div class="players-list" id="p-list"></div>
 
-function start(){
-  let crash=(1.3+Math.random()*4).toFixed(2);
-  loop=setInterval(()=>{
-    x+=x*0.01;
-    document.getElementById("x").innerText=x.toFixed(2)+"x";
-    if(x>=crash){
-      clearInterval(loop);
-      document.getElementById("state").innerText="💥 CRASH";
-      document.getElementById("btn").innerText="СГОРЕЛО";
-      setTimeout(reset,2000);
-    }
-  },60);
-}
+    <div class="footer">
+        <div class="f-item active">⚔️ ПвП</div><div class="f-item">🎡 Соло</div><div class="f-item">🎒 Инвентарь</div><div class="f-item">🏪 Магазин</div><div class="f-item">👤 Профиль</div>
+    </div>
 
-function reset(){
-  clearInterval(loop);
-  fly=false;
-  document.getElementById("x").innerText="1.00x";
-  document.getElementById("state").innerText="Ожидание";
-  const btn=document.getElementById("btn");
-  btn.innerText="Сделать ставку";
-  btn.className="start";
-}
-</script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let bal = 100.00;
+        let players = [];
+        let running = false;
+
+        function placeBet() {
+            if(running) return;
+            const val = parseFloat(document.getElementById('amount').value);
+            if(val > bal) return tg.showAlert("Не хватает TON!");
+
+            bal -= val;
+            document.getElementById('myBal').innerText = bal.toFixed(2);
+            document.getElementById('betPanel').style.display = 'none';
+            
+            players = [{name: "Ты", bet: val, color: "#0098ea"}];
+            updateGame();
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let sec = 15; // Таймер из видео
+            let timer = setInterval(() => {
+                document.getElementById('status').innerText = `00:${sec < 10 ? '0'+sec : sec}`;
+                
+                // Боты залетают по времени
+                if(sec == 12) addBot("Gusati", 0.5, "#f6465d");
+                if(sec == 7) addBot("Andre", 2.1, "#0ecb81");
+                if(sec == 3) addBot("NeverBye", 1.8, "#f0b90b");
+
+                if(sec <= 0) {
+                    clearInterval(timer);
+                    spin();
+                }
+                sec--;
+            }, 1000);
+        }
+
+        function addBot(n, b, c) {
+            players.push({name: n, bet: b, color: c});
+            updateGame();
+        }
+
+        function updateGame() {
+            let total = players.reduce((s, p) => s + p.bet, 0);
+            let grad = ""; let start = 0; let html = "";
+            players.forEach(p => {
+                let deg = (p.bet / total) * 360;
+                grad += `${p.color} ${start}deg ${start+deg}deg, `;
+                start += deg;
+                html += `<div class="p-row"><span>👤 ${p.name}</span><b>${p.bet} TON</b></div>`;
+            });
+            document.getElementById('wheel').style.background = `conic-gradient(${grad.slice(0,-2)})`;
+            document.getElementById('p-list').innerHTML = html;
+        }
+
+        function spin() {
+            running = true;
+            document.getElementById('status').innerText = "ИГРА";
+            let deg = 1800 + Math.floor(Math.random() * 3600);
+            document.getElementById('wheel').style.transform = `rotate(${deg}deg)`;
+            setTimeout(() => {
+                tg.showPopup({title: "Раунд окончен", message: "Победитель определен!"});
+                setTimeout(() => location.reload(), 2000);
+            }, 5500);
+        }
+    </script>
 </body>
 </html>
-"""
-
-# ===== ЗАПУСК =====
-async def main():
-    asyncio.create_task(dp.start_polling())
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    """
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    init_db()
+    from threading import Thread
+    Thread(target=lambda: executor.start_polling(dp, skip_updates=True)).start()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
