@@ -3,165 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Crash TON Premium</title>
     <style>
         :root {
-            --bg: #11141a; /* Темный фон */
-            --card: #1c2027; /* Фон карточек и панелей */
-            --blue-main: #007bff; /* Основной синий */
-            --blue-light: #0098ea; /* Для множителей */
-            --green: #28a745; /* Для выигрышей */
-            --red: #dc3545; /* Для краша */
-            --text-secondary: #8c929a; /* Вторичный текст */
-            --border-color: #2b303a;
+            --bg: #0b0e11; --card: #181a20; --blue: #007bff;
+            --green: #0ecb81; --red: #f6465d; --text-sec: #848e9c;
         }
-
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; padding: 10px 16px; align-items: center; }
+        .online { background: #1e2329; padding: 4px 12px; border-radius: 20px; color: var(--green); font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+        .balance-wrap { display: flex; align-items: center; gap: 8px; background: #1e2329; padding: 4px 4px 4px 12px; border-radius: 20px; }
+        .add-btn { background: var(--blue); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
 
-        /* Header */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; background: var(--bg);
-            border-bottom: 1px solid var(--border-color);
-        }
-        .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
-        .close-btn { font-size: 24px; color: var(--text-secondary); cursor: pointer; }
-        .online-count {
-            background: rgba(0, 123, 255, 0.2); /* Прозрачный синий */
-            color: var(--blue-main); padding: 4px 10px; border-radius: 20px;
-            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px;
-        }
-        .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
-        .balance-display {
-            background: var(--card); padding: 6px 14px; border-radius: 50px;
-            display: flex; align-items: center; gap: 8px; font-weight: 700;
-            font-size: 14px; border: 1px solid var(--border-color);
-        }
-        .balance-display img { width: 18px; height: 18px; }
-        .add-balance-btn {
-            background: var(--blue-main); color: white; border-radius: 50%;
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 600; cursor: pointer;
-        }
+        /* GAME ZONE */
+        .page { flex: 1; display: none; flex-direction: column; position: relative; overflow: hidden; }
+        .page.active { display: flex; }
+        
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .mult-display { position: absolute; top: 30%; width: 100%; text-align: center; font-size: 70px; font-weight: 900; z-index: 5; }
+        .mult-display.crashed { color: var(--red); }
+        .mult-display.waiting { color: var(--text-sec); font-size: 50px; }
 
-        /* Game Area */
-        .game-area {
-            flex-grow: 1; position: relative; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            background: linear-gradient(180deg, #11141a 0%, #0a0c0f 100%);
-            overflow: hidden;
-        }
-        #main-display {
-            font-size: 80px; font-weight: 900;
-            color: white; z-index: 10;
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        #main-display.crashed { color: var(--red); }
-        #main-display.waiting { color: var(--text-secondary); font-size: 60px; }
+        /* PROFILE UI */
+        .profile-container { padding: 20px; text-align: center; }
+        .avatar-big { width: 80px; height: 80px; background: var(--blue); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #2b3139; }
+        .stat-val { display: block; font-size: 18px; font-weight: 800; color: var(--blue); }
+        .stat-label { font-size: 11px; color: var(--text-sec); text-transform: uppercase; }
 
-        #graphCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; }
+        /* CONTROLS & LIST */
+        .controls { padding: 16px; background: var(--bg); }
+        .main-btn { width: 100%; height: 56px; border-radius: 12px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; box-shadow: 0 4px 0 #0056b3; }
+        .main-btn.collect { background: var(--green); box-shadow: 0 4px 0 #0a9d63; }
+        
+        .players-box { height: 180px; overflow-y: auto; padding: 0 16px; border-top: 1px solid #1e2329; }
+        .p-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e2329; font-size: 14px; }
 
-        .game-status-indicators {
-            position: absolute; bottom: 20px; display: flex; gap: 10px; z-index: 10;
-        }
-        .status-tag {
-            background: var(--card); padding: 6px 12px; border-radius: 8px;
-            font-size: 12px; font-weight: 600; color: var(--blue-main);
-        }
-        .status-tag.waiting { background: var(--blue-main); color: white; }
-        .history-tag { background: var(--card); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: white; }
-        .history-tag.green { color: var(--green); }
-        .history-tag.blue { color: var(--blue-light); }
-
-
-        /* Bet Button */
-        .bet-button-container { padding: 16px; background: var(--card); border-top: 1px solid var(--border-color); }
-        #place-bet-btn {
-            width: 100%; height: 56px; border-radius: 12px; border: none;
-            background: var(--blue-main); color: white; font-size: 18px; font-weight: 700;
-            cursor: pointer; transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 4px 0 rgba(0, 96, 191, 0.7); /* Темнее синий для тени */
-        }
-        #place-bet-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 96, 191, 0.7); }
-        #place-bet-btn:disabled {
-            background: #2b303a; color: var(--text-secondary); cursor: not-allowed;
-            box-shadow: none; transform: none;
-        }
-        #place-bet-btn.collect {
-            background: var(--green);
-            box-shadow: 0 4px 0 rgba(40, 167, 69, 0.7); /* Темнее зеленый */
-        }
-        #place-bet-btn.collect:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(40, 167, 69, 0.7); }
-
-
-        /* Other Players Bets */
-        .other-bets-section { flex-grow: 1; overflow-y: auto; background: var(--bg); padding: 0 16px; }
-        .player-bet-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid var(--border-color);
-        }
-        .player-bet-item:last-child { border-bottom: none; }
-        .player-info { display: flex; align-items: center; gap: 10px; }
-        .player-avatar {
-            width: 36px; height: 36px; background: var(--blue-light); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 16px;
-            font-weight: 700;
-        }
-        .player-name { font-weight: 600; font-size: 15px; }
-        .player-bet-details { text-align: right; }
-        .bet-amount { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 4px; }
-        .bet-mult { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            display: flex; justify-content: space-around; padding: 10px 0;
-            background: var(--card); border-top: 1px solid var(--border-color);
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--text-secondary); font-size: 11px; font-weight: 600;
-            cursor: pointer; padding: 5px; border-radius: 8px;
-            transition: color 0.2s, background 0.2s;
-        }
-        .nav-item.active { color: var(--blue-main); background: rgba(0, 123, 255, 0.1); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
+        /* NAV BAR */
+        .nav { display: flex; justify-content: space-around; padding: 12px 0; background: #181a20; border-top: 1px solid #1e2329; }
+        .nav-item { text-align: center; color: var(--text-sec); font-size: 11px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="header-left">
-        <span class="close-btn">×</span>
-        <div class="online-count"><span class="online-dot"></span> 134</div>
+    <div class="online"><div class="dot"></div> <span id="online-val">134</span></div>
+    <div class="balance-wrap">
+        <span id="bal-val">100.00</span>
+        <div class="add-btn">+</div>
     </div>
-    <div class="header-right">
-        <div class="balance-display">
-            <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" alt="TON">
-            <span id="balance-display">0.00</span>
+</div>
+
+<div id="game-page" class="page active">
+    <canvas id="gameCanvas"></canvas>
+    <div class="mult-display" id="mult">3</div>
+    <div class="controls">
+        <button class="main-btn" id="bet-btn">Сделать ставку</button>
+    </div>
+    <div class="players-box" id="players"></div>
+</div>
+
+<div id="profile-page" class="page">
+    <div class="profile-container">
+        <div class="avatar-big">U</div>
+        <h2>Игрок #<span id="p-id">...</span></h2>
+        <div class="stat-grid">
+            <div class="stat-card"><span class="stat-val" id="st-games">0</span><span class="stat-label">Игр</span></div>
+            <div class="stat-card"><span class="stat-val" id="st-wins">0</span><span class="stat-label">Побед</span></div>
+            <div class="stat-card" style="grid-column: span 2;"><span class="stat-val" id="st-max">1.00x</span><span class="stat-label">Лучший икс</span></div>
         </div>
-        <div class="add-balance-btn">+</div>
+        <button class="main-btn" style="margin-top: 30px; background: #2b3139; box-shadow: none;" onclick="resetData()">Сбросить всё</button>
     </div>
 </div>
 
-<div class="game-area">
-    <canvas id="graphCanvas"></canvas>
-    <div id="main-display">3</div> <div class="game-status-indicators" id="game-status-indicators">
-        </div>
+<div class="nav">
+    <div class="nav-item" onclick="showPage('game')">🏆<br>Топ</div>
+    <div class="nav-item active" onclick="showPage('game')">🚀<br>Краш</div>
+    <div class="nav-item" onclick="showPage('profile')">👤<br>Профиль</div>
 </div>
 
-<div class="bet-button-container">
-    <button id="place-bet-btn">Сделать ставку</button>
-</div>
+<script>
+    // --- ДАННЫЕ ---
+    let data = JSON.parse(localStorage.getItem('crash_data')) || {
+        bal: 100.00, games: 0, wins: 0, max: 1.0, id: Math.floor(1000 + Math.random()*9000)
+    };
 
-<div class="other-bets-section" id="other-players-bets">
-    </div>
+    function save() {
+        localStorage.setItem('crash_data', JSON.stringify(data));
+        document.getElementById('bal-val').innerText = data.bal.toFixed(2);
+        document.getElementById('p-id').innerText = data.id;
+        document.getElementById('st-games').innerText = data.games;
+        document.getElementById('st-wins').innerText = data.wins;
+        document.getElementById('st-max').innerText = data.max.toFixed(2) + 'x';
+    }
 
-<div class="bottom-nav">
-    <div class="nav-item">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 17h16V19H4zM4 11h16V13H4zM4 5h16V7H4z"></path></svg>
-        <span>Топ</span>
-    </div>
-    <div class="nav-item active">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.01 6.012c1.789 0 3.336.879 4.298 2.228 1.487-1.104 3.493-1.87 5.766-1.996.113.003.224.015.334.032.428.066.72.483.654.91-.013.08-.03.159-.05.237a.9.9 0 01-.13.34c-1.272 2.87-4.04 4.872-7.272 5.092L12 12l.006.012c.004.004.008.007.012.011l.002.003c.005.005.008.01.012.015 3.328-.003 6.07-1.968 7.378-4.83.009-.02.019-.04.028-.06.126-.263.2-.556.2-.871a2.03 2.03 0 00-2.005-2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.
+    // --- ЛОГИКА ИГРЫ ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const multText = document.getElementById('mult');
+    const betBtn = document.getElementById('bet-btn');
+    
+    let isRunning = false;
+    let currentMult = 1.00;
+    let myBet = 0;
+
+    function runCycle() {
+        isRunning = false;
+        let cd = 3;
+        multText.className = 'mult-display waiting';
+        const timer = setInterval(() => {
+            multText.innerText = cd;
+            cd--;
+            if(cd < 0) { clearInterval(timer); startFly(); }
+        }, 1000);
+    }
+
+    function startFly() {
+        isRunning = true;
+        multText.className = 'mult-display';
+        let start = Date.now();
+        let crashPoint = (Math.random() < 0.05) ? 1.00 : (0.98 / (1 - Math.random()) + 1).toFixed(2);
+
+        if(myBet > 0) {
+            betBtn.innerText = "Вывести";
+            betBtn.classList.add('collect');
+            data.games++;
+            save();
+        }
+
+        const loop = setInterval(() => {
+            let elapsed = (Date.now() - start) / 1000;
+            currentMult = Math.pow(Math.E, 0.08 * elapsed);
+            multText.innerText = currentMult.toFixed(2) + "x";
+            draw(elapsed);
+
+            if(currentMult >= crashPoint) {
+                clearInterval(loop);
+                crash(crashPoint);
+            }
+        }, 50);
+    }
+
+    function draw(t) {
+        canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.beginPath(); ctx.strokeStyle = '#007bff'; ctx.lineWidth = 4;
+        ctx.moveTo(0, canvas.height);
+        let x = Math.min(canvas.width * 0.8, t * 50);
+        let y = canvas.height - Math.min(canvas.height * 0.8, Math.pow(t, 1.8) * 10);
+        ctx.quadraticCurveTo(canvas.width * 0.2, canvas.height, x, y);
+        ctx.stroke();
+        ctx.font = "30px Arial"; ctx.fillText("🚀", x - 15, y - 5);
+    }
+
+    function crash(p) {
+        isRunning = false;
+        multText.innerText = p + "x";
+        multText.classList.add('crashed');
+        betBtn.innerText = "Сделать ставку";
+        betBtn.classList.remove('collect');
+        betBtn.disabled = false;
+        myBet = 0;
+        setTimeout(runCycle, 3000);
+    }
+
+    betBtn.onclick = () => {
+        if(!isRunning && myBet === 0) {
+            if(data.bal >= 10) {
+                myBet = 10; data.bal -= 10;
+                betBtn.innerText = "Ставка принята";
+                betBtn.disabled = true;
+                save();
+            }
+        } else if(isRunning && myBet > 0) {
+            let win = myBet * currentMult;
+            data.bal += win; data.wins++;
+            if(currentMult > data.max) data.max = currentMult;
+            myBet = 0;
+            betBtn.innerText = "+" + win.toFixed(2);
+            betBtn.disabled = true;
+            save();
+        }
+    };
+
+    // --- НАВИГАЦИЯ ---
+    function showPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(p + '-page').classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function resetData() {
+        if(confirm("Сбросить баланс и статистику?")) {
+            localStorage.clear(); location.reload();
+        }
+    }
+
+    save(); runCycle();
+</script>
+</body>
+</html>
