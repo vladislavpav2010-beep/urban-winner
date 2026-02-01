@@ -33,9 +33,11 @@
         display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; cursor: pointer;  
     }  
 
+    /* --- PAGES LAYOUT --- */  
     .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }  
     .page.active { display: flex; }  
 
+    /* --- GAME PAGE --- */  
     .game-container {  
         position: relative; height: 350px; width: 100%;  
         background: radial-gradient(circle at center, #1b2026 0%, #0d1012 70%);  
@@ -75,6 +77,7 @@
         padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;  
     }  
 
+    /* --- PROFILE PAGE --- */  
     .profile-header { padding: 24px 16px; display: flex; align-items: center; gap: 16px; }  
     .avatar-circle {  
         width: 64px; height: 64px; background: var(--green); color: white;  
@@ -106,6 +109,7 @@
         display: flex; align-items: center; justify-content: center; font-size: 24px; color: #555;  
     }  
 
+    /* --- FOOTER NAV --- */  
     .bottom-nav {  
         position: fixed; bottom: 0; width: 100%; background: #16191e;  
         border-top: 1px solid var(--border); display: flex; justify-content: space-around;  
@@ -118,10 +122,9 @@
     .nav-item svg { width: 24px; height: 24px; fill: currentColor; }  
     .nav-item.active { color: var(--blue); }  
 </style>
-</head>  
-<body>  
 
-<div class="header">  
+</head>  
+<body>  <div class="header">  
     <div class="online-badge"><span style="color:#28a745">●</span> <span id="online-count">134</span></div>  
     <div class="balance-box">  
         <span id="balance-display">0.00</span>  
@@ -137,38 +140,56 @@
             <div class="status-text" id="status-text">Ожидание ставки</div>  
         </div>  
     </div>  
-    <div class="history-row" id="history-row"></div>  
+      
+    <div class="history-row" id="history-row">  
+        </div>  
+
     <div class="controls-area">  
         <button class="bet-btn" id="action-btn">Сделать ставку (10.00)</button>  
     </div>  
-    <div class="players-list" id="players-list"></div>  
+
+    <div class="players-list" id="players-list">  
+        </div>  
 </div>  
 
 <div id="page-profile" class="page">  
     <div class="profile-header">  
-        <div class="avatar-circle">Г</div>  
+        <div class="avatar-circle">В</div>  
         <div class="user-info">  
-            <h2>GiftHub User</h2>  
+            <h2>Владислав</h2>  
             <div class="flag-badge">🇷🇺 Россия</div>  
         </div>  
     </div>  
+
     <div class="action-grid">  
         <div class="act-btn primary" onclick="addBalance()">Пополнить</div>  
         <div class="act-btn">Награды</div>  
     </div>  
+
     <div class="section-box">  
-        <div class="box-header"><span>Инвентарь (0)</span><span class="link-blue">Продать все</span></div>  
+        <div class="box-header">  
+            <span>Инвентарь (0)</span>  
+            <span class="link-blue">Продать все</span>  
+        </div>  
         <div class="inv-items">  
-            <div class="inv-slot">🔒</div><div class="inv-slot">🔒</div><div class="inv-slot">🔒</div><div class="inv-slot">🔒</div>  
+            <div class="inv-slot">🔒</div>  
+            <div class="inv-slot">🔒</div>  
+            <div class="inv-slot">🔒</div>  
+            <div class="inv-slot">🔒</div>  
         </div>  
     </div>  
+
     <div class="section-box">  
-        <div class="box-header"><span>Рефералы</span><span class="link-blue">Подробнее</span></div>  
+        <div class="box-header">  
+            <span>Рефералы</span>  
+            <span class="link-blue">Подробнее</span>  
+        </div>  
         <div style="font-size: 13px; color: #888; line-height: 1.4;">  
             Зарабатывайте 10% от депозитов ваших друзей. <br>  
             <button class="act-btn primary" style="width:100%; margin-top:10px;">Пригласить друга</button>  
         </div>  
     </div>  
+      
     <div style="padding: 20px; text-align: center;">  
         <button onclick="resetProgress()" style="background:none; border:none; color: #555; font-size: 12px;">Сброс прогресса</button>  
     </div>  
@@ -176,24 +197,27 @@
 
 <div class="bottom-nav">  
     <div class="nav-item" onclick="setPage('top')">  
-        <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>Топ  
+        <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>  
+        Топ  
     </div>  
     <div class="nav-item active" onclick="setPage('game')">  
-        <svg viewBox="0 0 24 24"><path d="M12 2.5s-6 8-6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12zM12 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>Краш  
+        <svg viewBox="0 0 24 24"><path d="M12 2.5s-6 8-6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12zM12 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>  
+        Краш  
     </div>  
     <div class="nav-item" onclick="setPage('profile')">  
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>Профиль  
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>  
+        Профиль  
     </div>  
 </div>
 
 <script>  
-    // --- ТОКЕН ПРОЕКТА ---
+    // --- ТОКЕН ОБНОВЛЕН ТУТ ---
     const BOT_TOKEN = "8577027584:AAHA35xAEAiuvwXR7No25Dj6QIenix3Z4_8";
 
     let state = {  
         balance: parseFloat(localStorage.getItem('crash_balance')) || 100.00,  
         betAmount: 10.00,  
-        gameState: 'IDLE',  
+        gameState: 'IDLE', 
         currentMult: 1.00,  
         myBetPlaced: false,  
         startTime: 0,  
@@ -228,11 +252,14 @@
     function addBalance() {  
         state.balance += 50;  
         updateBalanceDisplay();  
-        alert("Запрос отправлен в GiftHub. Баланс пополнен на 50.00 TON");  
+        alert("Запрос отправлен через бот. Баланс +50.00 TON");  
     }  
       
     function resetProgress() {  
-        if(confirm('Сбросить данные?')) { localStorage.clear(); location.reload(); }  
+        if(confirm('Сбросить данные?')) {  
+            localStorage.clear();  
+            location.reload();  
+        }  
     }  
   
     function startCountdown() {  
@@ -322,7 +349,7 @@
                 DOM.btn.classList.add('cashout');  
             } else { DOM.btn.innerText = "Игра идет..."; DOM.btn.disabled = true; }  
         } else if (state.gameState === 'CRASHED') {  
-            DOM.btn.innerText = "Ждем раунд..."; DOM.btn.disabled = true;  
+            DOM.btn.innerText = "Ожидание раунда..."; DOM.btn.disabled = true;  
         }  
     }  
   
@@ -370,13 +397,12 @@
         document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));  
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));  
         document.getElementById('page-' + pageId).classList.add('active');  
-        const navItems = document.querySelectorAll('.nav-item');
-        if (pageId === 'top') navItems[0].classList.add('active');
-        else if (pageId === 'game') navItems[1].classList.add('active');
-        else if (pageId === 'profile') navItems[2].classList.add('active');
+        const idx = ['top','game','profile'].indexOf(pageId);  
+        if(idx !== -1) document.querySelectorAll('.nav-item')[idx].classList.add('active');  
     }  
   
     init();  
 </script>  
 </body>  
 </html>
+
