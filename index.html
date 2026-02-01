@@ -3,267 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash TON Ultimate - Pro</title>
+    <title>Crash Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #07080a; --card: #121418; --blue: #0098ea;
-            --green: #0ecb81; --red: #f6465d; --text-sec: #707a8a; --gold: #f3ba2f;
+            --bg: #11141a; /* Темный фон */
+            --card: #1c2027; /* Фон карточек и панелей */
+            --blue-main: #007bff; /* Основной синий */
+            --blue-light: #0098ea; /* Для множителей */
+            --green: #28a745; /* Для выигрышей */
+            --red: #dc3545; /* Для краша */
+            --text-secondary: #8c929a; /* Вторичный текст */
+            --border-color: #2b303a;
         }
-        * { box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Header & Profile Trigger */
-        .header { display: flex; justify-content: space-between; padding: 12px 16px; align-items: center; background: var(--card); border-bottom: 1px solid #1a1d23; }
-        .profile-trigger { display: flex; align-items: center; gap: 8px; cursor: pointer; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 12px; }
-        .avatar-mini { width: 24px; height: 24px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-        .balance-pill { background: #1e2329; padding: 6px 14px; border-radius: 50px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; border: 1px solid #2b2f36; }
-        
-        /* Game View */
-        .game-view { position: relative; height: 280px; background: #07080a; overflow: hidden; }
-        canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .multiplier-text { position: absolute; width: 100%; text-align: center; top: 35%; font-size: 64px; font-weight: 900; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .multiplier-text.crashed { color: var(--red); }
-        .history-row { position: absolute; top: 12px; left: 16px; display: flex; gap: 6px; z-index: 12; }
-        .h-tag { background: rgba(30, 35, 41, 0.8); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--blue); border: 1px solid rgba(255,255,255,0.05); }
 
-        /* Controls */
-        .bet-panel { padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; background: var(--card); flex-grow: 1; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
-        .inputs-row { display: flex; gap: 10px; }
-        .input-box { flex: 1; background: #1c1f24; border-radius: 12px; padding: 10px; border: 1px solid #2a2e35; }
-        .input-box label { display: block; font-size: 10px; color: var(--text-sec); margin-bottom: 4px; font-weight: bold; }
-        .input-box input { background: transparent; border: none; color: white; font-weight: 800; font-size: 18px; width: 100%; outline: none; }
-        
-        .btn-main { width: 100%; height: 60px; border-radius: 16px; border: none; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #0077b6; position: relative; }
-        .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #0077b6; }
-        .btn-main.collect { background: var(--green); box-shadow: 0 4px 0 #0a9d63; }
-        .btn-main:disabled { background: #1e2329; color: var(--text-sec); box-shadow: none; transform: none; }
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px; background: var(--bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header-left, .header-right { display: flex; align-items: center; gap: 10px; }
+        .close-btn { font-size: 24px; color: var(--text-secondary); cursor: pointer; }
+        .online-count {
+            background: rgba(0, 123, 255, 0.2); /* Прозрачный синий */
+            color: var(--blue-main); padding: 4px 10px; border-radius: 20px;
+            font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px;
+        }
+        .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
+        .balance-display {
+            background: var(--card); padding: 6px 14px; border-radius: 50px;
+            display: flex; align-items: center; gap: 8px; font-weight: 700;
+            font-size: 14px; border: 1px solid var(--border-color);
+        }
+        .balance-display img { width: 18px; height: 18px; }
+        .add-balance-btn {
+            background: var(--blue-main); color: white; border-radius: 50%;
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 600; cursor: pointer;
+        }
 
-        /* Profile Modal */
-        #profile-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; padding: 30px 20px; }
-        .modal-content { background: var(--card); border-radius: 24px; padding: 24px; position: relative; border: 1px solid #2a2e35; }
-        .close-modal { position: absolute; top: 16px; right: 16px; font-size: 24px; color: var(--text-sec); cursor: pointer; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .stat-card { background: #1c1f24; padding: 15px; border-radius: 16px; text-align: center; }
-        .stat-val { display: block; font-size: 20px; font-weight: 800; color: var(--blue); }
-        .stat-lab { font-size: 11px; color: var(--text-sec); text-transform: uppercase; margin-top: 4px; }
+        /* Game Area */
+        .game-area {
+            flex-grow: 1; position: relative; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: linear-gradient(180deg, #11141a 0%, #0a0c0f 100%);
+            overflow: hidden;
+        }
+        #main-display {
+            font-size: 80px; font-weight: 900;
+            color: white; z-index: 10;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #main-display.crashed { color: var(--red); }
+        #main-display.waiting { color: var(--text-secondary); font-size: 60px; }
+
+        #graphCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; }
+
+        .game-status-indicators {
+            position: absolute; bottom: 20px; display: flex; gap: 10px; z-index: 10;
+        }
+        .status-tag {
+            background: var(--card); padding: 6px 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; color: var(--blue-main);
+        }
+        .status-tag.waiting { background: var(--blue-main); color: white; }
+        .history-tag { background: var(--card); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: white; }
+        .history-tag.green { color: var(--green); }
+        .history-tag.blue { color: var(--blue-light); }
+
+
+        /* Bet Button */
+        .bet-button-container { padding: 16px; background: var(--card); border-top: 1px solid var(--border-color); }
+        #place-bet-btn {
+            width: 100%; height: 56px; border-radius: 12px; border: none;
+            background: var(--blue-main); color: white; font-size: 18px; font-weight: 700;
+            cursor: pointer; transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 4px 0 rgba(0, 96, 191, 0.7); /* Темнее синий для тени */
+        }
+        #place-bet-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 96, 191, 0.7); }
+        #place-bet-btn:disabled {
+            background: #2b303a; color: var(--text-secondary); cursor: not-allowed;
+            box-shadow: none; transform: none;
+        }
+        #place-bet-btn.collect {
+            background: var(--green);
+            box-shadow: 0 4px 0 rgba(40, 167, 69, 0.7); /* Темнее зеленый */
+        }
+        #place-bet-btn.collect:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(40, 167, 69, 0.7); }
+
+
+        /* Other Players Bets */
+        .other-bets-section { flex-grow: 1; overflow-y: auto; background: var(--bg); padding: 0 16px; }
+        .player-bet-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--border-color);
+        }
+        .player-bet-item:last-child { border-bottom: none; }
+        .player-info { display: flex; align-items: center; gap: 10px; }
+        .player-avatar {
+            width: 36px; height: 36px; background: var(--blue-light); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+            font-weight: 700;
+        }
+        .player-name { font-weight: 600; font-size: 15px; }
+        .player-bet-details { text-align: right; }
+        .bet-amount { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 4px; }
+        .bet-mult { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex; justify-content: space-around; padding: 10px 0;
+            background: var(--card); border-top: 1px solid var(--border-color);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-secondary); font-size: 11px; font-weight: 600;
+            cursor: pointer; padding: 5px; border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .nav-item.active { color: var(--blue-main); background: rgba(0, 123, 255, 0.1); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="profile-trigger" onclick="toggleModal(true)">
-        <div class="avatar-mini">U</div>
-        <div style="font-size: 13px; font-weight: 600;">Профиль</div>
+    <div class="header-left">
+        <span class="close-btn">×</span>
+        <div class="online-count"><span class="online-dot"></span> 134</div>
     </div>
-    <div class="balance-pill">
-        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" width="16" alt="TON">
-        <span id="balance-display">100.00</span>
+    <div class="header-right">
+        <div class="balance-display">
+            <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" alt="TON">
+            <span id="balance-display">0.00</span>
+        </div>
+        <div class="add-balance-btn">+</div>
     </div>
 </div>
 
-<div class="game-view">
-    <div class="history-row" id="history"></div>
+<div class="game-area">
     <canvas id="graphCanvas"></canvas>
-    <div class="multiplier-text" id="multiplier">1.00x</div>
+    <div id="main-display">3</div> <div class="game-status-indicators" id="game-status-indicators">
+        </div>
 </div>
 
-<div class="bet-panel">
-    <div class="inputs-row">
-        <div class="input-box">
-            <label>СУММА СТАВКИ</label>
-            <input type="number" id="bet-amount" value="5.00" step="1">
-        </div>
-        <div class="input-box">
-            <label>АВТО-ВЫВОД</label>
-            <input type="number" id="auto-cashout" value="2.00" step="0.1">
-        </div>
+<div class="bet-button-container">
+    <button id="place-bet-btn">Сделать ставку</button>
+</div>
+
+<div class="other-bets-section" id="other-players-bets">
     </div>
-    <button class="btn-main" id="action-btn">СТАВКА</button>
-</div>
 
-<div id="profile-modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="toggleModal(false)">×</span>
-        <div style="text-align: center;">
-            <div style="width: 60px; height: 60px; background: var(--blue); border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900;">U</div>
-            <h3 style="margin: 0;">Игрок #<span id="player-id">7429</span></h3>
-            <p style="color: var(--text-sec); font-size: 12px;">Статус: Новичок</p>
-        </div>
-        
-        <div class="stat-grid">
-            <div class="stat-card">
-                <span class="stat-val" id="stat-total">0</span>
-                <span class="stat-lab">Всего игр</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-val" id="stat-wins" style="color: var(--green);">0</span>
-                <span class="stat-lab">Побед</span>
-            </div>
-            <div class="stat-card" style="grid-column: span 2;">
-                <span class="stat-val" id="stat-max">1.00x</span>
-                <span class="stat-lab">Макс. множитель</span>
-            </div>
-        </div>
-        
-        <button class="btn-main" onclick="resetStats()" style="background: #2a2e35; box-shadow: none; margin-top: 20px; height: 45px; font-size: 14px;">СБРОСИТЬ ПРОГРЕСС</button>
+<div class="bottom-nav">
+    <div class="nav-item">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 17h16V19H4zM4 11h16V13H4zM4 5h16V7H4z"></path></svg>
+        <span>Топ</span>
     </div>
-</div>
-
-<script>
-    // --- ДАННЫЕ И СОХРАНЕНИЕ ---
-    let stats = JSON.parse(localStorage.getItem('ton_crash_stats')) || {
-        balance: 100.00,
-        totalGames: 0,
-        wins: 0,
-        maxMult: 1.00,
-        id: Math.floor(1000 + Math.random() * 9000)
-    };
-
-    function save() {
-        localStorage.setItem('ton_crash_stats', JSON.stringify(stats));
-        document.getElementById('balance-display').innerText = stats.balance.toFixed(2);
-        document.getElementById('stat-total').innerText = stats.totalGames;
-        document.getElementById('stat-wins').innerText = stats.wins;
-        document.getElementById('stat-max').innerText = stats.maxMult.toFixed(2) + 'x';
-        document.getElementById('player-id').innerText = stats.id;
-    }
-
-    // --- ЛОГИКА ИГРЫ ---
-    let currentMult = 1.00;
-    let isRunning = false;
-    let myBet = 0;
-    let hasCashedOut = false;
-    const actionBtn = document.getElementById('action-btn');
-
-    function startGame() {
-        isRunning = true;
-        hasCashedOut = false;
-        currentMult = 1.00;
-        
-        const crashPoint = generateCrashPoint();
-        let startTime = Date.now();
-
-        if (myBet > 0) {
-            actionBtn.innerText = "ВЫВЕСТИ";
-            actionBtn.classList.add('collect');
-            actionBtn.disabled = false;
-            stats.totalGames++;
-            save();
-        } else {
-            actionBtn.innerText = "ИГРА ИДЕТ...";
-            actionBtn.disabled = true;
-        }
-
-        const gameLoop = setInterval(() => {
-            let elapsed = (Date.now() - startTime) / 1000;
-            currentMult = Math.pow(Math.E, 0.07 * elapsed); // Скорость роста
-            
-            document.getElementById('multiplier').innerText = currentMult.toFixed(2) + "x";
-            drawGraph(elapsed);
-
-            // Авто-вывод
-            let auto = parseFloat(document.getElementById('auto-cashout').value);
-            if (myBet > 0 && !hasCashedOut && currentMult >= auto) { cashOut(); }
-
-            if (currentMult >= crashPoint) {
-                clearInterval(gameLoop);
-                endGame(currentMult);
-            }
-        }, 50);
-    }
-
-    function generateCrashPoint() {
-        const rand = Math.random();
-        if (rand < 0.05) return 1.00; // Мгновенный краш
-        return Math.max(1.00, 0.98 / (1 - Math.random()));
-    }
-
-    function endGame(final) {
-        isRunning = false;
-        document.getElementById('multiplier').classList.add('crashed');
-        document.getElementById('multiplier').innerText = "CRASH " + final.toFixed(2) + "x";
-        
-        // История
-        const tag = document.createElement('div');
-        tag.className = 'h-tag';
-        tag.innerText = final.toFixed(2) + 'x';
-        tag.style.color = final > 2 ? 'var(--green)' : 'var(--blue)';
-        const history = document.getElementById('history');
-        history.prepend(tag);
-        if(history.children.length > 5) history.lastChild.remove();
-
-        actionBtn.innerText = "СТАВКА";
-        actionBtn.classList.remove('collect');
-        actionBtn.disabled = false;
-        myBet = 0;
-
-        setTimeout(() => {
-            document.getElementById('multiplier').classList.remove('crashed');
-            startGame();
-        }, 3000);
-    }
-
-    function cashOut() {
-        if (!isRunning || hasCashedOut || myBet <= 0) return;
-        hasCashedOut = true;
-        let win = myBet * currentMult;
-        stats.balance += win;
-        stats.wins++;
-        if(currentMult > stats.maxMult) stats.maxMult = currentMult;
-        save();
-        
-        actionBtn.innerText = "ВЗЯТО: +" + win.toFixed(2);
-        actionBtn.disabled = true;
-    }
-
-    // --- ИНТЕРФЕЙС ---
-    actionBtn.onclick = () => {
-        if (!isRunning) {
-            let amt = parseFloat(document.getElementById('bet-amount').value);
-            if (amt > 0 && amt <= stats.balance) {
-                myBet = amt;
-                stats.balance -= amt;
-                save();
-                actionBtn.innerText = "СТАВКА ПРИНЯТА";
-                actionBtn.disabled = true;
-            }
-        } else {
-            cashOut();
-        }
-    };
-
-    function toggleModal(show) {
-        document.getElementById('profile-modal').style.display = show ? 'block' : 'none';
-    }
-
-    function resetStats() {
-        if(confirm("Сбросить баланс до 100 и обнулить статистику?")) {
-            stats = { balance: 100, totalGames: 0, wins: 0, maxMult: 1.00, id: stats.id };
-            save();
-            location.reload();
-        }
-    }
-
-    // --- ГРАФИКА (Canvas) ---
-    const canvas = document.getElementById('graphCanvas');
-    const ctx = canvas.getContext('2d');
-    function drawGraph(t) {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.strokeStyle = '#0098ea';
-        ctx.lineWidth = 4;
-        ctx.moveTo(0, canvas.height);
-        let x = Math.min(canvas.width, t * 40);
-        let y = canvas.height - Math.min(canvas.height - 20, Math.pow(t, 1.5) * 10);
-        ctx.quadraticCurveTo(canvas.width / 2, canvas.height, x, y);
-        ctx.stroke();
-    }
-
-    save(); // Загрузка данных при старте
-    startGame();
-</script>
-
-</body>
-</html>
+    <div class="nav-item active">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.01 6.012c1.789 0 3.336.879 4.298 2.228 1.487-1.104 3.493-1.87 5.766-1.996.113.003.224.015.334.032.428.066.72.483.654.91-.013.08-.03.159-.05.237a.9.9 0 01-.13.34c-1.272 2.87-4.04 4.872-7.272 5.092L12 12l.006.012c.004.004.008.007.012.011l.002.003c.005.005.008.01.012.015 3.328-.003 6.07-1.968 7.378-4.83.009-.02.019-.04.028-.06.126-.263.2-.556.2-.871a2.03 2.03 0 00-2.005-2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.004 1.006-3.877 1.258-5.32 1.258-1.503 0-3.32-.23-5.228-1.253a.92.92 0 00-.817-.189c-.426.066-.718.483-.652.91.013.08.03.159.05.237.126.263.2.556.2.871a2.03 2.03 0 00-2.005 2.03c-.297.002-.58.07-.84.195-2.
