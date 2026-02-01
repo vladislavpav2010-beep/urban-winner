@@ -3,481 +3,449 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash TON Ultimate</title>
+    <title>Crash TON Pro</title>
     <style>
         :root {
-            --bg: #0d1012;
-            --card: #181c1f;
-            --blue: #007bff;
-            --green: #28a745;
-            --red: #dc3545;
-            --text-sec: #848e9c;
-            --border: #2b3139;
+            --bg-color: #0d1012;
+            --card-color: #171b20;
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --text-main: #ffffff;
+            --text-sec: #808a9d;
+            --border: #23282e;
         }
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        /* --- HEADER --- */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; background: var(--bg); z-index: 20;
-        }
-        .online-badge {
-            background: rgba(40, 44, 52, 0.8); padding: 5px 12px; border-radius: 20px;
-            color: var(--green); font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px;
-        }
-        .balance-box {
-            background: var(--card); padding: 5px 5px 5px 15px; border-radius: 25px;
-            display: flex; align-items: center; gap: 10px; border: 1px solid var(--border);
-        }
-        .balance-box span { font-weight: 800; font-size: 15px; }
-        .add-btn {
-            width: 28px; height: 28px; background: var(--blue); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; cursor: pointer;
-        }
+        body { margin: 0; background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* --- PAGES LAYOUT --- */
-        .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
-        .page.active { display: flex; }
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-color); border-bottom: 1px solid var(--border); z-index: 10; }
+        .online-badge { background: #1c2127; color: var(--success); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 5px var(--success); }
+        .balance-container { display: flex; align-items: center; background: var(--card-color); padding: 4px 4px 4px 12px; border-radius: 20px; border: 1px solid var(--border); gap: 10px; }
+        .balance-val { font-weight: 800; font-size: 14px; }
+        .add-btn { width: 26px; height: 26px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
 
-        /* --- GAME PAGE --- */
-        .game-container {
-            position: relative; height: 350px; width: 100%;
-            background: radial-gradient(circle at center, #1b2026 0%, #0d1012 70%);
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-        canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        /* CONTENT PAGES */
+        .content { flex: 1; position: relative; overflow-y: auto; display: none; flex-direction: column; padding-bottom: 70px; }
+        .content.active { display: flex; }
+
+        /* --- GAME STYLES --- */
+        .game-canvas-box { position: relative; height: 320px; width: 100%; border-bottom: 1px solid var(--border); overflow: hidden; background: radial-gradient(circle at 50% 100%, #1a2029 0%, #0d1012 80%); }
+        canvas { width: 100%; height: 100%; display: block; }
         
-        .center-info { position: relative; z-index: 5; text-align: center; }
-        .multiplier { font-size: 72px; font-weight: 900; letter-spacing: -2px; text-shadow: 0 5px 20px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
-        .multiplier.crashed { color: var(--red); }
-        .status-text { color: var(--text-sec); font-size: 14px; font-weight: 600; text-transform: uppercase; margin-top: -10px; }
+        .center-hud { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+        .multiplier-text { font-size: 64px; font-weight: 900; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
+        .multiplier-text.crashed { color: var(--danger); }
+        .status-msg { color: var(--text-sec); font-size: 12px; font-weight: 700; text-transform: uppercase; margin-top: 8px; letter-spacing: 1px; }
+
+        .history-strip { display: flex; gap: 8px; padding: 10px 16px; background: var(--bg-color); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; min-height: 50px; align-items: center; }
+        .hist-pill { padding: 4px 10px; background: var(--card-color); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-sec); border: 1px solid var(--border); }
+        .hist-pill.win { color: var(--primary); border-color: rgba(0,123,255,0.2); }
+
+        .control-panel { padding: 16px; }
+        .action-btn { width: 100%; height: 56px; border-radius: 14px; border: none; font-size: 18px; font-weight: 800; color: white; cursor: pointer; transition: all 0.1s; position: relative; overflow: hidden; }
         
-        .history-row {
-            display: flex; gap: 8px; padding: 10px 16px; background: var(--bg);
-            overflow-x: auto; white-space: nowrap; height: 50px; align-items: center;
-        }
-        .hist-item {
-            padding: 4px 10px; background: var(--card); border-radius: 6px;
-            font-size: 12px; font-weight: 700; color: var(--text-sec); border: 1px solid var(--border);
-        }
-        .hist-item.high { color: var(--blue); border-color: rgba(0,123,255,0.3); }
+        /* Состояния кнопки */
+        .btn-blue { background: var(--primary); box-shadow: 0 4px 0 #0056b3; }
+        .btn-blue:active { transform: translateY(2px); box-shadow: 0 2px 0 #0056b3; }
+        .btn-green { background: var(--success); box-shadow: 0 4px 0 #1e7e34; }
+        .btn-green:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e7e34; }
+        .btn-disabled { background: var(--card-color); color: var(--text-sec); cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 
-        .controls-area { padding: 16px; background: var(--bg); }
-        .bet-btn {
-            width: 100%; height: 56px; border: none; border-radius: 14px;
-            background: var(--blue); color: white; font-size: 18px; font-weight: 800;
-            cursor: pointer; box-shadow: 0 4px 0 #0056b3; transition: transform 0.1s;
-        }
-        .bet-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0056b3; }
-        .bet-btn.cashout { background: var(--green); box-shadow: 0 4px 0 #1e7e34; }
-        .bet-btn:disabled { background: var(--card); color: var(--text-sec); box-shadow: none; opacity: 0.7; cursor: not-allowed; }
-
-        .players-list { flex: 1; padding: 0 16px; }
-        .player-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;
-        }
-
-        /* --- PROFILE PAGE --- */
-        .profile-header { padding: 24px 16px; display: flex; align-items: center; gap: 16px; }
-        .avatar-circle {
-            width: 64px; height: 64px; background: var(--green); color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; font-weight: bold; position: relative;
-        }
-        .user-info h2 { margin: 0; font-size: 20px; font-weight: 700; }
-        .flag-badge {
-            background: var(--card); padding: 4px 8px; border-radius: 6px;
-            font-size: 12px; display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; border: 1px solid var(--border);
-        }
-
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
-        .act-btn {
-            background: var(--card); border: 1px solid var(--border); padding: 14px;
-            border-radius: 12px; color: white; font-weight: 700; text-align: center; cursor: pointer;
-        }
-        .act-btn.primary { background: var(--blue); border: none; }
-
-        .section-box {
-            background: var(--card); margin: 20px 16px 0; padding: 16px; border-radius: 16px;
-        }
-        .box-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 700; font-size: 15px; }
-        .link-blue { color: var(--blue); font-size: 13px; font-weight: 600; cursor: pointer; }
+        .players-feed { flex: 1; padding: 0 16px; }
+        .feed-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; align-items: center; }
+        .user-col { display: flex; align-items: center; gap: 8px; }
+        .u-avatar { width: 24px; height: 24px; background: #2a3038; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; }
         
-        .inv-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .inv-slot {
-            min-width: 70px; height: 70px; background: #23282e; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 24px; color: #555;
-        }
+        /* --- PROFILE STYLES --- */
+        .profile-head { padding: 20px 16px; display: flex; align-items: center; gap: 15px; }
+        .big-avatar { width: 60px; height: 60px; background: linear-gradient(135deg, #007bff, #00c6ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: white; border: 2px solid #fff; }
+        .p-info h2 { margin: 0; font-size: 18px; color: white; }
+        .flag-tag { background: var(--card-color); padding: 4px 8px; border-radius: 6px; font-size: 11px; margin-top: 5px; display: inline-block; border: 1px solid var(--border); color: var(--text-sec); }
+        
+        .p-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
+        .p-btn { background: var(--card-color); padding: 14px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 14px; border: 1px solid var(--border); }
+        .p-btn.accent { background: var(--primary); border: none; color: white; }
 
-        /* --- FOOTER NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: #16191e;
-            border-top: 1px solid var(--border); display: flex; justify-content: space-around;
-            padding: 10px 0 20px; z-index: 50;
-        }
-        .nav-item {
-            text-align: center; color: var(--text-sec); font-size: 10px; font-weight: 600;
-            display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 60px;
-        }
+        .card-box { background: var(--card-color); margin: 16px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 700; font-size: 14px; }
+        .link { color: var(--primary); font-size: 12px; cursor: pointer; }
+        
+        .inv-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .inv-item { min-width: 70px; height: 70px; background: #23282e; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid var(--border); position: relative; }
+        .lock-icon { position: absolute; font-size: 10px; bottom: 4px; right: 4px; opacity: 0.5; }
+
+        /* BOTTOM NAV */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #15191d; border-top: 1px solid var(--border); display: flex; padding: 8px 0 20px 0; z-index: 50; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-sec); font-size: 10px; font-weight: 600; cursor: pointer; transition: color 0.2s; }
+        .nav-item.active { color: var(--primary); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-        .nav-item.active { color: var(--blue); }
+
+        /* TOP PAGE */
+        .top-list { padding: 16px; }
+        .top-row { display: flex; justify-content: space-between; padding: 12px; background: var(--card-color); border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); align-items: center; }
+        .rank { font-weight: 900; color: var(--text-sec); width: 25px; }
+        .rank.first { color: #ffd700; }
+        .rank.second { color: #c0c0c0; }
+        .rank.third { color: #cd7f32; }
+
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="online-badge"><span style="color:#28a745">●</span> <span id="online-count">134</span></div>
-        <div class="balance-box">
-            <span id="balance-display">0.00</span>
-            <div class="add-btn" onclick="addBalance()">+</div>
+<div class="header">
+    <div class="online-badge"><div class="dot"></div> <span id="online-val">1,402</span></div>
+    <div class="balance-container">
+        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" style="width:16px;height:16px;">
+        <span class="balance-val" id="balance">100.00</span>
+        <div class="add-btn" onclick="addMoney()">+</div>
+    </div>
+</div>
+
+<div id="page-top" class="content">
+    <div class="top-list">
+        <h3 style="margin: 10px 0 20px;">Топ игроков (24ч)</h3>
+        <div class="top-row"><div style="display:flex;align-items:center;"><span class="rank first">1</span> <span style="font-weight:700">CryptoWhale</span></div> <span>5,402 TON</span></div>
+        <div class="top-row"><div style="display:flex;align-items:center;"><span class="rank second">2</span> <span style="font-weight:700">AlexTrader</span></div> <span>3,100 TON</span></div>
+        <div class="top-row"><div style="display:flex;align-items:center;"><span class="rank third">3</span> <span style="font-weight:700">LuckyGuy</span></div> <span>2,850 TON</span></div>
+        <div class="top-row"><div style="display:flex;align-items:center;"><span class="rank">4</span> <span>User992</span></div> <span>1,200 TON</span></div>
+    </div>
+</div>
+
+<div id="page-game" class="content active">
+    <div class="game-canvas-box">
+        <canvas id="gameCanvas"></canvas>
+        <div class="center-hud">
+            <div class="multiplier-text" id="mult-display">1.00x</div>
+            <div class="status-msg" id="status-display">Загрузка...</div>
+        </div>
+    </div>
+    
+    <div class="history-strip" id="history-box"></div>
+
+    <div class="control-panel">
+        <button class="action-btn btn-blue" id="main-btn">Ставка 10.00</button>
+    </div>
+
+    <div class="players-feed" id="feed-box">
+        </div>
+</div>
+
+<div id="page-profile" class="content">
+    <div class="profile-head">
+        <div class="big-avatar">V</div>
+        <div class="p-info">
+            <h2>Vladislav</h2>
+            <div class="flag-tag">🇷🇺 Россия</div>
         </div>
     </div>
 
-    <div id="page-game" class="page active">
-        <div class="game-container">
-            <canvas id="graphCanvas"></canvas>
-            <div class="center-info">
-                <div class="multiplier" id="multiplier-text">1.00x</div>
-                <div class="status-text" id="status-text">Ожидание ставки</div>
-            </div>
-        </div>
-        
-        <div class="history-row" id="history-row">
-            </div>
-
-        <div class="controls-area">
-            <button class="bet-btn" id="action-btn">Сделать ставку (10.00)</button>
-        </div>
-
-        <div class="players-list" id="players-list">
-            </div>
+    <div class="p-buttons">
+        <div class="p-btn accent" onclick="addMoney()">Пополнить</div>
+        <div class="p-btn">Награды</div>
     </div>
 
-    <div id="page-profile" class="page">
-        <div class="profile-header">
-            <div class="avatar-circle">В</div>
-            <div class="user-info">
-                <h2>Владислав</h2>
-                <div class="flag-badge">🇷🇺 Россия</div>
-            </div>
+    <div class="card-box">
+        <div class="card-header">
+            <span>Инвентарь (0)</span>
+            <span class="link">История</span>
         </div>
-
-        <div class="action-grid">
-            <div class="act-btn primary" onclick="addBalance()">Пополнить</div>
-            <div class="act-btn">Награды</div>
-        </div>
-
-        <div class="section-box">
-            <div class="box-header">
-                <span>Инвентарь (0)</span>
-                <span class="link-blue">Продать все</span>
-            </div>
-            <div class="inv-items">
-                <div class="inv-slot">🔒</div>
-                <div class="inv-slot">🔒</div>
-                <div class="inv-slot">🔒</div>
-                <div class="inv-slot">🔒</div>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <div class="box-header">
-                <span>Рефералы</span>
-                <span class="link-blue">Подробнее</span>
-            </div>
-            <div style="font-size: 13px; color: #888; line-height: 1.4;">
-                Зарабатывайте 10% от депозитов ваших друзей. <br>
-                <button class="act-btn primary" style="width:100%; margin-top:10px;">Пригласить друга</button>
-            </div>
-        </div>
-        
-        <div style="padding: 20px; text-align: center;">
-            <button onclick="resetProgress()" style="background:none; border:none; color: #555; font-size: 12px;">Сброс прогресса</button>
+        <div class="inv-row">
+            <div class="inv-item">🎁<div class="lock-icon">🔒</div></div>
+            <div class="inv-item">🕶️<div class="lock-icon">🔒</div></div>
+            <div class="inv-item">🚀<div class="lock-icon">🔒</div></div>
+            <div class="inv-item">🎫<div class="lock-icon">🔒</div></div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item" onclick="setPage('top')">
-            <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>
-            Топ
-        </div>
-        <div class="nav-item active" onclick="setPage('game')">
-            <svg viewBox="0 0 24 24"><path d="M12 2.5s-6 8-6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12zM12 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-            Краш
-        </div>
-        <div class="nav-item" onclick="setPage('profile')">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>
-            Профиль
-        </div>
+    <div class="card-box">
+        <div class="card-header"><span>Реферальная программа</span></div>
+        <p style="font-size:12px; color:var(--text-sec); margin-top:0;">Приглашайте друзей и получайте 10% от их выигрышей.</p>
+        <div class="p-btn accent" style="margin-top:10px;">Копировать ссылку</div>
     </div>
+    
+    <div style="text-align:center; padding:20px;">
+        <span class="link" onclick="hardReset()" style="color:#444;">Сброс данных</span>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-item" onclick="nav('top')">
+        <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>Топ
+    </div>
+    <div class="nav-item active" onclick="nav('game')">
+        <svg viewBox="0 0 24 24"><path d="M2.5 12a.5.5 0 0 1 .5-.5h18a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm.5 5.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1H3.5a.5.5 0 0 1-.5-.5zm0-11a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1H3.5a.5.5 0 0 1-.5-.5z"/><path d="M18 6l4 6-4 6V6z"/></svg>Краш
+    </div>
+    <div class="nav-item" onclick="nav('profile')">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Профиль
+    </div>
+</div>
 
 <script>
-    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-    let state = {
-        balance: parseFloat(localStorage.getItem('crash_balance')) || 100.00,
+    // --- НАСТРОЙКИ И СОСТОЯНИЕ ---
+    const Config = {
         betAmount: 10.00,
-        gameState: 'IDLE', // IDLE, FLYING, CRASHED
-        currentMult: 1.00,
-        myBetPlaced: false,
-        startTime: 0,
-        crashPoint: 0,
-        animationId: null
+        growthSpeed: 0.15 // Скорость роста икса
     };
 
-    const DOM = {
-        balance: document.getElementById('balance-display'),
-        mult: document.getElementById('multiplier-text'),
-        status: document.getElementById('status-text'),
-        btn: document.getElementById('action-btn'),
-        canvas: document.getElementById('graphCanvas'),
-        ctx: document.getElementById('graphCanvas').getContext('2d'),
-        history: document.getElementById('history-row'),
-        players: document.getElementById('players-list')
+    let State = {
+        balance: parseFloat(localStorage.getItem('crash_v2_balance')) || 100.00,
+        phase: 'IDLE', // IDLE, COUNTDOWN, FLYING, CRASHED
+        mult: 1.00,
+        crashAt: 0,
+        startTime: 0,
+        betPlaced: false,
+        animReq: null
+    };
+
+    const UI = {
+        bal: document.getElementById('balance'),
+        mult: document.getElementById('mult-display'),
+        status: document.getElementById('status-display'),
+        btn: document.getElementById('main-btn'),
+        canvas: document.getElementById('gameCanvas'),
+        ctx: document.getElementById('gameCanvas').getContext('2d'),
+        history: document.getElementById('history-box'),
+        feed: document.getElementById('feed-box')
     };
 
     // --- ИНИЦИАЛИЗАЦИЯ ---
     function init() {
-        updateBalanceDisplay();
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        startCountdown(); // Запускаем цикл игры
+        updateBalUI();
+        resize();
+        window.addEventListener('resize', resize);
         
-        // Фейковые игроки
-        setInterval(addFakePlayer, 1500);
+        UI.btn.onclick = handleBtnClick;
+        
+        // Запускаем цикл игры
+        startRoundSequence();
+
+        // Имитация ботов
+        setInterval(spawnFakeBot, 1000);
     }
 
-    function updateBalanceDisplay() {
-        DOM.balance.innerText = state.balance.toFixed(2);
-        localStorage.setItem('crash_balance', state.balance.toFixed(2));
+    function resize() {
+        UI.canvas.width = UI.canvas.parentElement.offsetWidth;
+        UI.canvas.height = UI.canvas.parentElement.offsetHeight;
+        if(State.phase === 'IDLE') drawGraph(0);
     }
 
-    function addBalance() {
-        state.balance += 50;
-        updateBalanceDisplay();
-        alert("Баланс пополнен на 50.00");
+    function updateBalUI() {
+        UI.bal.innerText = State.balance.toFixed(2);
+        localStorage.setItem('crash_v2_balance', State.balance.toFixed(2));
     }
     
-    function resetProgress() {
-        if(confirm('Сбросить данные?')) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
+    function addMoney() { State.balance += 50; updateBalUI(); }
+    function hardReset() { if(confirm('Сбросить?')) { localStorage.clear(); location.reload(); } }
 
-    // --- ИГРОВОЙ ЦИКЛ ---
-    function startCountdown() {
-        state.gameState = 'IDLE';
-        state.currentMult = 1.00;
-        state.myBetPlaced = false;
+    // --- ЛОГИКА ИГРЫ ---
+    
+    function startRoundSequence() {
+        // 1. Ожидание / Подготовка
+        State.phase = 'IDLE';
+        State.mult = 1.00;
+        State.betPlaced = false;
         
-        DOM.mult.classList.remove('crashed');
-        DOM.mult.style.color = 'white';
-        DOM.status.innerText = "Ожидание ставки...";
+        UI.mult.innerText = "1.00x";
+        UI.mult.classList.remove('crashed');
+        UI.status.innerText = "ПРИЕМ СТАВОК";
         
-        updateButton();
-        drawGraph(0); // Очистка графика
-
-        let count = 3;
-        DOM.mult.innerText = count;
+        updateBtnUI();
+        drawGraph(0); // Очистить
         
+        // Таймер 4 сек
+        let cd = 4;
         const timer = setInterval(() => {
-            count--;
-            if (count > 0) {
-                DOM.mult.innerText = count;
-            } else {
+            cd--;
+            UI.mult.innerText = cd > 0 ? cd : "GO";
+            if(cd <= 0) {
                 clearInterval(timer);
-                startGame();
+                launchRocket();
             }
         }, 1000);
     }
 
-    function startGame() {
-        state.gameState = 'FLYING';
-        state.startTime = Date.now();
-        state.crashPoint = generateCrashPoint();
-        
-        DOM.status.innerText = "Ракета летит!";
-        updateButton();
+    function launchRocket() {
+        State.phase = 'FLYING';
+        State.startTime = Date.now();
+        // Генерируем точку краша
+        // 5% что краш сразу (1.00)
+        State.crashAt = (Math.random() < 0.05) ? 1.00 : (0.99 / (1 - Math.random())).toFixed(2);
+        if(State.crashAt > 50) State.crashAt = 50; // Лимит для демо
+
+        UI.status.innerText = "РАКЕТА ЛЕТИТ!";
+        updateBtnUI();
         
         loop();
     }
 
-    function generateCrashPoint() {
-        // Простая эмуляция алгоритма Crash (смещенный рандом)
-        const r = Math.random();
-        if (r < 0.1) return 1.00; // 10% шанс мгновенного краша
-        return Math.floor((0.99 / (1 - r)) * 100) / 100;
-    }
-
     function loop() {
-        if (state.gameState !== 'FLYING') return;
+        if(State.phase !== 'FLYING') return;
 
-        const now = Date.now();
-        const elapsedSeconds = (now - state.startTime) / 1000;
-        
-        // Формула роста
-        state.currentMult = Math.pow(Math.E, 0.15 * elapsedSeconds);
+        let dt = (Date.now() - State.startTime) / 1000;
+        // Экспоненциальный рост
+        State.mult = Math.pow(Math.E, Config.growthSpeed * dt);
 
-        // Отрисовка
-        DOM.mult.innerText = state.currentMult.toFixed(2) + "x";
-        drawGraph(elapsedSeconds);
+        UI.mult.innerText = State.mult.toFixed(2) + "x";
+        drawGraph(dt);
 
-        // Проверка на Краш
-        if (state.currentMult >= state.crashPoint) {
+        if(State.mult >= State.crashAt) {
             crash();
         } else {
-            state.animationId = requestAnimationFrame(loop);
+            State.animReq = requestAnimationFrame(loop);
         }
     }
 
     function crash() {
-        state.gameState = 'CRASHED';
-        cancelAnimationFrame(state.animationId);
+        State.phase = 'CRASHED';
+        cancelAnimationFrame(State.animReq);
         
-        DOM.mult.innerText = state.crashPoint.toFixed(2) + "x";
-        DOM.mult.classList.add('crashed');
-        DOM.status.innerText = "Раунд окончен";
+        UI.mult.innerText = parseFloat(State.crashAt).toFixed(2) + "x";
+        UI.mult.classList.add('crashed');
+        UI.status.innerText = "CRASHED";
         
-        if (state.myBetPlaced) {
-            // Если игрок не успел забрать
-            state.myBetPlaced = false;
+        addHistory(parseFloat(State.crashAt));
+        
+        if(State.betPlaced) {
+            State.betPlaced = false; // Потерял ставку
         }
-        
-        addToHistory(state.crashPoint);
-        updateButton();
-        
-        setTimeout(startCountdown, 3000); // Рестарт через 3 сек
+        updateBtnUI();
+
+        setTimeout(startRoundSequence, 3000);
     }
 
-    // --- КНОПКА И СТАВКИ ---
-    DOM.btn.onclick = function() {
-        if (state.gameState === 'IDLE') {
+    // --- УПРАВЛЕНИЕ ---
+    function handleBtnClick() {
+        if(State.phase === 'IDLE' && !State.betPlaced) {
             // Ставка
-            if (state.balance >= state.betAmount) {
-                state.balance -= state.betAmount;
-                state.myBetPlaced = true;
-                updateBalanceDisplay();
-                updateButton();
+            if(State.balance >= Config.betAmount) {
+                State.balance -= Config.betAmount;
+                State.betPlaced = true;
+                updateBalUI();
+                updateBtnUI();
             } else {
-                alert("Недостаточно средств!");
+                alert("Недостаточно средств");
             }
-        } else if (state.gameState === 'FLYING' && state.myBetPlaced) {
-            // Вывод (Cashout)
-            const winAmount = state.betAmount * state.currentMult;
-            state.balance += winAmount;
-            state.myBetPlaced = false;
-            updateBalanceDisplay();
+        } else if(State.phase === 'FLYING' && State.betPlaced) {
+            // Забрать
+            let win = Config.betAmount * State.mult;
+            State.balance += win;
+            State.betPlaced = false;
+            updateBalUI();
             
-            DOM.btn.innerText = `Взято: ${winAmount.toFixed(2)}`;
-            DOM.btn.classList.add('cashout');
-            DOM.btn.disabled = true;
-        }
-    };
-
-    function updateButton() {
-        DOM.btn.disabled = false;
-        DOM.btn.classList.remove('cashout');
-
-        if (state.gameState === 'IDLE') {
-            if (state.myBetPlaced) {
-                DOM.btn.innerText = "Ставка принята (Ждем...)";
-                DOM.btn.disabled = true;
-            } else {
-                DOM.btn.innerText = `Сделать ставку (${state.betAmount.toFixed(2)})`;
-            }
-        } else if (state.gameState === 'FLYING') {
-            if (state.myBetPlaced) {
-                const currentWin = (state.betAmount * state.currentMult).toFixed(2);
-                DOM.btn.innerText = `ЗАБРАТЬ ${currentWin}`;
-                DOM.btn.classList.add('cashout'); // Делаем кнопку зеленой
-            } else {
-                DOM.btn.innerText = "Игра идет...";
-                DOM.btn.disabled = true;
-            }
-        } else if (state.gameState === 'CRASHED') {
-            DOM.btn.innerText = "Ожидание следующего раунда...";
-            DOM.btn.disabled = true;
+            UI.btn.innerText = `Взято: ${win.toFixed(2)}`;
+            UI.btn.className = "action-btn btn-disabled";
+            UI.btn.disabled = true;
         }
     }
 
-    // --- ГРАФИКА (CANVAS) ---
-    function resizeCanvas() {
-        DOM.canvas.width = DOM.canvas.offsetWidth;
-        DOM.canvas.height = DOM.canvas.offsetHeight;
+    function updateBtnUI() {
+        UI.btn.disabled = false;
+        
+        if(State.phase === 'IDLE') {
+            if(State.betPlaced) {
+                UI.btn.className = "action-btn btn-disabled";
+                UI.btn.innerText = "Ставка принята";
+                UI.btn.disabled = true;
+            } else {
+                UI.btn.className = "action-btn btn-blue";
+                UI.btn.innerText = `Сделать ставку (${Config.betAmount})`;
+            }
+        } else if(State.phase === 'FLYING') {
+            if(State.betPlaced) {
+                UI.btn.className = "action-btn btn-green";
+                UI.btn.innerText = `ЗАБРАТЬ ${(Config.betAmount * State.mult).toFixed(2)}`;
+            } else {
+                UI.btn.className = "action-btn btn-disabled";
+                UI.btn.innerText = "Игра идет...";
+                UI.btn.disabled = true;
+            }
+        } else if(State.phase === 'CRASHED') {
+            UI.btn.className = "action-btn btn-disabled";
+            UI.btn.innerText = "Ожидание...";
+            UI.btn.disabled = true;
+        }
     }
 
+    // --- ГРАФИКА ---
     function drawGraph(t) {
-        const w = DOM.canvas.width;
-        const h = DOM.canvas.height;
-        DOM.ctx.clearRect(0, 0, w, h);
+        let w = UI.canvas.width;
+        let h = UI.canvas.height;
+        let ctx = UI.ctx;
+        
+        ctx.clearRect(0,0,w,h);
+        
+        if(t === 0) return;
 
-        if (state.gameState === 'IDLE') return;
+        ctx.beginPath();
+        ctx.strokeStyle = '#007bff';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        
+        ctx.moveTo(0, h);
+        // Масштабируем график, чтобы он всегда был красиво виден
+        let x = Math.min(w * 0.9, t * 40); 
+        let y = h - Math.min(h * 0.8, Math.pow(t, 1.5) * 10);
+        
+        // Кривая Безье для плавности
+        ctx.quadraticCurveTo(x/2, h, x, y);
+        ctx.stroke();
 
-        DOM.ctx.beginPath();
-        DOM.ctx.lineWidth = 4;
-        DOM.ctx.strokeStyle = '#007bff';
-        
-        // Рисуем кривую
-        DOM.ctx.moveTo(0, h);
-        
-        // Математика кривой (масштабируется по времени t)
-        const x = Math.min(w * 0.9, t * 50); 
-        const y = h - Math.min(h * 0.9, Math.pow(t, 1.6) * 10);
-        
-        DOM.ctx.quadraticCurveTo(w * 0.2, h, x, y);
-        DOM.ctx.stroke();
-
-        // Рисуем ракету на конце линии
-        DOM.ctx.font = "30px Arial";
-        DOM.ctx.fillText("🚀", x - 15, y - 5);
-        
-        // Если краш, рисуем взрыв
-        if (state.gameState === 'CRASHED') {
-             DOM.ctx.fillText("💥", x - 15, y - 5);
-        }
+        // Рисуем ракету
+        ctx.font = "24px Arial";
+        ctx.fillText(State.phase === 'CRASHED' ? "💥" : "🚀", x-10, y-10);
     }
 
-    // --- ВСПОМОГАТЕЛЬНЫЕ ---
-    function addToHistory(val) {
-        const div = document.createElement('div');
-        div.className = 'hist-item' + (val >= 2.0 ? ' high' : '');
-        div.innerText = val.toFixed(2) + 'x';
-        DOM.history.prepend(div);
-        if (DOM.history.children.length > 20) DOM.history.lastChild.remove();
-    }
-
-    function addFakePlayer() {
-        const names = ['User832', 'TonWhale', 'LuckyDim', 'CryptoBro', 'Alex_T', 'InvestOr'];
-        const div = document.createElement('div');
-        div.className = 'player-row';
-        const name = names[Math.floor(Math.random() * names.length)];
-        const bet = (Math.random() * 50 + 1).toFixed(2);
+    // --- UI HELPERS ---
+    function nav(page) {
+        document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+        document.getElementById('page-'+page).classList.add('active');
         
-        div.innerHTML = `
-            <span style="font-weight:600; color:#ccc;">${name}</span>
-            <span style="font-weight:700;">${bet} TON</span>
-        `;
-        
-        DOM.players.prepend(div);
-        if (DOM.players.children.length > 6) DOM.players.lastChild.remove();
-    }
-
-    function setPage(pageId) {
-        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById('page-' + pageId).classList.add('active');
-        // Подсветка кнопки
-        const idx = ['top','game','profile'].indexOf(pageId);
-        document.querySelectorAll('.nav-item')[idx].classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    // Запуск
-    init();
+    function addHistory(val) {
+        let div = document.createElement('div');
+        div.className = 'hist-pill' + (val >= 2 ? ' win' : '');
+        div.innerText = val.toFixed(2)+'x';
+        UI.history.prepend(div);
+        if(UI.history.children.length > 20) UI.history.lastChild.remove();
+    }
 
+    function spawnFakeBot() {
+        if(State.phase === 'IDLE') return; // Боты ставят ставки до начала, но тут упростим
+        if(Math.random() > 0.3) return;
+
+        let names = ['User88', 'TonHolder', 'Whale1', 'Dima', 'Alex', 'RichDev'];
+        let name = names[Math.floor(Math.random()*names.length)];
+        let bet = (Math.random()*50).toFixed(0);
+        
+        let row = document.createElement('div');
+        row.className = 'feed-item';
+        
+        let mult = (Math.random() * 3).toFixed(2);
+        let win = (bet * mult).toFixed(0);
+        
+        // Показываем либо ставку, либо выигрыш (для атмосферы)
+        row.innerHTML = `
+            <div class="user-col">
+                <div class="u-avatar">${name[0]}</div>
+                <span style="font-weight:600">${name}</span>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:10px; color:var(--text-sec)">x${mult}</div>
+                <div style="color:${parseFloat(mult)>1.5 ? '#28a745' : 'white'}; font-weight:700;">+${win} TON</div>
+            </div>
+        `;
+        UI.feed.prepend(row);
+        if(UI.feed.children.length > 5) UI.feed.lastChild.remove();
+    }
+
+    init();
 </script>
 </body>
 </html>
