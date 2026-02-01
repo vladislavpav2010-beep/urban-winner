@@ -33,11 +33,9 @@
         display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; cursor: pointer;  
     }  
 
-    /* --- PAGES LAYOUT --- */  
     .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }  
     .page.active { display: flex; }  
 
-    /* --- GAME PAGE --- */  
     .game-container {  
         position: relative; height: 350px; width: 100%;  
         background: radial-gradient(circle at center, #1b2026 0%, #0d1012 70%);  
@@ -77,7 +75,6 @@
         padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;  
     }  
 
-    /* --- PROFILE PAGE --- */  
     .profile-header { padding: 24px 16px; display: flex; align-items: center; gap: 16px; }  
     .avatar-circle {  
         width: 64px; height: 64px; background: var(--green); color: white;  
@@ -109,7 +106,6 @@
         display: flex; align-items: center; justify-content: center; font-size: 24px; color: #555;  
     }  
 
-    /* --- FOOTER NAV --- */  
     .bottom-nav {  
         position: fixed; bottom: 0; width: 100%; background: #16191e;  
         border-top: 1px solid var(--border); display: flex; justify-content: space-around;  
@@ -122,9 +118,10 @@
     .nav-item svg { width: 24px; height: 24px; fill: currentColor; }  
     .nav-item.active { color: var(--blue); }  
 </style>
-
 </head>  
-<body>  <div class="header">  
+<body>  
+
+<div class="header">  
     <div class="online-badge"><span style="color:#28a745">●</span> <span id="online-count">134</span></div>  
     <div class="balance-box">  
         <span id="balance-display">0.00</span>  
@@ -140,56 +137,38 @@
             <div class="status-text" id="status-text">Ожидание ставки</div>  
         </div>  
     </div>  
-      
-    <div class="history-row" id="history-row">  
-        </div>  
-
+    <div class="history-row" id="history-row"></div>  
     <div class="controls-area">  
         <button class="bet-btn" id="action-btn">Сделать ставку (10.00)</button>  
     </div>  
-
-    <div class="players-list" id="players-list">  
-        </div>  
+    <div class="players-list" id="players-list"></div>  
 </div>  
 
 <div id="page-profile" class="page">  
     <div class="profile-header">  
-        <div class="avatar-circle">В</div>  
+        <div class="avatar-circle">Г</div>  
         <div class="user-info">  
-            <h2>Владислав</h2>  
+            <h2>GiftHub User</h2>  
             <div class="flag-badge">🇷🇺 Россия</div>  
         </div>  
     </div>  
-
     <div class="action-grid">  
         <div class="act-btn primary" onclick="addBalance()">Пополнить</div>  
         <div class="act-btn">Награды</div>  
     </div>  
-
     <div class="section-box">  
-        <div class="box-header">  
-            <span>Инвентарь (0)</span>  
-            <span class="link-blue">Продать все</span>  
-        </div>  
+        <div class="box-header"><span>Инвентарь (0)</span><span class="link-blue">Продать все</span></div>  
         <div class="inv-items">  
-            <div class="inv-slot">🔒</div>  
-            <div class="inv-slot">🔒</div>  
-            <div class="inv-slot">🔒</div>  
-            <div class="inv-slot">🔒</div>  
+            <div class="inv-slot">🔒</div><div class="inv-slot">🔒</div><div class="inv-slot">🔒</div><div class="inv-slot">🔒</div>  
         </div>  
     </div>  
-
     <div class="section-box">  
-        <div class="box-header">  
-            <span>Рефералы</span>  
-            <span class="link-blue">Подробнее</span>  
-        </div>  
+        <div class="box-header"><span>Рефералы</span><span class="link-blue">Подробнее</span></div>  
         <div style="font-size: 13px; color: #888; line-height: 1.4;">  
             Зарабатывайте 10% от депозитов ваших друзей. <br>  
             <button class="act-btn primary" style="width:100%; margin-top:10px;">Пригласить друга</button>  
         </div>  
     </div>  
-      
     <div style="padding: 20px; text-align: center;">  
         <button onclick="resetProgress()" style="background:none; border:none; color: #555; font-size: 12px;">Сброс прогресса</button>  
     </div>  
@@ -197,25 +176,24 @@
 
 <div class="bottom-nav">  
     <div class="nav-item" onclick="setPage('top')">  
-        <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>  
-        Топ  
+        <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>Топ  
     </div>  
     <div class="nav-item active" onclick="setPage('game')">  
-        <svg viewBox="0 0 24 24"><path d="M12 2.5s-6 8-6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12zM12 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>  
-        Краш  
+        <svg viewBox="0 0 24 24"><path d="M12 2.5s-6 8-6 12c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-6-12-6-12zM12 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>Краш  
     </div>  
     <div class="nav-item" onclick="setPage('profile')">  
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>  
-        Профиль  
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>Профиль  
     </div>  
 </div>
 
 <script>  
-    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---  
+    // --- ТОКЕН ПРОЕКТА ---
+    const BOT_TOKEN = "8577027584:AAHA35xAEAiuvwXR7No25Dj6QIenix3Z4_8";
+
     let state = {  
         balance: parseFloat(localStorage.getItem('crash_balance')) || 100.00,  
         betAmount: 10.00,  
-        gameState: 'IDLE', // IDLE, FLYING, CRASHED  
+        gameState: 'IDLE',  
         currentMult: 1.00,  
         myBetPlaced: false,  
         startTime: 0,  
@@ -234,14 +212,11 @@
         players: document.getElementById('players-list')  
     };  
   
-    // --- ИНИЦИАЛИЗАЦИЯ ---  
     function init() {  
         updateBalanceDisplay();  
         resizeCanvas();  
         window.addEventListener('resize', resizeCanvas);  
-        startCountdown(); // Запускаем цикл игры  
-          
-        // Фейковые игроки  
+        startCountdown();  
         setInterval(addFakePlayer, 1500);  
     }  
   
@@ -253,40 +228,28 @@
     function addBalance() {  
         state.balance += 50;  
         updateBalanceDisplay();  
-        alert("Баланс пополнен на 50.00");  
+        alert("Запрос отправлен в GiftHub. Баланс пополнен на 50.00 TON");  
     }  
       
     function resetProgress() {  
-        if(confirm('Сбросить данные?')) {  
-            localStorage.clear();  
-            location.reload();  
-        }  
+        if(confirm('Сбросить данные?')) { localStorage.clear(); location.reload(); }  
     }  
   
-    // --- ИГРОВОЙ ЦИКЛ ---  
     function startCountdown() {  
         state.gameState = 'IDLE';  
         state.currentMult = 1.00;  
         state.myBetPlaced = false;  
-          
         DOM.mult.classList.remove('crashed');  
         DOM.mult.style.color = 'white';  
         DOM.status.innerText = "Ожидание ставки...";  
-          
         updateButton();  
-        drawGraph(0); // Очистка графика  
-  
+        drawGraph(0);  
         let count = 3;  
         DOM.mult.innerText = count;  
-          
         const timer = setInterval(() => {  
             count--;  
-            if (count > 0) {  
-                DOM.mult.innerText = count;  
-            } else {  
-                clearInterval(timer);  
-                startGame();  
-            }  
+            if (count > 0) DOM.mult.innerText = count;  
+            else { clearInterval(timer); startGame(); }  
         }, 1000);  
     }  
   
@@ -294,79 +257,53 @@
         state.gameState = 'FLYING';  
         state.startTime = Date.now();  
         state.crashPoint = generateCrashPoint();  
-          
         DOM.status.innerText = "Ракета летит!";  
         updateButton();  
-          
         loop();  
     }  
   
     function generateCrashPoint() {  
-        // Простая эмуляция алгоритма Crash (смещенный рандом)  
         const r = Math.random();  
-        if (r < 0.1) return 1.00; // 10% шанс мгновенного краша  
+        if (r < 0.1) return 1.00;  
         return Math.floor((0.99 / (1 - r)) * 100) / 100;  
     }  
   
     function loop() {  
         if (state.gameState !== 'FLYING') return;  
-  
         const now = Date.now();  
         const elapsedSeconds = (now - state.startTime) / 1000;  
-          
-        // Формула роста  
         state.currentMult = Math.pow(Math.E, 0.15 * elapsedSeconds);  
-  
-        // Отрисовка  
         DOM.mult.innerText = state.currentMult.toFixed(2) + "x";  
         drawGraph(elapsedSeconds);  
-  
-        // Проверка на Краш  
-        if (state.currentMult >= state.crashPoint) {  
-            crash();  
-        } else {  
-            state.animationId = requestAnimationFrame(loop);  
-        }  
+        if (state.currentMult >= state.crashPoint) crash();  
+        else state.animationId = requestAnimationFrame(loop);  
     }  
   
     function crash() {  
         state.gameState = 'CRASHED';  
         cancelAnimationFrame(state.animationId);  
-          
         DOM.mult.innerText = state.crashPoint.toFixed(2) + "x";  
         DOM.mult.classList.add('crashed');  
         DOM.status.innerText = "Раунд окончен";  
-          
-        if (state.myBetPlaced) {  
-            // Если игрок не успел забрать  
-            state.myBetPlaced = false;  
-        }  
-          
+        state.myBetPlaced = false;  
         addToHistory(state.crashPoint);  
         updateButton();  
-          
-        setTimeout(startCountdown, 3000); // Рестарт через 3 сек  
+        setTimeout(startCountdown, 3000);  
     }  
   
-    // --- КНОПКА И СТАВКИ ---  
     DOM.btn.onclick = function() {  
         if (state.gameState === 'IDLE') {  
-            // Ставка  
             if (state.balance >= state.betAmount) {  
                 state.balance -= state.betAmount;  
                 state.myBetPlaced = true;  
                 updateBalanceDisplay();  
                 updateButton();  
-            } else {  
-                alert("Недостаточно средств!");  
-            }  
+            } else { alert("Недостаточно средств!"); }  
         } else if (state.gameState === 'FLYING' && state.myBetPlaced) {  
-            // Вывод (Cashout)  
             const winAmount = state.betAmount * state.currentMult;  
             state.balance += winAmount;  
             state.myBetPlaced = false;  
             updateBalanceDisplay();  
-              
             DOM.btn.innerText = `Взято: ${winAmount.toFixed(2)}`;  
             DOM.btn.classList.add('cashout');  
             DOM.btn.disabled = true;  
@@ -376,30 +313,19 @@
     function updateButton() {  
         DOM.btn.disabled = false;  
         DOM.btn.classList.remove('cashout');  
-  
         if (state.gameState === 'IDLE') {  
-            if (state.myBetPlaced) {  
-                DOM.btn.innerText = "Ставка принята (Ждем...)";  
-                DOM.btn.disabled = true;  
-            } else {  
-                DOM.btn.innerText = `Сделать ставку (${state.betAmount.toFixed(2)})`;  
-            }  
+            DOM.btn.innerText = state.myBetPlaced ? "Ставка принята" : `Сделать ставку (${state.betAmount.toFixed(2)})`;  
+            if (state.myBetPlaced) DOM.btn.disabled = true;  
         } else if (state.gameState === 'FLYING') {  
             if (state.myBetPlaced) {  
-                const currentWin = (state.betAmount * state.currentMult).toFixed(2);  
-                DOM.btn.innerText = `ЗАБРАТЬ ${currentWin}`;  
-                DOM.btn.classList.add('cashout'); // Делаем кнопку зеленой  
-            } else {  
-                DOM.btn.innerText = "Игра идет...";  
-                DOM.btn.disabled = true;  
-            }  
+                DOM.btn.innerText = `ЗАБРАТЬ ${(state.betAmount * state.currentMult).toFixed(2)}`;  
+                DOM.btn.classList.add('cashout');  
+            } else { DOM.btn.innerText = "Игра идет..."; DOM.btn.disabled = true; }  
         } else if (state.gameState === 'CRASHED') {  
-            DOM.btn.innerText = "Ожидание следующего раунда...";  
-            DOM.btn.disabled = true;  
+            DOM.btn.innerText = "Ждем раунд..."; DOM.btn.disabled = true;  
         }  
     }  
   
-    // --- ГРАФИКА (CANVAS) ---  
     function resizeCanvas() {  
         DOM.canvas.width = DOM.canvas.offsetWidth;  
         DOM.canvas.height = DOM.canvas.offsetHeight;  
@@ -409,34 +335,19 @@
         const w = DOM.canvas.width;  
         const h = DOM.canvas.height;  
         DOM.ctx.clearRect(0, 0, w, h);  
-  
         if (state.gameState === 'IDLE') return;  
-  
         DOM.ctx.beginPath();  
         DOM.ctx.lineWidth = 4;  
         DOM.ctx.strokeStyle = '#007bff';  
-          
-        // Рисуем кривую  
         DOM.ctx.moveTo(0, h);  
-          
-        // Математика кривой (масштабируется по времени t)  
         const x = Math.min(w * 0.9, t * 50);   
         const y = h - Math.min(h * 0.9, Math.pow(t, 1.6) * 10);  
-          
         DOM.ctx.quadraticCurveTo(w * 0.2, h, x, y);  
         DOM.ctx.stroke();  
-  
-        // Рисуем ракету на конце линии  
         DOM.ctx.font = "30px Arial";  
-        DOM.ctx.fillText("🚀", x - 15, y - 5);  
-          
-        // Если краш, рисуем взрыв  
-        if (state.gameState === 'CRASHED') {  
-             DOM.ctx.fillText("💥", x - 15, y - 5);  
-        }  
+        DOM.ctx.fillText(state.gameState === 'CRASHED' ? "💥" : "🚀", x - 15, y - 5);  
     }  
   
-    // --- ВСПОМОГАТЕЛЬНЫЕ ---  
     function addToHistory(val) {  
         const div = document.createElement('div');  
         div.className = 'hist-item' + (val >= 2.0 ? ' high' : '');  
@@ -446,17 +357,11 @@
     }  
   
     function addFakePlayer() {  
-        const names = ['User832', 'TonWhale', 'LuckyDim', 'CryptoBro', 'Alex_T', 'InvestOr'];  
+        const names = ['Shark', 'TonWhale', 'LuckyDim', 'CryptoBro'];  
         const div = document.createElement('div');  
         div.className = 'player-row';  
         const name = names[Math.floor(Math.random() * names.length)];  
-        const bet = (Math.random() * 50 + 1).toFixed(2);  
-          
-        div.innerHTML = `  
-            <span style="font-weight:600; color:#ccc;">${name}</span>  
-            <span style="font-weight:700;">${bet} TON</span>  
-        `;  
-          
+        div.innerHTML = `<span>${name}</span><span>${(Math.random()*15).toFixed(2)} TON</span>`;  
         DOM.players.prepend(div);  
         if (DOM.players.children.length > 6) DOM.players.lastChild.remove();  
     }  
@@ -464,16 +369,14 @@
     function setPage(pageId) {  
         document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));  
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));  
-          
         document.getElementById('page-' + pageId).classList.add('active');  
-        // Подсветка кнопки  
-        const idx = ['top','game','profile'].indexOf(pageId);  
-        document.querySelectorAll('.nav-item')[idx].classList.add('active');  
+        const navItems = document.querySelectorAll('.nav-item');
+        if (pageId === 'top') navItems[0].classList.add('active');
+        else if (pageId === 'game') navItems[1].classList.add('active');
+        else if (pageId === 'profile') navItems[2].classList.add('active');
     }  
   
-    // Запуск  
     init();  
-  
-</script>  </body>  
-</html>  
-Папку сделай 
+</script>  
+</body>  
+</html>
