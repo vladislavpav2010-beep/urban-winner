@@ -1,214 +1,53 @@
-/**
- * CRASH TON ULTIMATE - SERVER CORE ENGINE v1.0.4
- * Стек: Node.js, Socket.io, Redis, TonWeb
- * Описание: Система управления PvP-роллами с Provably Fair алгоритмом
- */
+# 🎡 Crash TON Ultimate - Real-Time PvP Roll Platform
 
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const crypto = require('crypto');
-const TonWeb = require('tonweb');
+![Version](https://img.shields.io/badge/version-1.0.4-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![TON](https://img.shields.io/badge/blockchain-TON-0098EA)
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+**Crash TON Ultimate** — это высокопроизводительная игровая платформа на базе Telegram Mini Apps (TMA), использующая блокчейн TON для мгновенных транзакций и систему Provably Fair для гарантии честности каждого раунда.
 
-// --- КОНФИГУРАЦИЯ ---
-const CONFIG = {
-    FEE_PERCENT: 5, // Комиссия платформы
-    MIN_BET: 0.1,   // Минималка в TON
-    GAME_DURATION: 30000, // 30 сек на сбор ставок
-    SPIN_TIME: 8000,      // 8 сек анимация кручения
-    SERVER_WALLET: "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm"
-};
+---
 
-// --- СОСТОЯНИЕ СИСТЕМЫ ---
-let gameState = {
-    roundId: 317735,
-    players: [],
-    totalPool: 0,
-    status: 'WAITING', // WAITING, SPINNING, ENDED
-    history: [],
-    timer: null,
-    timeRemaining: 30
-};
+## 🚀 Основные возможности (Core Features)
 
-// --- МОДУЛЬ ЧЕСТНОЙ ИГРЫ (PROVABLY FAIR) ---
-class FairManager {
-    static generateRoundData() {
-        const serverSeed = crypto.randomBytes(32).toString('hex');
-        const publicHash = crypto.createHash('sha256').update(serverSeed).digest('hex');
-        return { serverSeed, publicHash };
-    }
+* **PvP Roll Engine:** Многопользовательская рулетка в реальном времени с динамическим расчетом шансов на основе суммы ставки.
+* **Provably Fair:** Каждый результат раунда можно проверить. Мы используем HMAC-SHA256 для генерации случайного числа, которое фиксируется до начала приема ставок.
+* **TON Integration:** Полная поддержка экосистемы TON:
+    * Пополнение через @wallet.
+    * Поддержка отправки NFT и Gift-предметов в качестве ставок.
+    * Автоматические выплаты победителям.
+* **WebSockets Layer:** Мгновенная синхронизация состояния колеса между всеми игроками без задержек.
+* **Advanced Analytics:** Встроенная система мониторинга профита, оборота и активности пользователей.
 
-    static calculateWinner(serverSeed, totalPool) {
-        // Создаем число от 0 до 100 на основе хеша
-        const hash = crypto.createHmac('sha256', serverSeed).update('round_result').digest('hex');
-        const percentage = (parseInt(hash.substring(0, 8), 16) % 10000) / 100;
-        return percentage; // Это "билет", который выиграл (от 0 до 100)
-    }
-}
+---
 
-// --- СИСТЕМА ПЛАТЕЖЕЙ TON ---
-class PaymentProvider {
-    constructor() {
-        this.tonweb = new TonWeb();
-    }
+## 🛠 Технологический стек (Tech Stack)
 
-    async checkTransaction(userId, amount) {
-        console.log(`[PAYMENT] Мониторинг кошелька для пользователя ${userId}...`);
-        // Здесь имитация обращения к API TON Center
-        return new Promise(resolve => setTimeout(() => resolve(true), 2000));
-    }
+### Backend
+* **Node.js & Express:** Серверная логика и API.
+* **Socket.io:** Real-time коммуникация.
+* **Crypto:** Защищенное хеширование данных.
+* **TonWeb:** Взаимодействие со смарт-контрактами и кошельками TON.
 
-    async sendWinnings(winnerWallet, amount) {
-        const prize = amount * (1 - CONFIG.FEE_PERCENT / 100);
-        console.log(`[PAYMENT] Отправка выигрыша ${prize} TON на ${winnerWallet}`);
-        // Логика перевода через tonweb.wallet.transfer
-    }
-}
+### Frontend (Mini App)
+* **HTML5 Canvas:** Плавная анимация вращения колеса (60 FPS).
+* **CSS3 Variables:** Легкая кастомизация интерфейса и тем оформления.
 
-const payments = new PaymentProvider();
+---
 
-// --- УПРАВЛЕНИЕ ИГРОВЫМ ЦИКЛОМ ---
-const GameController = {
-    initRound() {
-        const { serverSeed, publicHash } = FairManager.generateRoundData();
-        gameState.players = [];
-        gameState.totalPool = 0;
-        gameState.status = 'WAITING';
-        gameState.serverSeed = serverSeed;
-        gameState.publicHash = publicHash;
-        gameState.timeRemaining = 30;
+## 📐 Архитектура проекта
 
-        console.log(`[GAME] Раунд #${gameState.roundId} начат. Hash: ${publicHash}`);
-        this.startTimer();
-    },
+Проект разделен на три ключевых модуля:
 
-    startTimer() {
-        gameState.timer = setInterval(() => {
-            gameState.timeRemaining--;
-            io.emit('TIMER_TICK', gameState.timeRemaining);
+1.  **GameController:** Управляет жизненным циклом раунда (Ожидание -> Ставки -> Ролл -> Выплата).
+2.  **FairManager:** Отвечает за криптографическую честность. Генерирует Server Seed и вычисляет выигрышный билет.
+3.  **PaymentProvider:** Мониторит входящие транзакции в сети TON и инициирует исходящие платежи.
 
-            if (gameState.timeRemaining <= 0) {
-                clearInterval(gameState.timer);
-                this.executeSpin();
-            }
-        }, 1000);
-    },
+---
 
-    async addBet(user, betAmount, items = []) {
-        if (gameState.status !== 'WAITING') return { success: false, error: "Игра уже идет" };
-        
-        const newPlayer = {
-            id: user.id,
-            username: user.username,
-            avatar: user.avatar,
-            amount: betAmount,
-            items: items, // Подарки/NFT
-            color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
-            range: { from: 0, to: 0 }
-        };
+## ⚙️ Установка и запуск
 
-        gameState.players.push(newPlayer);
-        this.recalculateChances();
-        
-        io.emit('UPDATE_PLAYERS', {
-            players: gameState.players,
-            totalPool: gameState.totalPool
-        });
-
-        return { success: true };
-    },
-
-    recalculateChances() {
-        gameState.totalPool = gameState.players.reduce((sum, p) => sum + p.amount, 0);
-        let currentPointer = 0;
-
-        gameState.players.forEach(p => {
-            const chance = (p.amount / gameState.totalPool) * 100;
-            p.chance = chance.toFixed(2);
-            p.range.from = currentPointer;
-            p.range.to = currentPointer + chance;
-            currentPointer += chance;
-        });
-    },
-
-    async executeSpin() {
-        gameState.status = 'SPINNING';
-        const winningTicket = FairManager.calculateWinner(gameState.serverSeed, gameState.totalPool);
-        
-        // Находим победителя
-        const winner = gameState.players.find(p => winningTicket >= p.range.from && winningTicket <= p.range.to);
-
-        console.log(`[GAME] Крутим колесо... Выигрышный билет: ${winningTicket}%`);
-        io.emit('START_SPIN', { winningTicket, duration: CONFIG.SPIN_TIME });
-
-        setTimeout(async () => {
-            this.endRound(winner);
-        }, CONFIG.SPIN_TIME);
-    },
-
-    endRound(winner) {
-        gameState.status = 'ENDED';
-        const result = {
-            roundId: gameState.roundId,
-            winner: winner,
-            totalPool: gameState.totalPool,
-            serverSeed: gameState.serverSeed
-        };
-
-        gameState.history.unshift(result);
-        io.emit('ROUND_RESULT', result);
-
-        // Выплата
-        if (winner && winner.amount > 0) {
-            payments.sendWinnings(winner.wallet, gameState.totalPool);
-        }
-
-        gameState.roundId++;
-        setTimeout(() => this.initRound(), 5000); // Пауза перед новым раундом
-    }
-};
-
-// --- API ЭНДПОИНТЫ ---
-app.get('/api/history', (req, res) => res.json(gameState.history));
-app.get('/api/status', (req, res) => res.json({ 
-    players: gameState.players, 
-    pool: gameState.totalPool,
-    hash: gameState.publicHash 
-}));
-
-// --- SOCKET.IO СОЕДИНЕНИЯ ---
-io.on('connection', (socket) => {
-    console.log(`[NET] Новый игрок подключен: ${socket.id}`);
-    
-    socket.emit('INIT_STATE', {
-        roundId: gameState.roundId,
-        players: gameState.players,
-        status: gameState.status,
-        pool: gameState.totalPool
-    });
-
-    socket.on('PLACE_BET', async (data) => {
-        // Логика: проверяем оплату -> добавляем в игру
-        const success = await GameController.addBet(data.user, data.amount, data.items);
-        if (success.success) {
-            socket.emit('BET_CONFIRMED');
-        }
-    });
-});
-
-// Запуск сервера
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`
-    ======================================
-    🚀 CRASH TON SERVER RUNNING ON PORT ${PORT}
-    🛠  READY FOR PVP ROUNDS
-    ======================================
-    `);
-    GameController.initRound();
-});
-
+### 1. Клонирование репозитория
+```bash
+git clone [https://github.com/your-username/crash-ton-ultimate.git](https://github.com/your-username/crash-ton-ultimate.git)
+cd crash-ton-ultimate
