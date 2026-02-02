@@ -9,32 +9,45 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; }
+        .balance { background: #1c1c1e; padding: 6px 15px; border-radius: 20px; border: 1px solid #2c2c2e; font-weight: 700; display: flex; gap: 8px; }
+
+        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: flex-end; z-index: 100; }
-        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px; }
+        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px; padding-bottom: 40px; }
         .handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
         .title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
+        /* TABS */
         .tabs { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
-        .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; color: #8e8e93; }
+        .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; color: var(--text-sec); }
         .tab.active { background: var(--blue); color: white; }
 
+        /* CONTENT */
         .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
         .step-num { background: #2c2c2e; min-width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        .step-text { font-size: 16px; color: #d1d1d6; line-height: 1.4; }
+        .step-text { font-size: 15px; color: #d1d1d6; line-height: 1.4; }
         .step-text span { color: var(--blue); }
 
-        .wallet-row { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 20px 0; }
-        .addr-text { color: var(--text-sec); font-size: 15px; }
-        .sum-field { font-size: 32px; color: #48484a; font-weight: 700; margin-bottom: 20px; }
+        .wallet-info { text-align: center; padding: 20px 0; }
+        .addr { color: var(--text-sec); margin-bottom: 10px; }
+        .sum { font-size: 40px; color: #48484a; font-weight: 700; margin-bottom: 25px; }
 
         .main-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
 
-        #processing { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        /* CONFIRM SCREEN */
+        #processing { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .spinner { width: 40px; height: 40px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+<div class="header">
+    <div style="color:#34c759">● 134</div>
+    <div class="balance">0.00 <span style="color:var(--blue)">+</span></div>
+</div>
 
 <div class="modal-overlay">
     <div class="modal-box">
@@ -42,63 +55,72 @@
         <div class="title">Пополнение счёта</div>
 
         <div class="tabs">
-            <div class="tab active" onclick="setTab('gifts', this)">Подарки</div>
-            <div class="tab" onclick="setTab('wallet', this)">Кошелёк</div>
-            <div class="tab" onclick="setTab('stars', this)">Звёзды</div>
+            <div class="tab active" id="btn-gifts" onclick="showTab('gifts')">Подарки</div>
+            <div class="tab" id="btn-wallet" onclick="showTab('wallet')">Кошелёк</div>
+            <div class="tab">Звёзды</div>
         </div>
 
         <div id="tab-gifts">
             <div class="step">
-                <div class="step-num">1.</div>
+                <div class="step-num">1</div>
                 <div class="step-text">Перейдите в профиль <span>@BankGiftHub</span></div>
             </div>
             <div class="step">
-                <div class="step-num">2.</div>
+                <div class="step-num">2</div>
                 <div class="step-text">Отправьте любой подарок на баланс</div>
             </div>
-            <button class="main-btn" onclick="openMyBot()">Открыть @BankGiftHub</button>
+            <button class="main-btn" onclick="openBot()">Открыть @BankGiftHub</button>
         </div>
 
         <div id="tab-wallet" style="display:none">
-            <div class="wallet-row">
-                <div class="addr-text">Адрес: UQAC...FrYm</div>
-                <div class="sum-field">Сумма</div>
+            <div class="wallet-info">
+                <div class="addr">Адрес: UQAC...FrYm</div>
+                <div class="sum">Сумма</div>
             </div>
-            <button class="main-btn" onclick="showConfirm()">Отправить TON</button>
+            <button class="main-btn" onclick="pay()">Отправить TON</button>
         </div>
     </div>
 </div>
 
 <div id="processing">
     <div class="spinner"></div>
-    <h2 style="font-size:22px; margin-bottom:12px;">Confirm the transaction<br>in Wallet</h2>
+    <h2 style="font-size:22px; margin-bottom:12px; text-align:center;">Confirm the transaction<br>in Wallet</h2>
     <p style="color:var(--text-sec)">It will only take a moment.</p>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    function setTab(name, el) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('tab-gifts').style.display = name === 'gifts' ? 'block' : 'none';
-        document.getElementById('tab-wallet').style.display = name === 'wallet' ? 'block' : 'none';
+    function showTab(type) {
+        if(type === 'gifts') {
+            document.getElementById('tab-gifts').style.display = 'block';
+            document.getElementById('tab-wallet').style.display = 'none';
+            document.getElementById('btn-gifts').classList.add('active');
+            document.getElementById('btn-wallet').classList.remove('active');
+        } else {
+            document.getElementById('tab-gifts').style.display = 'none';
+            document.getElementById('tab-wallet').style.display = 'block';
+            document.getElementById('btn-gifts').classList.remove('active');
+            document.getElementById('btn-wallet').classList.add('active');
+        }
     }
 
-    function openMyBot() {
+    function openBot() {
+        // Открываем твой аккаунт
         tg.openTelegramLink('https://t.me/BankGiftHub');
     }
 
-    function showConfirm() {
+    function pay() {
         document.getElementById('processing').style.display = 'flex';
         setTimeout(() => {
             document.getElementById('processing').innerHTML = `
                 <div style="font-size:60px; margin-bottom:20px;">✅</div>
                 <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
-                <p style="color:var(--text-sec); padding:0 40px;">Проверьте ваш кошелёк для завершения оплаты.</p>
+                <p style="color:var(--text-sec); padding:0 40px; text-align:center;">Проверьте ваш кошелёк для завершения оплаты.</p>
                 <button class="main-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
             `;
-        }, 3000);
+        }, 2500);
     }
 </script>
 </body>
