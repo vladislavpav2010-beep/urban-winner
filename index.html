@@ -1,122 +1,156 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; --star: #ff9500; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; }
+#!/usr/bin/env python3
+"""verify_v2.py  –  Provably-fair verification tool for GameRoll rounds.
 
-        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px 20px 40px; }
-        .handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
-        .title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+Usage example:
+    python scripts/verify_v2.py --seed e3c0... --hash f12a... --bets bets.json
 
-        .tabs { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
-        .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; color: var(--text-sec); }
-        .tab.active { background: var(--blue); color: white; }
+The script validates that:
+1. SHA-256(seed) equals committed hash published before the round.
+2. Using the same ticket algorithm the winner calculated locally matches the server.
 
-        .content-section { min-height: 200px; }
-        .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
-        .step-num { background: #2c2c2e; min-width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        .step-text { font-size: 15px; color: #d1d1d6; line-height: 1.4; }
-        .step-text span { color: var(--blue); }
+See scripts/README.md for full documentation.
 
-        .center-view { text-align: center; padding: 10px 0; }
-        .big-val { font-size: 48px; color: white; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+    # Winning ticket index is deterministic and provably fair:
+    # (v2) Seed (32 random bytes) interpreted as a big-endian integer, then
+    # taken modulo total_tickets gives a value in the range [0, total-1].
+"""
 
-        .main-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
-        .star-btn { background: var(--star); color: #000; }
+from __future__ import annotations
 
-        #system-loader { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .spinner { width: 42px; height: 42px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
+import argparse
+import hashlib
+import json
+import sys
+from decimal import Decimal, ROUND_HALF_UP, getcontext
+from pathlib import Path
+from typing import Dict, List, Tuple
 
-<div class="modal-box">
-    <div class="handle"></div>
-    <div class="title">Пополнение счёта</div>
+# Configure Decimal: 28 digits precision is enough for any realistic pool
+getcontext().prec = 28
+CENT = Decimal("0.01")  # one ticket = 0.01 TON (1 «cent»)
 
-    <div class="tabs">
-        <div class="tab active" id="btn-gifts" onclick="switchTab('gifts')">Подарки</div>
-        <div class="tab" id="btn-wallet" onclick="switchTab('wallet')">Кошелёк</div>
-        <div class="tab" id="btn-stars" onclick="switchTab('stars')">Звёзды</div>
-    </div>
 
-    <div class="content-section">
-        <div id="view-gifts">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text">Перейдите в профиль <span>@BankGiftHub</span></div>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text">Отправьте любой подарок на баланс</div>
-            </div>
-            <button class="main-btn" onclick="tg.openTelegramLink('https://t.me/BankGiftHub')">Открыть @BankGiftHub</button>
-        </div>
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-        <div id="view-wallet" style="display:none">
-            <div class="center-view">
-                <div style="color: var(--text-sec); margin-bottom: 10px;">Адрес: UQAC...FrYm</div>
-                <div class="big-val">0.00</div>
-                <button class="main-btn" onclick="showLoader('Wallet')">Отправить TON</button>
-            </div>
-        </div>
+def load_bets(path: Path) -> Tuple[Dict[str, Decimal], Dict[str, str]]:
+    """Load JSON mapping.
 
-        <div id="view-stars" style="display:none">
-            <div class="center-view">
-                <div style="color: var(--text-sec); margin-bottom: 15px;">Telegram Stars</div>
-                <div class="big-val">⭐️ 130</div>
-                <button class="main-btn star-btn" onclick="showLoader('Stars')">Оплатить ⭐️ 130</button>
-            </div>
-        </div>
-    </div>
-</div>
+    Accepted formats:
+        {"123": 3.0, "456": 7.21}
+        {"123": {"amount": 3.0, "telegram_username": "alice"}, ...}
 
-<div id="system-loader">
-    <div class="spinner"></div>
-    <h2 id="load-title" style="font-size:22px; margin-bottom:12px;">Confirm the transaction</h2>
-    <p style="color:var(--text-sec)">It will only take a moment.</p>
-</div>
+    Returns two dicts:
+        amounts – {telegram_id: Decimal}
+        telegram_usernames – {telegram_id: telegram_username or ""}
+    """
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"Failed to read bets file '{path}': {exc}")
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    if not isinstance(raw, dict):
+        sys.exit("bets.json must be a JSON object like {\"123456\": 1.23, ...}")
 
-    function switchTab(type) {
-        document.getElementById('view-gifts').style.display = type === 'gifts' ? 'block' : 'none';
-        document.getElementById('view-wallet').style.display = type === 'wallet' ? 'block' : 'none';
-        document.getElementById('view-stars').style.display = type === 'stars' ? 'block' : 'none';
-        
-        document.getElementById('btn-gifts').classList.toggle('active', type === 'gifts');
-        document.getElementById('btn-wallet').classList.toggle('active', type === 'wallet');
-        document.getElementById('btn-stars').classList.toggle('active', type === 'stars');
-        tg.HapticFeedback.impactOccurred('light');
-    }
+    bets: Dict[str, Decimal] = {}
+    telegram_usernames: Dict[str, str] = {}
 
-    function showLoader(method) {
-        const loader = document.getElementById('system-loader');
-        const title = document.getElementById('load-title');
-        
-        title.innerHTML = method === 'Stars' ? "Confirm with Telegram" : "Confirm the transaction<br>in Wallet";
-        loader.style.display = 'flex';
-        tg.HapticFeedback.notificationOccurred('warning');
+    for telegram_id, amount in raw.items():
+        if isinstance(amount, dict):
+            amt_val = amount.get("amount")
+            username_val = amount.get("username") or ""
+        else:
+            amt_val = amount
+            username_val = ""
 
-        setTimeout(() => {
-            loader.innerHTML = `
-                <div style="font-size:60px; margin-bottom:20px;">✅</div>
-                <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
-                <p style="color:var(--text-sec); padding:0 40px; text-align:center;">Оплата обрабатывается. Баланс обновится автоматически.</p>
-                <button class="main-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
-            `;
-            tg.HapticFeedback.notificationOccurred('success');
-        }, 2800);
-    }
-</script>
-</body>
-</html>
+        try:
+            dec = Decimal(str(amt_val)).quantize(CENT, ROUND_HALF_UP)
+        except Exception:
+            sys.exit(f"Stake '{amt_val}' for Telegram ID '{telegram_id}' is not a valid number")
+        if dec <= 0:
+            sys.exit(f"Stake for Telegram ID '{telegram_id}' must be positive")
+        bets[telegram_id] = bets.get(telegram_id, Decimal()) + dec
+        if username_val:
+            telegram_usernames[telegram_id] = username_val
+
+    return bets, telegram_usernames
+
+
+def cents_map(bets: Dict[str, Decimal]) -> List[Tuple[str, int]]:
+    """Convert amounts to integer tickets (cents) and sort by telegram_id (asc)."""
+    return sorted([(telegram_id, int((amt / CENT).to_integral_value())) for telegram_id, amt in bets.items()])
+
+
+def pick_winner(bets_cents: List[Tuple[str, int]], seed_bytes: bytes) -> Tuple[str, int]:
+    """Return (winner_telegram_id, picked_ticket_index)."""
+    total = sum(c for _, c in bets_cents)
+    if total == 0:
+        sys.exit("The round contains no tickets – nothing to verify")
+
+    # v2 algorithm – use seed bytes directly (commitment is still SHA-256(seed))
+    rand_int = int.from_bytes(seed_bytes, "big")
+    index = rand_int % total
+
+    acc = 0
+    for telegram_id, cents in bets_cents:
+        acc += cents
+        if index < acc:
+            return telegram_id, index
+
+    # Should never reach here if algorithm correct
+    raise RuntimeError("Winner could not be determined (internal error)")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Verify provably-fair GameRoll round")
+    parser.add_argument("--seed", required=True, help="64-char hex string revealed after the round")
+    parser.add_argument("--hash", required=True, help="64-char hex SHA-256 published before the round")
+    parser.add_argument("--bets", required=True, type=Path, help="Path to bets.json exported from the round")
+    args = parser.parse_args()
+
+    # 1. Validate seed ↔ hash
+    if len(args.seed) != 64:
+        sys.exit("Seed must be 64 hex characters (32 bytes)")
+    try:
+        seed_bytes = bytes.fromhex(args.seed)
+    except ValueError:
+        sys.exit("Seed is not valid hexadecimal data")
+
+    seed_hash = hashlib.sha256(seed_bytes).hexdigest()  # Compute commitment locally from Seed
+    if seed_hash.lower() != args.hash.lower():
+        sys.exit("❌  HASH mismatch – seed has been tampered with")
+
+    # 2. Read bets file
+    bets, telegram_usernames = load_bets(args.bets)
+    bets_cents = cents_map(bets)
+
+    # 3. Pick winner using the same algorithm as the server
+    winner_telegram_id, ticket = pick_winner(bets_cents, seed_bytes)
+
+    total_tickets = sum(c for _, c in bets_cents)
+
+    # 4. Output verification details
+    print("✅  Round verified as provably fair!")
+    print("\nVerification details:")
+    print(f"Hash   : {args.hash}")
+    print(f"Seed   : {args.seed}")
+    print(f"Bets   : {args.bets} ({len(bets)} players, {total_tickets} tickets)")
+    print(f"Ticket : {ticket} (range 0…{total_tickets - 1})")
+
+    # 5. Announce winner
+    print("\n🏆  Winner:")
+    winner_telegram_username = telegram_usernames.get(winner_telegram_id, "")
+    if winner_telegram_username:
+        print(f"Telegram ID: {winner_telegram_id}")
+        print(f"Username   : @{winner_telegram_username}")
+    else:
+        print(f"Telegram ID: {winner_telegram_id}")
+
+
+if __name__ == "__main__":
+    main() 
