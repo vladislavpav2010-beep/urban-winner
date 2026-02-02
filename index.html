@@ -5,74 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; --tab-bg: #2c2c2e; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; }
+        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; }
 
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; }
-        .balance { background: #1c1c1e; padding: 6px 15px; border-radius: 20px; border: 1px solid #2c2c2e; font-weight: 700; display: flex; gap: 8px; }
-
-        /* MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: flex-end; z-index: 100; }
-        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px; padding-bottom: 40px; }
+        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px 20px 40px; transform: translateY(0); transition: transform 0.3s ease; }
         .handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
         .title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-        /* TABS */
-        .tabs { display: flex; background: var(--tab-bg); border-radius: 12px; padding: 4px; margin-bottom: 25px; }
+        .tabs { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
         .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; color: var(--text-sec); }
         .tab.active { background: var(--blue); color: white; }
 
-        /* WALLET CONTENT */
-        .wallet-view { text-align: center; padding: 10px 0; }
-        .address-pill { 
-            display: inline-flex; align-items: center; gap: 8px; 
-            color: var(--text-sec); font-size: 14px; margin-bottom: 20px;
-            background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 12px;
-        }
-        .amount-input {
-            background: none; border: none; color: white; font-size: 42px;
-            text-align: center; width: 100%; font-weight: 700; outline: none; margin-bottom: 30px;
-        }
-        .amount-input::placeholder { color: #48484a; }
-
-        /* STEPS FOR GIFTS */
+        .content-section { min-height: 180px; }
         .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
-        .step-num { background: var(--tab-bg); min-width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .step-num { background: #2c2c2e; min-width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
         .step-text { font-size: 15px; color: #d1d1d6; line-height: 1.4; }
         .step-text span { color: var(--blue); }
 
+        .wallet-input-zone { text-align: center; padding: 10px 0; }
+        .addr-pill { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 12px; display: inline-block; color: var(--text-sec); font-size: 14px; margin-bottom: 15px; }
+        .amount-field { background: none; border: none; color: white; font-size: 42px; text-align: center; width: 100%; font-weight: 700; outline: none; margin-bottom: 20px; }
+        .amount-field::placeholder { color: #48484a; }
+
         .main-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
 
-        /* CONFIRM SCREEN FROM VIDEO */
-        #processing { 
-            position: fixed; inset: 0; background: #000; z-index: 200; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; 
-        }
-        .spinner { width: 40px; height: 40px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        #system-loader { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .spinner { width: 42px; height: 42px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="color:#34c759; font-weight: 600;">● 134</div>
-    <div class="balance">0.00 <span style="color:var(--blue); font-size: 18px; margin-left: 5px;">+</span></div>
-</div>
+<div class="modal-box">
+    <div class="handle"></div>
+    <div class="title">Пополнение счёта</div>
 
-<div class="modal-overlay">
-    <div class="modal-box">
-        <div class="handle"></div>
-        <div class="title">Пополнение счёта</div>
+    <div class="tabs">
+        <div class="tab active" id="tab-btn-gifts" onclick="switchTab('gifts')">Подарки</div>
+        <div class="tab" id="tab-btn-wallet" onclick="switchTab('wallet')">Кошелёк</div>
+        <div class="tab">Звёзды</div>
+    </div>
 
-        <div class="tabs">
-            <div class="tab active" id="btn-gifts" onclick="showTab('gifts')">Подарки</div>
-            <div class="tab" id="btn-wallet" onclick="showTab('wallet')">Кошелёк</div>
-            <div class="tab">Звёзды</div>
-        </div>
-
-        <div id="tab-gifts">
+    <div class="content-section">
+        <div id="view-gifts">
             <div class="step">
                 <div class="step-num">1</div>
                 <div class="step-text">Перейдите в профиль <span>@BankGiftHub</span></div>
@@ -81,71 +57,66 @@
                 <div class="step-num">2</div>
                 <div class="step-text">Отправьте любой подарок на баланс</div>
             </div>
-            <button class="main-btn" onclick="openBot()">Открыть @BankGiftHub</button>
+            <button class="main-btn" onclick="openTarget('@BankGiftHub')">Открыть @BankGiftHub</button>
         </div>
 
-        <div id="tab-wallet" style="display:none">
-            <div class="wallet-view">
-                <div class="address-pill" onclick="copyAddr()">
-                    <span>👛</span> Адрес: UQAC...FrYm
-                </div>
-                <input type="number" class="amount-input" placeholder="Сумма" id="ton-value">
-                <button class="main-btn" onclick="startPay()">Отправить TON</button>
+        <div id="view-wallet" style="display:none">
+            <div class="wallet-input-zone">
+                <div class="addr-pill">👛 Адрес: UQAC...FrYm</div>
+                <input type="number" class="amount-field" placeholder="Сумма" id="ton-input">
+                <button class="main-btn" onclick="processWalletPay()">Отправить TON</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="processing">
+<div id="system-loader">
     <div class="spinner"></div>
-    <h2 style="font-size:22px; margin-bottom:12px; text-align:center;">Confirm the transaction<br>in Wallet</h2>
+    <h2 style="font-size:22px; margin-bottom:12px;">Confirm the transaction<br>in Wallet</h2>
     <p style="color:var(--text-sec)">It will only take a moment.</p>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
+    
+    // Инициализация
+    tg.ready();
     tg.expand();
-    const MY_WALLET = "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm";
+    tg.enableClosingConfirmation();
 
-    function showTab(type) {
+    function switchTab(type) {
         const isGifts = type === 'gifts';
-        document.getElementById('tab-gifts').style.display = isGifts ? 'block' : 'none';
-        document.getElementById('tab-wallet').style.display = isGifts ? 'none' : 'block';
-        document.getElementById('btn-gifts').classList.toggle('active', isGifts);
-        document.getElementById('btn-wallet').classList.toggle('active', !isGifts);
+        document.getElementById('view-gifts').style.display = isGifts ? 'block' : 'none';
+        document.getElementById('view-wallet').style.display = isGifts ? 'none' : 'block';
+        document.getElementById('tab-btn-gifts').classList.toggle('active', isGifts);
+        document.getElementById('tab-btn-wallet').classList.toggle('active', !isGifts);
+        tg.HapticFeedback.impactOccurred('light');
     }
 
-    function openBot() {
-        tg.openTelegramLink('https://t.me/BankGiftHub');
+    function openTarget(username) {
+        tg.openTelegramLink('https://t.me/' + username.replace('@', ''));
     }
 
-    function copyAddr() {
-        navigator.clipboard.writeText(MY_WALLET);
-        tg.HapticFeedback.notificationOccurred('success');
-        alert("Адрес скопирован");
-    }
-
-    function startPay() {
-        const val = document.getElementById('ton-value').value;
-        if(!val || val <= 0) {
-            tg.HapticFeedback.notificationOccurred('error');
+    function processWalletPay() {
+        const amount = document.getElementById('ton-input').value;
+        if(!amount || amount <= 0) {
+            tg.showAlert("Введите сумму для перевода");
             return;
         }
 
-        document.getElementById('processing').style.display = 'flex';
-        
-        // Имитация процесса из видео
+        document.getElementById('system-loader').style.display = 'flex';
+        tg.HapticFeedback.notificationOccurred('warning');
+
         setTimeout(() => {
-            document.getElementById('processing').innerHTML = `
+            document.getElementById('system-loader').innerHTML = `
                 <div style="font-size:60px; margin-bottom:20px;">✅</div>
                 <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
-                <p style="color:var(--text-sec); padding:0 40px; text-align:center;">Проверьте уведомление от Wallet для подтверждения транзакции на ${val} TON.</p>
+                <p style="color:var(--text-sec); padding:0 40px;">Проверьте ваш Wallet для завершения оплаты ${amount} TON.</p>
                 <button class="main-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
             `;
             tg.HapticFeedback.notificationOccurred('success');
-        }, 2800);
+        }, 3000);
     }
 </script>
 </body>
 </html>
-
