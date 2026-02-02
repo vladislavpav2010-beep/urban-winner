@@ -6,154 +6,170 @@
     <title>CircleGift</title>
     <style>
         :root {
-            --bg: #0d1012;
+            --bg: #0d1013;
             --card: #1c1f24;
             --blue: #007bff;
-            --green: #28a745;
-            --red: #dc3545;
-            --text-sec: #848e9c;
-            --border: #2b3139;
+            --text-main: #ffffff;
+            --text-sec: #8e8e93;
+            --border: #2c2c2e;
         }
-        
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
         /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
-        .balance-box { background: var(--card); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); cursor: pointer; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .online { color: #34c759; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .balance { background: #1c1c1e; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 700; border: 1px solid #2c2c2e; }
+        .add-btn { background: var(--blue); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-        /* GAME AREA */
-        .game-view { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .rocket-anim { font-size: 80px; margin-bottom: 20px; transition: transform 0.1s; }
-        .multiplier { font-size: 64px; font-weight: 900; }
+        /* GAME */
+        .game-cont { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .multiplier { font-size: 72px; font-weight: 900; margin-top: 10px; }
+        .rocket { width: 120px; filter: drop-shadow(0 0 15px rgba(0,123,255,0.3)); }
 
-        /* MODAL SYSTEM */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: flex-end; backdrop-filter: blur(10px); }
-        .modal-box { background: #171717; width: 100%; border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s ease-out; }
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: flex-end; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-box { width: 100%; background: #1c1c1e; border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .tabs { display: flex; background: #262628; border-radius: 12px; padding: 3px; margin: 20px 0; }
-        .tab-btn { flex: 1; padding: 8px; border-radius: 10px; border: none; background: none; color: var(--text-sec); font-weight: 600; cursor: pointer; }
-        .tab-btn.active { background: var(--blue); color: white; }
+        .handle { width: 36px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
+        .modal-title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-        .content-section { display: none; }
-        .content-section.active { display: block; }
+        .tabs { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
+        .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-sec); border-radius: 9px; cursor: pointer; }
+        .tab.active { background: var(--blue); color: white; }
+
+        .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; color: var(--text-sec); font-size: 15px; line-height: 1.4; }
+        .step-num { background: #2c2c2e; min-width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+
+        .blue-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .blue-btn:active { transform: scale(0.98); opacity: 0.9; }
 
         /* WALLET VIEW */
-        .wallet-info { text-align: center; padding: 20px 0; }
-        .masked-addr { color: var(--text-sec); font-size: 14px; margin-bottom: 15px; letter-spacing: 1px; }
-        .amount-input { background: none; border: none; color: white; font-size: 40px; text-align: center; width: 100%; outline: none; font-weight: 700; margin: 10px 0; }
-        
-        .btn-main { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        
-        /* PROCESSING OVERLAY (FROM VIDEO) */
-        #processing-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200;
-            display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-        }
-        .loader { width: 50px; height: 50px; border: 4px solid #333; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        .wallet-addr { text-align: center; color: var(--text-sec); margin-bottom: 10px; font-size: 14px; }
+        .amount-input { width: 100%; background: none; border: none; color: white; font-size: 48px; text-align: center; font-weight: 700; margin: 10px 0 30px; outline: none; }
+        .amount-input::placeholder { color: #3a3a3c; }
+
+        /* CONFIRM SCREEN */
+        #confirm-screen { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #1c1c1e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .nav { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px 0 30px; background: #0d1013; border-top: 1px solid #1c1c1e; }
+        .nav-item { color: var(--text-sec); font-size: 11px; text-align: center; opacity: 0.6; }
+        .nav-item.active { color: var(--blue); opacity: 1; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="color:var(--green)">● 134</div>
-    <div class="balance-box" onclick="showModal()">
-        <span id="bal">0.00</span>
-        <span style="background:var(--blue); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">+</span>
+    <div class="online">● 134</div>
+    <div class="balance" onclick="openModal()">
+        <span>0.00</span>
+        <div class="add-btn">+</div>
     </div>
 </div>
 
-<div class="game-view">
-    <div class="rocket-anim" id="rocket">🚀</div>
+<div class="game-cont">
+    <img src="https://img.icons8.com/external-flatart-icons-flat-flatarticons/128/external-rocket-startup-flatart-icons-flat-flatarticons.png" class="rocket" id="rocket-img">
     <div class="multiplier" id="mult">1.00x</div>
-    <button class="btn-main" style="width: 80%; margin-top: 30px;">Сделать ставку</button>
+    <div style="width: 85%; margin-top: 40px;">
+        <button class="blue-btn">Сделать ставку</button>
+    </div>
 </div>
 
-<div class="modal-overlay" id="payment-modal" onclick="hideModal()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-        <div style="width:40px; height:4px; background:#333; border-radius:2px; margin:0 auto 10px;"></div>
-        <h2 style="text-align:center; font-size:20px;">Пополнение счёта</h2>
-
+<div class="modal-overlay" id="modal">
+    <div class="modal-box">
+        <div class="handle"></div>
+        <div class="modal-title">Пополнение счёта</div>
+        
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('gifts', this)">Подарки</button>
-            <button class="tab-btn" onclick="switchTab('wallet', this)">Кошелёк</button>
-            <button class="tab-btn" onclick="switchTab('stars', this)">Звёзды</button>
+            <div class="tab active" onclick="setTab('gifts', this)">Подарки</div>
+            <div class="tab" onclick="setTab('wallet', this)">Кошелёк</div>
+            <div class="tab" onclick="setTab('stars', this)">Звёзды</div>
         </div>
 
-        <div id="gifts" class="content-section active">
-            <p style="margin-bottom:15px; font-size:14px; color:#ccc;">1. Перейдите в профиль @GiftUpRelayer</p>
-            <p style="margin-bottom:15px; font-size:14px; color:#ccc;">2. Отправьте любой подарок боту</p>
-            <button class="btn-main" onclick="window.location.href='tg://resolve?domain=GiftUpRelayer'">Отправить подарок</button>
-        </div>
-
-        <div id="wallet" class="content-section">
-            <div class="wallet-info">
-                <div class="masked-addr">Адрес: UQAC••••••••FrYm</div>
-                <input type="number" class="amount-input" placeholder="Сумма" id="ton-sum">
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-main" style="background:#333; flex:1;" onclick="copyMyWallet()">Копировать</button>
-                    <button class="btn-main" style="flex:2;" onclick="startPay()">Отправить TON</button>
-                </div>
+        <div id="tab-gifts">
+            <div class="step">
+                <div class="step-num">1.</div>
+                <div>Перейдите в профиль <span style="color:var(--blue)">@GiftUpRelayer</span></div>
             </div>
+            <div class="step">
+                <div class="step-num">2.</div>
+                <div>Отправьте любой подарок боту</div>
+            </div>
+            <div class="step">
+                <img src="https://img.icons8.com/emoji/48/duck-emoji.png" width="24">
+                <div style="color:white">Баланс зачислится мгновенно после отправки</div>
+            </div>
+            <button class="blue-btn" onclick="openTG('GiftUpRelayer')">Отправить подарок</button>
+        </div>
+
+        <div id="tab-wallet" style="display:none">
+            <div class="wallet-addr">Адрес: UQAC••••••••FrYm</div>
+            <input type="number" class="amount-input" placeholder="Сумма" id="sum">
+            <button class="blue-btn" onclick="startLoading()">Отправить TON</button>
         </div>
     </div>
 </div>
 
-<div id="processing-overlay">
-    <div class="loader"></div>
-    <h3>Confirm the transaction<br>in Wallet</h3>
-    <p style="color:var(--text-sec); margin-top:10px; font-size:14px;">It will only take a moment.</p>
+<div id="confirm-screen">
+    <div class="spinner"></div>
+    <h2 style="font-size:22px; margin-bottom:10px;">Confirm the transaction<br>in Wallet</h2>
+    <p style="color:var(--text-sec)">It will only take a moment.</p>
+</div>
+
+<div class="nav">
+    <div class="nav-item">🏆<br>Топ</div>
+    <div class="nav-item active">💧<br>Краш</div>
+    <div class="nav-item">👤<br>Профиль</div>
 </div>
 
 <script>
-    const MY_ADDR = "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm";
+    const modal = document.getElementById('modal');
+    const confirmScreen = document.getElementById('confirm-screen');
 
-    function showModal() { document.getElementById('payment-modal').style.display = 'flex'; }
-    function hideModal() { document.getElementById('payment-modal').style.display = 'none'; }
+    function openModal() { modal.style.display = 'flex'; }
+    modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
 
-    function switchTab(id, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(id).classList.add('active');
+    function setTab(name, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('tab-gifts').style.display = name === 'gifts' ? 'block' : 'none';
+        document.getElementById('tab-wallet').style.display = name === 'wallet' ? 'block' : 'none';
     }
 
-    function copyMyWallet() {
-        navigator.clipboard.writeText(MY_ADDR);
-        alert("Адрес скопирован!");
+    function openTG(bot) {
+        // Используем правильный формат для Telegram WebApps
+        window.open(`https://t.me/${bot}`, '_blank');
     }
 
-    function startPay() {
-        const sum = document.getElementById('ton-sum').value;
-        if(!sum || sum <= 0) return alert("Введите сумму");
+    function startLoading() {
+        if(!document.getElementById('sum').value) return alert("Введите сумму");
+        modal.style.display = 'none';
+        confirmScreen.style.display = 'flex';
         
-        hideModal();
-        // Показываем окно обработки как в видео
-        const overlay = document.getElementById('processing-overlay');
-        overlay.style.display = 'flex';
-
-        // Имитация вызова кошелька
         setTimeout(() => {
-            overlay.innerHTML = `
-                <div style="font-size:50px;">✅</div>
-                <h3 style="margin-top:20px;">Запрос отправлен</h3>
-                <p style="padding:20px; color:var(--text-sec);">Проверьте ваш кошелёк для завершения оплаты.</p>
-                <button class="btn-main" onclick="location.reload()">Вернуться</button>
+            confirmScreen.innerHTML = `
+                <div style="font-size:64px; margin-bottom:20px;">✅</div>
+                <h2 style="margin-bottom:10px;">Запрос отправлен</h2>
+                <p style="color:var(--text-sec); padding:0 40px; margin-bottom:30px;">Проверьте ваш кошелёк для завершения оплаты.</p>
+                <button class="blue-btn" style="width:80%" onclick="location.reload()">Вернуться</button>
             `;
         }, 3000);
     }
 
-    // Простая анимация ракеты для красоты
-    let m = 1.00;
+    // Анимация полета
+    let count = 1.00;
     setInterval(() => {
-        m += 0.01;
-        document.getElementById('mult').innerText = m.toFixed(2) + 'x';
-        document.getElementById('rocket').style.transform = `translateY(${Math.sin(Date.now()/200)*5}px)`;
+        count += 0.01;
+        document.getElementById('mult').innerText = count.toFixed(2) + 'x';
+        document.getElementById('rocket-img').style.transform = `translateY(${Math.sin(Date.now()/200)*5}px)`;
     }, 100);
 </script>
 
 </body>
 </html>
+
 
