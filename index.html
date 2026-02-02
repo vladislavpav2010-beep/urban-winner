@@ -1,145 +1,125 @@
-
-
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CircleGift</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: #0d1012;
-            --modal-bg: #1c1c1e;
-            --tab-bg: #2c2c2e;
-            --blue: #007aff;
-            --text-sec: #8e8e93;
-            --border: #2c2c2e;
-        }
+        :root { --bg: #0d1012; --modal: #1c1c1e; --tab: #2c2c2e; --blue: #007aff; --text-sec: #8e8e93; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
+        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: var(--bg); color: white; height: 100vh; display: flex; flex-direction: column; }
-
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; }
-        .balance { background: #1c1c1e; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); }
-
-        /* GAME */
-        .game-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .multiplier { font-size: 80px; font-weight: 800; margin-bottom: 20px; }
-
-        /* MODAL (AS IN SCREENSHOT) */
+        /* MODAL STYLE FROM SCREENSHOTS */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: flex-end; z-index: 100; }
-        .modal-box { width: 100%; background: var(--modal-bg); border-radius: 24px 24px 0 0; padding: 20px; position: relative; }
+        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
         .handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
-        .modal-title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+        .title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-        /* TABS (AS IN SCREENSHOT) */
-        .tabs { display: flex; background: var(--tab-bg); border-radius: 12px; padding: 4px; margin-bottom: 25px; }
-        .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: white; border-radius: 10px; }
+        /* TABS FROM SCREENSHOTS */
+        .tabs { display: flex; background: var(--tab); border-radius: 12px; padding: 4px; margin-bottom: 25px; gap: 4px; }
+        .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: white; border-radius: 10px; cursor: pointer; }
         .tab.active { background: var(--blue); }
 
-        /* LIST ITEMS (GIFTS) */
-        .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; font-size: 16px; }
-        .step-icon { background: var(--tab-bg); min-width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .step-text { color: #d1d1d6; line-height: 1.4; }
-        .step-text span { color: var(--blue); }
+        /* LIST ITEMS FROM SCREENSHOTS */
+        .item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
+        .icon-box { background: var(--tab); min-width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+        .text { color: #d1d1d6; font-size: 16px; line-height: 1.4; }
+        .text span { color: var(--blue); }
 
-        /* WALLET TAB */
-        .wallet-content { text-align: center; padding: 10px 0; }
-        .addr-row { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-sec); font-size: 16px; margin-bottom: 20px; }
-        .sum-placeholder { font-size: 32px; color: #48484a; font-weight: 600; margin-bottom: 30px; }
+        /* WALLET VIEW */
+        .wallet-info { text-align: center; color: var(--text-sec); padding: 10px 0; }
+        .sum-text { font-size: 36px; color: #48484a; font-weight: 700; margin: 20px 0; }
 
-        /* MAIN BUTTON */
-        .action-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 600; cursor: pointer; }
+        /* BLUE BUTTON */
+        .btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
 
-        /* CONFIRMATION SCREEN (FROM VIDEO) */
-        #confirm-overlay { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .loader { width: 40px; height: 40px; border: 3px solid #1c1c1e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        /* CONFIRM OVERLAY FROM VIDEO */
+        #confirm-screen { position: fixed; inset: 0; background: #000; z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .loader { width: 40px; height: 40px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="color:#34c759; font-weight:600;">● 134</div>
-    <div class="balance"><span>0.00</span><span style="background:var(--blue); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">+</span></div>
-</div>
-
-<div class="game-view">
-    <div class="multiplier">1.82x</div>
-    <div style="width:85%"><button class="action-btn">Сделать ставку</button></div>
-</div>
-
-<div class="modal-overlay" id="modal">
+<div class="modal-overlay">
     <div class="modal-box">
         <div class="handle"></div>
-        <div class="modal-title">Пополнение счёта</div>
+        <div class="title">Пополнение счёта</div>
 
         <div class="tabs">
-            <div class="tab active" onclick="showTab('gifts', this)">Подарки</div>
-            <div class="tab" onclick="showTab('wallet', this)">Кошелёк</div>
-            <div class="tab" onclick="showTab('stars', this)">Звёзды</div>
+            <div class="tab active" onclick="switchTab('gifts', this)">Подарки</div>
+            <div class="tab" onclick="switchTab('wallet', this)">Кошелёк</div>
+            <div class="tab">Звёзды</div>
         </div>
 
-        <div id="view-gifts">
-            <div class="step">
-                <div class="step-icon">1.</div>
-                <div class="step-text">Перейдите в профиль <span>@GiftUpRelayer</span></div>
+        <div id="gifts-tab">
+            <div class="item">
+                <div class="icon-box">1.</div>
+                <div class="text">Перейдите в профиль <span>@GiftUpRelayer</span></div>
             </div>
-            <div class="step">
-                <div class="step-icon">2.</div>
-                <div class="step-text">Отправьте любой подарок боту</div>
+            <div class="item">
+                <div class="icon-box">2.</div>
+                <div class="text">Отправьте любой подарок боту</div>
             </div>
-            <div class="step">
-                <div class="step-icon">🦆</div>
-                <div class="step-text" style="color:#d1d1d6">Подарок отобразится в вашем инвентаре</div>
+            <div class="item">
+                <div class="icon-box">🦆</div>
+                <div class="text">Подарок отобразится в вашем инвентаре</div>
             </div>
-            <div class="step">
-                <div class="step-icon">‼️</div>
-                <div class="step-text">Убедитесь, что отправляете из своего профиля.</div>
+            <div class="item">
+                <div class="icon-box">‼️</div>
+                <div class="text">Убедитесь, что отправляете из своего профиля.</div>
             </div>
-            <button class="action-btn">Отправить подарок</button>
+            <button class="btn" onclick="openRelayer()">Отправить подарок</button>
         </div>
 
-        <div id="view-wallet" style="display:none">
-            <div class="wallet-content">
-                <div class="addr-row">
-                    <img src="https://img.icons8.com/ios-filled/50/8e8e93/wallet.png" width="20">
-                    Адрес: UQAC...FrYm
-                </div>
-                <div class="sum-placeholder">Сумма</div>
-                <button class="action-btn" onclick="startLoading()">Отвязать кошелёк</button>
+        <div id="wallet-tab" style="display:none">
+            <div class="wallet-info">
+                <p>👛 Адрес: UQAC...FrYm</p>
+                <div class="sum-text">Сумма</div>
             </div>
+            <button class="btn" onclick="startLoading()">Отвязать кошелёк</button>
         </div>
     </div>
 </div>
 
-<div id="confirm-overlay">
+<div id="confirm-screen">
     <div class="loader"></div>
     <h2 style="font-size:22px; margin-bottom:12px;">Confirm the transaction<br>in Wallet</h2>
     <p style="color:var(--text-sec)">It will only take a moment.</p>
 </div>
 
 <script>
-    function showTab(type, el) {
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Развернуть на весь экран
+
+    function switchTab(type, el) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        document.getElementById('view-gifts').style.display = type === 'gifts' ? 'block' : 'none';
-        document.getElementById('view-wallet').style.display = type === 'wallet' ? 'block' : 'none';
+        document.getElementById('gifts-tab').style.display = type === 'gifts' ? 'block' : 'none';
+        document.getElementById('wallet-tab').style.display = type === 'wallet' ? 'block' : 'none';
+    }
+
+    function openRelayer() {
+        // Правильный способ открытия ссылок в Telegram
+        tg.openTelegramLink('https://t.me/GiftUpRelayer');
     }
 
     function startLoading() {
-        document.getElementById('confirm-overlay').style.display = 'flex';
+        document.getElementById('confirm-screen').style.display = 'flex';
+        // Имитация из видео
         setTimeout(() => {
-            document.getElementById('confirm-overlay').innerHTML = `
-                <div style="font-size:60px; margin-bottom:20px;">✅</div>
+            document.getElementById('confirm-screen').innerHTML = `
+                <div style="font-size:64px; margin-bottom:20px;">✅</div>
                 <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
                 <p style="color:var(--text-sec); padding:0 30px;">Проверьте ваш кошелёк для завершения оплаты.</p>
-                <button class="action-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
+                <button class="btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
             `;
         }, 3000);
     }
 </script>
+
 </body>
 </html>
+
