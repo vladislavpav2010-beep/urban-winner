@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; }
+        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; --star: #ff9500; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; }
 
@@ -23,13 +23,11 @@
         .step-text { font-size: 15px; color: #d1d1d6; line-height: 1.4; }
         .step-text span { color: var(--blue); }
 
-        /* STARS & WALLET VIEW */
         .center-view { text-align: center; padding: 10px 0; }
-        .addr-pill { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 12px; display: inline-block; color: var(--text-sec); font-size: 14px; margin-bottom: 15px; }
-        .big-val { font-size: 48px; color: white; text-align: center; width: 100%; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .star-icon { color: #ff9500; }
+        .big-val { font-size: 48px; color: white; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 12px; }
 
         .main-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
+        .star-btn { background: var(--star); color: #000; }
 
         #system-loader { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .spinner { width: 42px; height: 42px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
@@ -63,17 +61,17 @@
 
         <div id="view-wallet" style="display:none">
             <div class="center-view">
-                <div class="addr-pill">👛 Адрес: UQAC...FrYm</div>
+                <div style="color: var(--text-sec); margin-bottom: 10px;">Адрес: UQAC...FrYm</div>
                 <div class="big-val">0.00</div>
-                <button class="main-btn" onclick="processPay('Wallet')">Отправить TON</button>
+                <button class="main-btn" onclick="showLoader('Wallet')">Отправить TON</button>
             </div>
         </div>
 
         <div id="view-stars" style="display:none">
             <div class="center-view">
-                <div class="addr-pill">Telegram Stars</div>
-                <div class="big-val"><span class="star-icon">⭐️</span> 130</div>
-                <button class="main-btn" style="background: #ff9500; color: black;" onclick="processPay('Stars')">Купить за ⭐️ 130</button>
+                <div style="color: var(--text-sec); margin-bottom: 15px;">Telegram Stars</div>
+                <div class="big-val">⭐️ 130</div>
+                <button class="main-btn star-btn" onclick="showLoader('Stars')">Оплатить ⭐️ 130</button>
             </div>
         </div>
     </div>
@@ -101,7 +99,7 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
-    function processPay(method) {
+    function showLoader(method) {
         const loader = document.getElementById('system-loader');
         const title = document.getElementById('load-title');
         
@@ -112,12 +110,12 @@
         setTimeout(() => {
             loader.innerHTML = `
                 <div style="font-size:60px; margin-bottom:20px;">✅</div>
-                <h2 style="margin-bottom:12px;">Оплата принята</h2>
-                <p style="color:var(--text-sec); padding:0 40px;">Зачисление произойдет в течение минуты.</p>
+                <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
+                <p style="color:var(--text-sec); padding:0 40px; text-align:center;">Оплата обрабатывается. Баланс обновится автоматически.</p>
                 <button class="main-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
             `;
             tg.HapticFeedback.notificationOccurred('success');
-        }, 3000);
+        }, 2800);
     }
 </script>
 </body>
