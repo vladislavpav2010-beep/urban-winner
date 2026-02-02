@@ -13,14 +13,27 @@
             --red: #dc3545;
             --text-sec: #848e9c;
             --border: #2b3139;
+            --modal-bg: #1c1f24;
+            --modal-border: #2b3139;
         }
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: white; margin: 0; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
         
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            margin: 0; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+        }
+
         /* --- HEADER --- */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 16px; background: var(--bg); z-index: 20;
+            border-bottom: 1px solid var(--border);
         }
         .online-badge {
             background: rgba(40, 44, 52, 0.8); padding: 5px 12px; border-radius: 20px;
@@ -33,16 +46,17 @@
         .balance-box span { font-weight: 800; font-size: 15px; }
         .add-btn {
             width: 28px; height: 28px; background: var(--blue); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 18px; cursor: pointer; color: white;
         }
 
         /* --- PAGES LAYOUT --- */
         .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
         .page.active { display: flex; }
 
-        /* --- GAME PAGE --- */
+        /* --- GAME VISUALS --- */
         .game-container {
-            position: relative; height: 350px; width: 100%;
+            position: relative; height: 320px; width: 100%;
             background: radial-gradient(circle at center, #1b2026 0%, #0d1012 70%);
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -50,13 +64,14 @@
         canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         
         .center-info { position: relative; z-index: 5; text-align: center; }
-        .multiplier { font-size: 72px; font-weight: 900; letter-spacing: -2px; text-shadow: 0 5px 20px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
+        .multiplier { font-size: 64px; font-weight: 900; letter-spacing: -2px; text-shadow: 0 5px 20px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; }
         .multiplier.crashed { color: var(--red); }
-        .status-text { color: var(--text-sec); font-size: 14px; font-weight: 600; text-transform: uppercase; margin-top: -10px; }
+        .status-text { color: var(--text-sec); font-size: 14px; font-weight: 600; text-transform: uppercase; margin-top: -5px; }
         
         .history-row {
             display: flex; gap: 8px; padding: 10px 16px; background: var(--bg);
             overflow-x: auto; white-space: nowrap; height: 50px; align-items: center;
+            border-bottom: 1px solid var(--border);
         }
         .hist-item {
             padding: 4px 10px; background: var(--card); border-radius: 6px;
@@ -64,6 +79,7 @@
         }
         .hist-item.high { color: var(--blue); border-color: rgba(0,123,255,0.3); }
 
+        /* --- CONTROLS --- */
         .controls-area { padding: 16px; background: var(--bg); }
         .bet-btn {
             width: 100%; height: 56px; border: none; border-radius: 14px;
@@ -125,34 +141,61 @@
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
         .nav-item.active { color: var(--blue); }
 
-        /* --- MODAL --- */
+        /* --- NEW MODAL STYLES (IMPROVED) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 100; display: none;
-            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.75); z-index: 100; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(8px);
         }
         .modal-box {
-            background: var(--card); width: 90%; max-width: 320px;
-            border-radius: 16px; padding: 20px; text-align: center;
-            border: 1px solid var(--border); position: relative;
+            background: var(--modal-bg); width: 90%; max-width: 340px;
+            border-radius: 20px; padding: 24px 20px; text-align: center;
+            border: 1px solid var(--modal-border); position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            animation: modalPop 0.3s ease-out;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
         .modal-close {
-            position: absolute; top: 10px; right: 10px;
-            background: none; border: none; color: #888; font-size: 20px; cursor: pointer;
+            position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+            background: rgba(255,255,255,0.08); border-radius: 50%; border: none; 
+            color: #ccc; font-size: 16px; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center;
         }
-        .pay-option {
-            background: #23282e; padding: 12px; border-radius: 10px;
-            margin-bottom: 10px; text-align: left;
+        .modal-title { margin: 0 0 20px; font-size: 18px; font-weight: 700; color: white; }
+
+        .pay-card {
+            background: #252a30; border-radius: 14px; padding: 16px;
+            margin-bottom: 12px; text-align: left; border: 1px solid #323842;
         }
-        .pay-label { font-size: 12px; color: #888; margin-bottom: 4px; }
-        .pay-val { font-size: 13px; word-break: break-all; font-family: monospace; color: var(--blue); }
-        .pay-actions { display: flex; gap: 8px; margin-top: 8px; }
-        .sm-btn { 
-            flex: 1; padding: 8px; border-radius: 8px; border: none; 
-            font-weight: 600; font-size: 12px; cursor: pointer;
+        .pay-label {
+            font-size: 11px; color: #848e9c; text-transform: uppercase; 
+            letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 700;
         }
-        .sm-btn.blue { background: var(--blue); color: white; }
-        .sm-btn.dark { background: #333; color: white; }
+        
+        .wallet-box {
+            background: #15181c; padding: 12px; border-radius: 8px;
+            font-family: 'Courier New', monospace; font-size: 12px; color: #e1e1e1;
+            word-break: break-all; line-height: 1.4; margin-bottom: 12px;
+            border: 1px dashed #3a404a; user-select: all;
+        }
+
+        .btn-row { display: flex; gap: 10px; }
+        
+        .action-btn {
+            flex: 1; height: 44px; border-radius: 10px; border: none;
+            font-weight: 700; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .action-btn:active { opacity: 0.8; transform: scale(0.98); }
+        
+        .btn-primary { background: var(--blue); color: white; box-shadow: 0 4px 15px rgba(0,123,255,0.2); }
+        .btn-secondary { background: #323842; color: white; }
+        
+        .hint-text { font-size: 10px; color: #555; margin-top: 15px; }
 
     </style>
 </head>
@@ -186,10 +229,10 @@
 
 <div id="page-profile" class="page">
     <div class="profile-header">
-        <div class="avatar-circle">В</div>
+        <div class="avatar-circle">U</div>
         <div class="user-info">
-            <h2>Владислав</h2>
-            <div class="flag-badge">🇷🇺 Россия</div>
+            <h2>User</h2>
+            <div class="flag-badge">💎 TON Holder</div>
         </div>
     </div>
 
@@ -227,6 +270,41 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="payment-modal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closePaymentModal()">✕</button>
+        <h3 class="modal-title">Пополнение счета</h3>
+        
+        <div class="pay-card">
+            <div class="pay-label">1. Подарок (Быстро)</div>
+            <div style="font-size:13px; color:#aaa; margin-bottom:12px; line-height: 1.3;">
+                Отправьте любой подарок боту, баланс зачислится мгновенно.
+            </div>
+            <button class="action-btn btn-primary" style="width:100%" onclick="openGiftBot()">
+                <span>🎁</span> Открыть @BankGiftHub
+            </button>
+        </div>
+
+        <div class="pay-card">
+            <div class="pay-label">2. Перевод TON</div>
+            <div class="wallet-box" id="wallet-text">UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm</div>
+            
+            <div class="btn-row">
+                <button class="action-btn btn-secondary" onclick="copyAddress(this)">
+                    <span>📋</span> Коп.
+                </button>
+                <button class="action-btn btn-primary" onclick="openTonWallet()">
+                    <span>💎</span> Отправить
+                </button>
+            </div>
+        </div>
+        
+        <p class="hint-text">
+            После оплаты баланс будет зачислен автоматически (эмуляция).
+        </p>
+    </div>
+</div>
+
 <div class="bottom-nav">
     <div class="nav-item" onclick="setPage('top')">
         <svg viewBox="0 0 24 24"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>
@@ -242,35 +320,11 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="payment-modal">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closePaymentModal()">×</button>
-        <h3 style="margin-top:0">Пополнение счета</h3>
-        
-        <div class="pay-option">
-            <div class="pay-label">1. Подарок через бота</div>
-            <div style="font-size:12px; color:#fff; margin-bottom:5px;">Отправьте подарок на баланс</div>
-            <button class="sm-btn blue" style="width:100%" onclick="openGiftBot()">Открыть @BankGiftHub</button>
-        </div>
-
-        <div class="pay-option">
-            <div class="pay-label">2. Перевод TON</div>
-            <div class="pay-val" id="wallet-addr">UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm</div>
-            <div class="pay-actions">
-                <button class="sm-btn dark" onclick="copyAddress()">Копировать</button>
-                <button class="sm-btn blue" onclick="openTonWallet()">Отправить TON</button>
-            </div>
-        </div>
-        
-        <p style="font-size:11px; color:#555; margin-bottom:0">После оплаты баланс будет зачислен автоматически (эмуляция).</p>
-    </div>
-</div>
-
 <script>
-    // КОНФИГУРАЦИЯ КОШЕЛЬКА И БОТА
+    // КОНФИГУРАЦИЯ
     const CONFIG = {
         wallet: "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm",
-        giftBot: "BankGiftHub" // Юзернейм бота без @
+        giftBot: "BankGiftHub"
     };
 
     let state = {
@@ -302,6 +356,7 @@
         window.addEventListener('resize', resizeCanvas);
         startCountdown();
         setInterval(addFakePlayer, 1500);
+        setInterval(updateOnline, 5000);
     }
 
     function updateBalanceDisplay() {
@@ -309,7 +364,7 @@
         localStorage.setItem('crash_balance', state.balance.toFixed(2));
     }
 
-    // --- ФУНКЦИИ ОПЛАТЫ ---
+    /* --- PAYMENT FUNCTIONS --- */
     function openPaymentModal() {
         DOM.modal.style.display = 'flex';
     }
@@ -319,26 +374,26 @@
     }
 
     function openGiftBot() {
-        // Открывает бота для подарков
         window.open(`https://t.me/${CONFIG.giftBot}`, '_blank');
     }
 
-    function copyAddress() {
+    function copyAddress(btnElement) {
         navigator.clipboard.writeText(CONFIG.wallet).then(() => {
-            alert('Адрес скопирован в буфер обмена!');
-        }).catch(err => {
-            console.error('Ошибка копирования', err);
-        });
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = "<span>✅</span>";
+            btnElement.style.background = "#28a745"; 
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                btnElement.style.background = ""; 
+            }, 1500);
+        }).catch(err => alert("Скопируйте адрес вручную"));
     }
 
     function openTonWallet() {
-        // Пытается открыть приложение кошелька
         window.location.href = `ton://transfer/${CONFIG.wallet}`;
     }
 
-    // Для теста можно оставить скрытую механику добавления баланса (например, долгим нажатием)
-    // Но основная функция теперь открывает модалку.
-    
+    /* --- GAME LOGIC --- */
     function resetProgress() {
         if(confirm('Сбросить данные?')) {
             localStorage.clear();
@@ -346,7 +401,6 @@
         }
     }
 
-    // --- ЛОГИКА ИГРЫ (Без изменений) ---
     function startCountdown() {
         state.gameState = 'IDLE';
         state.currentMult = 1.00;
@@ -411,7 +465,6 @@
                 updateBalanceDisplay();
                 updateButton();
             } else { 
-                alert("Недостаточно средств! Пополните баланс.");
                 openPaymentModal(); 
             }
         } else if (state.gameState === 'FLYING' && state.myBetPlaced) {
@@ -472,13 +525,17 @@
     }
 
     function addFakePlayer() {
-        const names = ['Shark', 'TonWhale', 'LuckyDim', 'CryptoBro'];
+        const names = ['Shark', 'TonWhale', 'LuckyDim', 'CryptoBro', 'Alex_TON', 'Winner777'];
         const div = document.createElement('div');
         div.className = 'player-row';
         const name = names[Math.floor(Math.random() * names.length)];
-        div.innerHTML = `<span>${name}</span><span>${(Math.random()*15).toFixed(2)} TON</span>`;
+        div.innerHTML = `<span>${name}</span><span>${(Math.random()*25).toFixed(2)} TON</span>`;
         DOM.players.prepend(div);
         if (DOM.players.children.length > 6) DOM.players.lastChild.remove();
+    }
+    
+    function updateOnline() {
+        document.getElementById('online-count').innerText = Math.floor(100 + Math.random() * 50);
     }
 
     function setPage(pageId) {
