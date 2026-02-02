@@ -3,376 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crash TON Ultimate</title>
+    <title>CircleGift</title>
     <style>
         :root {
             --bg: #0d1012;
-            --card: #181c1f;
+            --card: #1c1f24;
             --blue: #007bff;
             --green: #28a745;
             --red: #dc3545;
             --text-sec: #848e9c;
             --border: #2b3139;
-            --modal-bg: #1c1c1e;
         }
         
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        
-        body { background: var(--bg); color: white; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- HEADER --- */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg); z-index: 20; border-bottom: 1px solid var(--border); }
-        .online-badge { background: rgba(40, 44, 52, 0.8); padding: 5px 12px; border-radius: 20px; color: var(--green); font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .balance-box { background: var(--card); padding: 5px 5px 5px 15px; border-radius: 25px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); cursor: pointer; }
-        .balance-box span { font-weight: 800; font-size: 15px; }
-        .add-btn { width: 28px; height: 28px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: white; }
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .balance-box { background: var(--card); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); cursor: pointer; }
 
-        /* --- PAGES --- */
-        .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 90px; }
-        .page.active { display: flex; }
+        /* GAME AREA */
+        .game-view { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .rocket-anim { font-size: 80px; margin-bottom: 20px; transition: transform 0.1s; }
+        .multiplier { font-size: 64px; font-weight: 900; }
 
-        /* --- GAME ENGINE VISUALS --- */
-        .game-container { position: relative; height: 300px; width: 100%; background: radial-gradient(circle at center, #1b2026 0%, #0d1012 70%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .center-info { position: relative; z-index: 5; text-align: center; }
-        .multiplier { font-size: 64px; font-weight: 900; letter-spacing: -2px; text-shadow: 0 5px 20px rgba(0,0,0,0.5); font-variant-numeric: tabular-nums; transition: color 0.2s; }
-        .multiplier.crashed { color: var(--red); }
-        .status-text { color: var(--text-sec); font-size: 14px; font-weight: 600; text-transform: uppercase; margin-top: -5px; }
-        
-        .history-row { display: flex; gap: 8px; padding: 10px 16px; background: var(--bg); overflow-x: auto; white-space: nowrap; height: 50px; align-items: center; border-bottom: 1px solid var(--border); }
-        .hist-item { padding: 4px 10px; background: var(--card); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--text-sec); border: 1px solid var(--border); }
-        .hist-item.high { color: var(--blue); border-color: rgba(0,123,255,0.3); }
-
-        .controls-area { padding: 16px; background: var(--bg); }
-        .bet-btn { width: 100%; height: 56px; border: none; border-radius: 14px; background: var(--blue); color: white; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.1s; }
-        .bet-btn:active { transform: scale(0.98); }
-        .bet-btn.cashout { background: var(--green); }
-        .bet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .player-row { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
-
-        /* --- MODAL (APPLE/TELEGRAM STYLE) --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: flex-end; backdrop-filter: blur(8px); }
-        .modal-box { background: var(--modal-bg); width: 100%; border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 90vh; overflow-y: auto; }
+        /* MODAL SYSTEM */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: none; align-items: flex-end; backdrop-filter: blur(10px); }
+        .modal-box { background: #171717; width: 100%; border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .modal-handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 20px; }
-        .tabs-header { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600; color: var(--text-sec); border-radius: 10px; cursor: pointer; text-align: center; }
+
+        .tabs { display: flex; background: #262628; border-radius: 12px; padding: 3px; margin: 20px 0; }
+        .tab-btn { flex: 1; padding: 8px; border-radius: 10px; border: none; background: none; color: var(--text-sec); font-weight: 600; cursor: pointer; }
         .tab-btn.active { background: var(--blue); color: white; }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
 
-        .step-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
-        .step-badge { background: #2c2c2e; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        .wallet-input-section { text-align: center; padding: 20px 0; }
-        .amount-display { font-size: 48px; font-weight: 800; margin: 10px 0; color: white; background: none; border: none; text-align: center; width: 100%; outline: none; }
-        .address-pill { background: #15181c; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; color: var(--text-sec); word-break: break-all; border: 1px dashed #3a404a; margin: 15px 0; }
-
-        /* --- FOOTER --- */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #16191e; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0 30px; z-index: 50; }
-        .nav-item { text-align: center; color: var(--text-sec); font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .nav-item.active { color: var(--blue); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; display: block; margin: 0 auto 4px; }
-
+        /* WALLET VIEW */
+        .wallet-info { text-align: center; padding: 20px 0; }
+        .masked-addr { color: var(--text-sec); font-size: 14px; margin-bottom: 15px; letter-spacing: 1px; }
+        .amount-input { background: none; border: none; color: white; font-size: 40px; text-align: center; width: 100%; outline: none; font-weight: 700; margin: 10px 0; }
+        
+        .btn-main { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--blue); color: white; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        
+        /* PROCESSING OVERLAY (FROM VIDEO) */
+        #processing-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200;
+            display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        .loader { width: 50px; height: 50px; border: 4px solid #333; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="online-badge">● <span id="online-count">142</span></div>
-    <div class="balance-box" onclick="openPaymentModal()">
-        <span id="balance-display">0.00</span>
-        <div class="add-btn">+</div>
+    <div style="color:var(--green)">● 134</div>
+    <div class="balance-box" onclick="showModal()">
+        <span id="bal">0.00</span>
+        <span style="background:var(--blue); width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">+</span>
     </div>
 </div>
 
-<div id="page-game" class="page active">
-    <div class="game-container">
-        <canvas id="graphCanvas"></canvas>
-        <div class="center-info">
-            <div class="multiplier" id="multiplier-text">1.00x</div>
-            <div class="status-text" id="status-text">Ожидание раунда</div>
-        </div>
-    </div>
-    <div class="history-row" id="history-row"></div>
-    <div class="controls-area">
-        <button class="bet-btn" id="action-btn">Сделать ставку (10.00)</button>
-    </div>
-    <div id="players-list"></div>
+<div class="game-view">
+    <div class="rocket-anim" id="rocket">🚀</div>
+    <div class="multiplier" id="mult">1.00x</div>
+    <button class="btn-main" style="width: 80%; margin-top: 30px;">Сделать ставку</button>
 </div>
 
-<div id="page-profile" class="page">
-    <div style="padding: 30px 20px; display: flex; align-items: center; gap: 20px;">
-        <div style="width:70px; height:70px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:bold;">U</div>
-        <div>
-            <h2 style="font-size: 24px;">Игрок</h2>
-            <p style="color:var(--text-sec); font-size:14px;">Статус: TON Holder</p>
-        </div>
-    </div>
-    <div style="padding: 0 20px;">
-        <button class="bet-btn" style="margin-bottom: 10px;" onclick="openPaymentModal()">Пополнить баланс</button>
-        <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid var(--border);">
-            <h4 style="margin-bottom:10px;">Инвентарь</h4>
-            <div style="display:flex; gap:10px; color:#555;">
-                <div style="width:60px; height:60px; background:#222; border-radius:12px; display:flex; align-items:center; justify-content:center;">🔒</div>
-                <div style="width:60px; height:60px; background:#222; border-radius:12px; display:flex; align-items:center; justify-content:center;">🔒</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="payment-modal" onclick="closePaymentModal()">
+<div class="modal-overlay" id="payment-modal" onclick="hideModal()">
     <div class="modal-box" onclick="event.stopPropagation()">
-        <div class="modal-handle"></div>
-        <h3 style="text-align:center; margin-bottom:20px;">Пополнение счёта</h3>
-        
-        <div class="tabs-header">
-            <div class="tab-btn active" onclick="switchTab('gift', this)">Подарки</div>
-            <div class="tab-btn" onclick="switchTab('wallet', this)">Кошелёк</div>
-            <div class="tab-btn" onclick="switchTab('stars', this)">Звёзды</div>
+        <div style="width:40px; height:4px; background:#333; border-radius:2px; margin:0 auto 10px;"></div>
+        <h2 style="text-align:center; font-size:20px;">Пополнение счёта</h2>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('gifts', this)">Подарки</button>
+            <button class="tab-btn" onclick="switchTab('wallet', this)">Кошелёк</button>
+            <button class="tab-btn" onclick="switchTab('stars', this)">Звёзды</button>
         </div>
 
-        <div id="tab-gift" class="tab-content active">
-            <div class="step-card">
-                <div class="step-badge">1</div>
-                <div style="font-size:14px;">Перейдите в профиль <a href="https://t.me/GiftUpRelayer" style="color:var(--blue); text-decoration:none;">@GiftUpRelayer</a></div>
-            </div>
-            <div class="step-card">
-                <div class="step-badge">2</div>
-                <div style="font-size:14px;">Отправьте любой подарок боту</div>
-            </div>
-            <div class="step-card">
-                <div class="step-badge">🦆</div>
-                <div style="font-size:14px; color:var(--text-sec);">Подарок мгновенно зачислится на ваш баланс</div>
-            </div>
-            <button class="bet-btn" onclick="window.open('https://t.me/GiftUpRelayer')">Отправить подарок</button>
+        <div id="gifts" class="content-section active">
+            <p style="margin-bottom:15px; font-size:14px; color:#ccc;">1. Перейдите в профиль @GiftUpRelayer</p>
+            <p style="margin-bottom:15px; font-size:14px; color:#ccc;">2. Отправьте любой подарок боту</p>
+            <button class="btn-main" onclick="window.location.href='tg://resolve?domain=GiftUpRelayer'">Отправить подарок</button>
         </div>
 
-        <div id="tab-wallet" class="tab-content">
-            <div class="wallet-input-section">
-                <p style="color:var(--text-sec); font-size:12px;">АДРЕС ДЛЯ ПЕРЕВОДА TON</p>
-                <div class="address-pill" id="wallet-addr">UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm</div>
-                <input type="number" class="amount-display" placeholder="0.00" id="dep-sum">
-                <p style="color:var(--text-sec); font-size:14px;">Введите сумму</p>
-            </div>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button class="bet-btn" style="background:#2c2c2e; font-size:14px;" onclick="copyAddr()">Копировать</button>
-                <button class="bet-btn" style="font-size:14px;" onclick="window.open('https://t.me/wallet')">В @wallet</button>
-            </div>
-            <button style="width:100%; background:none; border:none; color:var(--red); font-size:13px;" onclick="alert('Кошелек отвязан')">Отвязать кошелёк</button>
-        </div>
-
-        <div id="tab-stars" class="tab-content">
-            <div style="text-align:center; padding:40px 0;">
-                <div style="font-size:50px; margin-bottom:10px;">⭐️</div>
-                <p style="color:var(--text-sec);">Пополнение через Telegram Stars временно недоступно.</p>
+        <div id="wallet" class="content-section">
+            <div class="wallet-info">
+                <div class="masked-addr">Адрес: UQAC••••••••FrYm</div>
+                <input type="number" class="amount-input" placeholder="Сумма" id="ton-sum">
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-main" style="background:#333; flex:1;" onclick="copyMyWallet()">Копировать</button>
+                    <button class="btn-main" style="flex:2;" onclick="startPay()">Отправить TON</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="bottom-nav">
-    <div class="nav-item" onclick="setPage('game')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l-3 6-6 1 4 4-1 6 6-3 6 3-1-6 4-4-6-1z"/></svg>
-        <span>Краш</span>
-    </div>
-    <div class="nav-item" onclick="setPage('profile')">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/></svg>
-        <span>Профиль</span>
-    </div>
+<div id="processing-overlay">
+    <div class="loader"></div>
+    <h3>Confirm the transaction<br>in Wallet</h3>
+    <p style="color:var(--text-sec); margin-top:10px; font-size:14px;">It will only take a moment.</p>
 </div>
 
 <script>
-    // --- STATE ---
-    let state = {
-        balance: 100.0,
-        bet: 10.0,
-        gameState: 'IDLE',
-        currentMult: 1.0,
-        crashPoint: 0,
-        myBet: false,
-        startTime: 0,
-        history: []
-    };
+    const MY_ADDR = "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm";
 
-    const DOM = {
-        balance: document.getElementById('balance-display'),
-        mult: document.getElementById('multiplier-text'),
-        status: document.getElementById('status-text'),
-        btn: document.getElementById('action-btn'),
-        canvas: document.getElementById('graphCanvas'),
-        ctx: document.getElementById('graphCanvas').getContext('2d'),
-        modal: document.getElementById('payment-modal'),
-        players: document.getElementById('players-list')
-    };
+    function showModal() { document.getElementById('payment-modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('payment-modal').style.display = 'none'; }
 
-    // --- GAME LOGIC ---
-    function init() {
-        resize();
-        updateBalance();
-        window.addEventListener('resize', resize);
-        startWaiting();
-        setInterval(spawnPlayer, 2000);
-    }
-
-    function updateBalance() {
-        DOM.balance.innerText = state.balance.toFixed(2);
-    }
-
-    function startWaiting() {
-        state.gameState = 'IDLE';
-        state.myBet = false;
-        DOM.mult.classList.remove('crashed');
-        DOM.status.innerText = "Ожидание ставок";
-        updateBtn();
-        let cd = 5;
-        let timer = setInterval(() => {
-            DOM.mult.innerText = cd + "s";
-            cd--;
-            if(cd < 0) { clearInterval(timer); startFlight(); }
-        }, 1000);
-    }
-
-    function startFlight() {
-        state.gameState = 'FLYING';
-        state.startTime = Date.now();
-        state.crashPoint = generateCrash();
-        DOM.status.innerText = "Ракета летит";
-        updateBtn();
-        requestAnimationFrame(gameLoop);
-    }
-
-    function generateCrash() {
-        let r = Math.random();
-        if (r < 0.05) return 1.0;
-        return Math.min(99, 0.99 / (1 - r)).toFixed(2);
-    }
-
-    function gameLoop() {
-        if (state.gameState !== 'FLYING') return;
-        let elapsed = (Date.now() - state.startTime) / 1000;
-        state.currentMult = Math.pow(Math.E, 0.15 * elapsed);
-        
-        DOM.mult.innerText = state.currentMult.toFixed(2) + "x";
-        drawGraph(elapsed);
-
-        if (state.currentMult >= state.crashPoint) {
-            doCrash();
-        } else {
-            if(state.myBet) updateBtn();
-            requestAnimationFrame(gameLoop);
-        }
-    }
-
-    function doCrash() {
-        state.gameState = 'CRASH';
-        DOM.mult.classList.add('crashed');
-        DOM.status.innerText = "Crashed!";
-        addHistory(state.crashPoint);
-        setTimeout(startWaiting, 3000);
-        updateBtn();
-    }
-
-    // --- ACTIONS ---
-    DOM.btn.onclick = () => {
-        if (state.gameState === 'IDLE' && !state.myBet) {
-            if (state.balance >= state.bet) {
-                state.balance -= state.bet;
-                state.myBet = true;
-                updateBalance();
-                updateBtn();
-            } else { openPaymentModal(); }
-        } else if (state.gameState === 'FLYING' && state.myBet) {
-            let win = state.bet * state.currentMult;
-            state.balance += win;
-            state.myBet = false;
-            updateBalance();
-            updateBtn();
-            alert(`Вы забрали ${win.toFixed(2)} TON!`);
-        }
-    };
-
-    function updateBtn() {
-        if (state.gameState === 'IDLE') {
-            DOM.btn.disabled = false;
-            DOM.btn.className = 'bet-btn';
-            DOM.btn.innerText = state.myBet ? "Ставка принята" : `Ставка ${state.bet.toFixed(2)}`;
-        } else if (state.gameState === 'FLYING') {
-            if (state.myBet) {
-                DOM.btn.className = 'bet-btn cashout';
-                DOM.btn.innerText = `Забрать ${(state.bet * state.currentMult).toFixed(2)}`;
-            } else {
-                DOM.btn.disabled = true;
-                DOM.btn.innerText = "Раунд идет";
-            }
-        } else {
-            DOM.btn.disabled = true;
-            DOM.btn.innerText = "Crash!";
-        }
-    }
-
-    // --- VISUALS ---
-    function resize() {
-        DOM.canvas.width = DOM.canvas.offsetWidth;
-        DOM.canvas.height = DOM.canvas.offsetHeight;
-    }
-
-    function drawGraph(t) {
-        let w = DOM.canvas.width, h = DOM.canvas.height;
-        DOM.ctx.clearRect(0,0,w,h);
-        DOM.ctx.beginPath();
-        DOM.ctx.lineWidth = 5;
-        DOM.ctx.strokeStyle = '#007bff';
-        DOM.ctx.moveTo(0, h);
-        let x = Math.min(w * 0.8, t * 40);
-        let y = h - Math.min(h * 0.8, Math.pow(t, 1.5) * 10);
-        DOM.ctx.quadraticCurveTo(w * 0.3, h, x, y);
-        DOM.ctx.stroke();
-    }
-
-    function addHistory(val) {
-        let div = document.createElement('div');
-        div.className = 'hist-item' + (val > 2 ? ' high' : '');
-        div.innerText = val + "x";
-        document.getElementById('history-row').prepend(div);
-    }
-
-    function spawnPlayer() {
-        let names = ['TonLover', 'MemeKing', 'AlexTON', 'RichGuy', 'Whale'];
-        let div = document.createElement('div');
-        div.className = 'player-row';
-        div.innerHTML = `<span>${names[Math.floor(Math.random()*names.length)]}</span><span style="color:var(--text-sec)">${(Math.random()*5).toFixed(2)} TON</span>`;
-        DOM.players.prepend(div);
-        if(DOM.players.children.length > 5) DOM.players.lastChild.remove();
-    }
-
-    // --- MODAL & TABS ---
-    function openPaymentModal() { DOM.modal.style.display = 'flex'; }
-    function closePaymentModal() { DOM.modal.style.display = 'none'; }
-    
     function switchTab(id, btn) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('tab-' + id).classList.add('active');
+        document.getElementById(id).classList.add('active');
     }
 
-    function copyAddr() {
-        navigator.clipboard.writeText(document.getElementById('wallet-addr').innerText);
+    function copyMyWallet() {
+        navigator.clipboard.writeText(MY_ADDR);
         alert("Адрес скопирован!");
     }
 
-    function setPage(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('page-' + id).classList.add('active');
-        event.currentTarget.classList.add('active');
+    function startPay() {
+        const sum = document.getElementById('ton-sum').value;
+        if(!sum || sum <= 0) return alert("Введите сумму");
+        
+        hideModal();
+        // Показываем окно обработки как в видео
+        const overlay = document.getElementById('processing-overlay');
+        overlay.style.display = 'flex';
+
+        // Имитация вызова кошелька
+        setTimeout(() => {
+            overlay.innerHTML = `
+                <div style="font-size:50px;">✅</div>
+                <h3 style="margin-top:20px;">Запрос отправлен</h3>
+                <p style="padding:20px; color:var(--text-sec);">Проверьте ваш кошелёк для завершения оплаты.</p>
+                <button class="btn-main" onclick="location.reload()">Вернуться</button>
+            `;
+        }, 3000);
     }
 
-    init();
+    // Простая анимация ракеты для красоты
+    let m = 1.00;
+    setInterval(() => {
+        m += 0.01;
+        document.getElementById('mult').innerText = m.toFixed(2) + 'x';
+        document.getElementById('rocket').style.transform = `translateY(${Math.sin(Date.now()/200)*5}px)`;
+    }, 100);
 </script>
+
 </body>
 </html>
+
