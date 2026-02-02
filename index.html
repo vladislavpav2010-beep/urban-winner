@@ -1,53 +1,122 @@
-# 🎡 Crash TON Ultimate - Real-Time PvP Roll Platform
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0d1012; --modal: #1c1c1e; --blue: #007aff; --text-sec: #8e8e93; --star: #ff9500; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; display: flex; align-items: flex-end; }
 
-![Version](https://img.shields.io/badge/version-1.0.4-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![TON](https://img.shields.io/badge/blockchain-TON-0098EA)
+        .modal-box { width: 100%; background: var(--modal); border-radius: 24px 24px 0 0; padding: 20px 20px 40px; }
+        .handle { width: 40px; height: 4px; background: #3a3a3c; border-radius: 2px; margin: 0 auto 15px; }
+        .title { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-**Crash TON Ultimate** — это высокопроизводительная игровая платформа на базе Telegram Mini Apps (TMA), использующая блокчейн TON для мгновенных транзакций и систему Provably Fair для гарантии честности каждого раунда.
+        .tabs { display: flex; background: #2c2c2e; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
+        .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; color: var(--text-sec); }
+        .tab.active { background: var(--blue); color: white; }
 
----
+        .content-section { min-height: 200px; }
+        .step { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
+        .step-num { background: #2c2c2e; min-width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .step-text { font-size: 15px; color: #d1d1d6; line-height: 1.4; }
+        .step-text span { color: var(--blue); }
 
-## 🚀 Основные возможности (Core Features)
+        .center-view { text-align: center; padding: 10px 0; }
+        .big-val { font-size: 48px; color: white; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 12px; }
 
-* **PvP Roll Engine:** Многопользовательская рулетка в реальном времени с динамическим расчетом шансов на основе суммы ставки.
-* **Provably Fair:** Каждый результат раунда можно проверить. Мы используем HMAC-SHA256 для генерации случайного числа, которое фиксируется до начала приема ставок.
-* **TON Integration:** Полная поддержка экосистемы TON:
-    * Пополнение через @wallet.
-    * Поддержка отправки NFT и Gift-предметов в качестве ставок.
-    * Автоматические выплаты победителям.
-* **WebSockets Layer:** Мгновенная синхронизация состояния колеса между всеми игроками без задержек.
-* **Advanced Analytics:** Встроенная система мониторинга профита, оборота и активности пользователей.
+        .main-btn { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; }
+        .star-btn { background: var(--star); color: #000; }
 
----
+        #system-loader { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .spinner { width: 42px; height: 42px; border: 3px solid #2c2c2e; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
 
-## 🛠 Технологический стек (Tech Stack)
+<div class="modal-box">
+    <div class="handle"></div>
+    <div class="title">Пополнение счёта</div>
 
-### Backend
-* **Node.js & Express:** Серверная логика и API.
-* **Socket.io:** Real-time коммуникация.
-* **Crypto:** Защищенное хеширование данных.
-* **TonWeb:** Взаимодействие со смарт-контрактами и кошельками TON.
+    <div class="tabs">
+        <div class="tab active" id="btn-gifts" onclick="switchTab('gifts')">Подарки</div>
+        <div class="tab" id="btn-wallet" onclick="switchTab('wallet')">Кошелёк</div>
+        <div class="tab" id="btn-stars" onclick="switchTab('stars')">Звёзды</div>
+    </div>
 
-### Frontend (Mini App)
-* **HTML5 Canvas:** Плавная анимация вращения колеса (60 FPS).
-* **CSS3 Variables:** Легкая кастомизация интерфейса и тем оформления.
+    <div class="content-section">
+        <div id="view-gifts">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Перейдите в профиль <span>@BankGiftHub</span></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Отправьте любой подарок на баланс</div>
+            </div>
+            <button class="main-btn" onclick="tg.openTelegramLink('https://t.me/BankGiftHub')">Открыть @BankGiftHub</button>
+        </div>
 
----
+        <div id="view-wallet" style="display:none">
+            <div class="center-view">
+                <div style="color: var(--text-sec); margin-bottom: 10px;">Адрес: UQAC...FrYm</div>
+                <div class="big-val">0.00</div>
+                <button class="main-btn" onclick="showLoader('Wallet')">Отправить TON</button>
+            </div>
+        </div>
 
-## 📐 Архитектура проекта
+        <div id="view-stars" style="display:none">
+            <div class="center-view">
+                <div style="color: var(--text-sec); margin-bottom: 15px;">Telegram Stars</div>
+                <div class="big-val">⭐️ 130</div>
+                <button class="main-btn star-btn" onclick="showLoader('Stars')">Оплатить ⭐️ 130</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-Проект разделен на три ключевых модуля:
+<div id="system-loader">
+    <div class="spinner"></div>
+    <h2 id="load-title" style="font-size:22px; margin-bottom:12px;">Confirm the transaction</h2>
+    <p style="color:var(--text-sec)">It will only take a moment.</p>
+</div>
 
-1.  **GameController:** Управляет жизненным циклом раунда (Ожидание -> Ставки -> Ролл -> Выплата).
-2.  **FairManager:** Отвечает за криптографическую честность. Генерирует Server Seed и вычисляет выигрышный билет.
-3.  **PaymentProvider:** Мониторит входящие транзакции в сети TON и инициирует исходящие платежи.
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
----
+    function switchTab(type) {
+        document.getElementById('view-gifts').style.display = type === 'gifts' ? 'block' : 'none';
+        document.getElementById('view-wallet').style.display = type === 'wallet' ? 'block' : 'none';
+        document.getElementById('view-stars').style.display = type === 'stars' ? 'block' : 'none';
+        
+        document.getElementById('btn-gifts').classList.toggle('active', type === 'gifts');
+        document.getElementById('btn-wallet').classList.toggle('active', type === 'wallet');
+        document.getElementById('btn-stars').classList.toggle('active', type === 'stars');
+        tg.HapticFeedback.impactOccurred('light');
+    }
 
-## ⚙️ Установка и запуск
+    function showLoader(method) {
+        const loader = document.getElementById('system-loader');
+        const title = document.getElementById('load-title');
+        
+        title.innerHTML = method === 'Stars' ? "Confirm with Telegram" : "Confirm the transaction<br>in Wallet";
+        loader.style.display = 'flex';
+        tg.HapticFeedback.notificationOccurred('warning');
 
-### 1. Клонирование репозитория
-```bash
-git clone [https://github.com/your-username/crash-ton-ultimate.git](https://github.com/your-username/crash-ton-ultimate.git)
-cd crash-ton-ultimate
+        setTimeout(() => {
+            loader.innerHTML = `
+                <div style="font-size:60px; margin-bottom:20px;">✅</div>
+                <h2 style="margin-bottom:12px;">Запрос отправлен</h2>
+                <p style="color:var(--text-sec); padding:0 40px; text-align:center;">Оплата обрабатывается. Баланс обновится автоматически.</p>
+                <button class="main-btn" style="width:80%; margin-top:30px;" onclick="location.reload()">Вернуться</button>
+            `;
+            tg.HapticFeedback.notificationOccurred('success');
+        }, 2800);
+    }
+</script>
+</body>
+</html>
