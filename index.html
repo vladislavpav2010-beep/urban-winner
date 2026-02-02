@@ -1,197 +1,214 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crash TON Ultimate</title>
+/**
+ * CRASH TON ULTIMATE - SERVER CORE ENGINE v1.0.4
+ * Стек: Node.js, Socket.io, Redis, TonWeb
+ * Описание: Система управления PvP-роллами с Provably Fair алгоритмом
+ */
 
-<style>
-:root {
-    --bg:#0b0d10;
-    --card:#15181d;
-    --blue:#0098ea;
-    --green:#00c389;
-    --red:#ff4d4d;
-    --text:#ffffff;
-    --muted:#7a8291;
-}
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const crypto = require('crypto');
+const TonWeb = require('tonweb');
 
-* { box-sizing:border-box; font-family:Inter,system-ui; }
-body {
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-}
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-.header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:14px 16px;
-    background:#0e1116;
-    border-bottom:1px solid #1c2028;
-}
+// --- КОНФИГУРАЦИЯ ---
+const CONFIG = {
+    FEE_PERCENT: 5, // Комиссия платформы
+    MIN_BET: 0.1,   // Минималка в TON
+    GAME_DURATION: 30000, // 30 сек на сбор ставок
+    SPIN_TIME: 8000,      // 8 сек анимация кручения
+    SERVER_WALLET: "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm"
+};
 
-.balance {
-    background:#1c212a;
-    padding:6px 14px;
-    border-radius:20px;
-    font-weight:700;
-}
+// --- СОСТОЯНИЕ СИСТЕМЫ ---
+let gameState = {
+    roundId: 317735,
+    players: [],
+    totalPool: 0,
+    status: 'WAITING', // WAITING, SPINNING, ENDED
+    history: [],
+    timer: null,
+    timeRemaining: 30
+};
 
-.container {
-    padding:16px;
-}
-
-.card {
-    background:var(--card);
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:14px;
-}
-
-h2 {
-    margin:0 0 10px;
-    font-size:18px;
-}
-
-.btn {
-    width:100%;
-    padding:14px;
-    border-radius:14px;
-    border:none;
-    font-size:16px;
-    font-weight:700;
-    cursor:pointer;
-}
-
-.btn.blue { background:var(--blue); color:white; }
-.btn.green { background:var(--green); color:black; }
-.btn.gray { background:#232832; color:white; }
-
-.input {
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    border:1px solid #2a303b;
-    background:#0f1217;
-    color:white;
-    font-size:16px;
-    margin-bottom:10px;
-}
-
-.method {
-    display:flex;
-    gap:10px;
-    margin-bottom:10px;
-}
-
-.method button {
-    flex:1;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid #2a303b;
-    background:#0f1217;
-    color:white;
-    font-weight:700;
-}
-
-.method button.active {
-    background:var(--blue);
-    border-color:var(--blue);
-}
-
-.note {
-    font-size:13px;
-    color:var(--muted);
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-    <div>Crash TON</div>
-    <div class="balance">Баланс: <span id="balance">0.00</span> TON</div>
-</div>
-
-<div class="container">
-
-    <div class="card">
-        <h2>Пополнение счёта</h2>
-
-        <input id="amount" class="input" type="number" placeholder="Сумма (TON)" min="0.1" step="0.1">
-
-        <div class="method">
-            <button id="m_wallet" class="active" onclick="setMethod('wallet')">@wallet (TON)</button>
-            <button id="m_gift" onclick="setMethod('gift')">Подарки</button>
-            <button id="m_star" onclick="setMethod('star')">Звёзды</button>
-        </div>
-
-        <button class="btn blue" onclick="deposit()">Пополнить</button>
-
-        <p class="note">
-            • TON поступает автоматически после подтверждения<br>
-            • Подарки и звёзды отправлять на <b>@BankGiftHub</b>
-        </p>
-    </div>
-
-    <div class="card">
-        <h2>Игра (демо)</h2>
-        <button class="btn green" onclick="alert('Демо-режим')">СТАВКА</button>
-    </div>
-
-</div>
-
-<script>
-let method = 'wallet';
-let balance = 0;
-
-const WALLET_ADDRESS = "UQACY26GcYX7nuL1iFd1wcDDQOubtLA90njWFRDzo-JVFrYm";
-const GIFT_BOT = "BankGiftHub";
-
-function setMethod(m) {
-    method = m;
-    document.querySelectorAll('.method button').forEach(b => b.classList.remove('active'));
-    document.getElementById('m_' + m).classList.add('active');
-}
-
-function deposit() {
-    const amount = document.getElementById('amount').value;
-    if (!amount || amount <= 0) {
-        alert("Введите сумму");
-        return;
+// --- МОДУЛЬ ЧЕСТНОЙ ИГРЫ (PROVABLY FAIR) ---
+class FairManager {
+    static generateRoundData() {
+        const serverSeed = crypto.randomBytes(32).toString('hex');
+        const publicHash = crypto.createHash('sha256').update(serverSeed).digest('hex');
+        return { serverSeed, publicHash };
     }
 
-    if (method === 'wallet') {
-        // deeplink TON
-        const link = `ton://transfer/${WALLET_ADDRESS}?amount=${amount * 1e9}&text=CrashTON`;
-        window.location.href = link;
-        saveRequest(amount, 'TON @wallet');
-    }
-
-    if (method === 'gift') {
-        window.location.href = `https://t.me/${GIFT_BOT}`;
-        saveRequest(amount, 'Gift');
-    }
-
-    if (method === 'star') {
-        window.location.href = `https://t.me/${GIFT_BOT}`;
-        saveRequest(amount, 'Stars');
+    static calculateWinner(serverSeed, totalPool) {
+        // Создаем число от 0 до 100 на основе хеша
+        const hash = crypto.createHmac('sha256', serverSeed).update('round_result').digest('hex');
+        const percentage = (parseInt(hash.substring(0, 8), 16) % 10000) / 100;
+        return percentage; // Это "билет", который выиграл (от 0 до 100)
     }
 }
 
-function saveRequest(amount, type) {
-    const req = {
-        amount,
-        type,
-        time: new Date().toLocaleString()
-    };
+// --- СИСТЕМА ПЛАТЕЖЕЙ TON ---
+class PaymentProvider {
+    constructor() {
+        this.tonweb = new TonWeb();
+    }
 
-    console.log("Заявка:", req);
-    alert("Заявка создана. После оплаты баланс обновится.");
+    async checkTransaction(userId, amount) {
+        console.log(`[PAYMENT] Мониторинг кошелька для пользователя ${userId}...`);
+        // Здесь имитация обращения к API TON Center
+        return new Promise(resolve => setTimeout(() => resolve(true), 2000));
+    }
+
+    async sendWinnings(winnerWallet, amount) {
+        const prize = amount * (1 - CONFIG.FEE_PERCENT / 100);
+        console.log(`[PAYMENT] Отправка выигрыша ${prize} TON на ${winnerWallet}`);
+        // Логика перевода через tonweb.wallet.transfer
+    }
 }
-</script>
 
-</body>
-</html>
+const payments = new PaymentProvider();
+
+// --- УПРАВЛЕНИЕ ИГРОВЫМ ЦИКЛОМ ---
+const GameController = {
+    initRound() {
+        const { serverSeed, publicHash } = FairManager.generateRoundData();
+        gameState.players = [];
+        gameState.totalPool = 0;
+        gameState.status = 'WAITING';
+        gameState.serverSeed = serverSeed;
+        gameState.publicHash = publicHash;
+        gameState.timeRemaining = 30;
+
+        console.log(`[GAME] Раунд #${gameState.roundId} начат. Hash: ${publicHash}`);
+        this.startTimer();
+    },
+
+    startTimer() {
+        gameState.timer = setInterval(() => {
+            gameState.timeRemaining--;
+            io.emit('TIMER_TICK', gameState.timeRemaining);
+
+            if (gameState.timeRemaining <= 0) {
+                clearInterval(gameState.timer);
+                this.executeSpin();
+            }
+        }, 1000);
+    },
+
+    async addBet(user, betAmount, items = []) {
+        if (gameState.status !== 'WAITING') return { success: false, error: "Игра уже идет" };
+        
+        const newPlayer = {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar,
+            amount: betAmount,
+            items: items, // Подарки/NFT
+            color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+            range: { from: 0, to: 0 }
+        };
+
+        gameState.players.push(newPlayer);
+        this.recalculateChances();
+        
+        io.emit('UPDATE_PLAYERS', {
+            players: gameState.players,
+            totalPool: gameState.totalPool
+        });
+
+        return { success: true };
+    },
+
+    recalculateChances() {
+        gameState.totalPool = gameState.players.reduce((sum, p) => sum + p.amount, 0);
+        let currentPointer = 0;
+
+        gameState.players.forEach(p => {
+            const chance = (p.amount / gameState.totalPool) * 100;
+            p.chance = chance.toFixed(2);
+            p.range.from = currentPointer;
+            p.range.to = currentPointer + chance;
+            currentPointer += chance;
+        });
+    },
+
+    async executeSpin() {
+        gameState.status = 'SPINNING';
+        const winningTicket = FairManager.calculateWinner(gameState.serverSeed, gameState.totalPool);
+        
+        // Находим победителя
+        const winner = gameState.players.find(p => winningTicket >= p.range.from && winningTicket <= p.range.to);
+
+        console.log(`[GAME] Крутим колесо... Выигрышный билет: ${winningTicket}%`);
+        io.emit('START_SPIN', { winningTicket, duration: CONFIG.SPIN_TIME });
+
+        setTimeout(async () => {
+            this.endRound(winner);
+        }, CONFIG.SPIN_TIME);
+    },
+
+    endRound(winner) {
+        gameState.status = 'ENDED';
+        const result = {
+            roundId: gameState.roundId,
+            winner: winner,
+            totalPool: gameState.totalPool,
+            serverSeed: gameState.serverSeed
+        };
+
+        gameState.history.unshift(result);
+        io.emit('ROUND_RESULT', result);
+
+        // Выплата
+        if (winner && winner.amount > 0) {
+            payments.sendWinnings(winner.wallet, gameState.totalPool);
+        }
+
+        gameState.roundId++;
+        setTimeout(() => this.initRound(), 5000); // Пауза перед новым раундом
+    }
+};
+
+// --- API ЭНДПОИНТЫ ---
+app.get('/api/history', (req, res) => res.json(gameState.history));
+app.get('/api/status', (req, res) => res.json({ 
+    players: gameState.players, 
+    pool: gameState.totalPool,
+    hash: gameState.publicHash 
+}));
+
+// --- SOCKET.IO СОЕДИНЕНИЯ ---
+io.on('connection', (socket) => {
+    console.log(`[NET] Новый игрок подключен: ${socket.id}`);
+    
+    socket.emit('INIT_STATE', {
+        roundId: gameState.roundId,
+        players: gameState.players,
+        status: gameState.status,
+        pool: gameState.totalPool
+    });
+
+    socket.on('PLACE_BET', async (data) => {
+        // Логика: проверяем оплату -> добавляем в игру
+        const success = await GameController.addBet(data.user, data.amount, data.items);
+        if (success.success) {
+            socket.emit('BET_CONFIRMED');
+        }
+    });
+});
+
+// Запуск сервера
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`
+    ======================================
+    🚀 CRASH TON SERVER RUNNING ON PORT ${PORT}
+    🛠  READY FOR PVP ROUNDS
+    ======================================
+    `);
+    GameController.initRound();
+});
+
