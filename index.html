@@ -1,295 +1,332 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TON PvP Ultimate</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        
-        :root {
-            --bg: #050505; --card: #111111; --accent: #ff8c00;
-            --text: #ffffff; --text-sec: #666; --border: #222;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TON PVP</title>
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
 
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); background: #000; }
-        .balance-pill { background: rgba(255,140,0,0.1); border: 1px solid var(--accent); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--accent); }
+:root {
+    --bg:#050505;
+    --card:#111;
+    --accent:#ff8c00;
+    --border:#222;
+    --text:#fff;
+    --text2:#666;
+}
 
-        /* PAGES */
-        .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
-        .page.active { display: flex; }
+* { box-sizing:border-box; font-family:Inter,sans-serif; }
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+}
 
-        /* GAME */
-        .game-zone { position: relative; width: 280px; height: 280px; margin: 20px auto; flex-shrink: 0; }
-        .wheel-box { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); border: 5px solid var(--border); box-shadow: 0 0 30px rgba(255,140,0,0.1); }
-        canvas { width: 100%; height: 100%; }
-        .center-ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid var(--border); }
-        #timer { font-size: 24px; font-weight: 900; color: var(--accent); }
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    border-bottom:1px solid var(--border);
+    background:#000;
+}
+.balance {
+    background:rgba(255,140,0,.1);
+    border:1px solid var(--accent);
+    padding:8px 16px;
+    border-radius:12px;
+    font-weight:800;
+    color:var(--accent);
+}
 
-        .bet-controls { padding: 15px; display: flex; gap: 10px; background: var(--card); margin: 0 15px 15px; border-radius: 15px; border: 1px solid var(--border); }
-        input { flex: 1; background: #000; border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: #fff; font-weight: 700; outline: none; }
-        .btn-main { background: var(--accent); color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 900; cursor: pointer; }
+/* PAGES */
+.page { flex:1; display:none; overflow-y:auto; padding-bottom:90px; }
+.page.active { display:block; }
 
-        /* CHAT */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
-        .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .msg { background: var(--card); padding: 10px 14px; border-radius: 12px; font-size: 14px; max-width: 85%; border: 1px solid #1a1a1a; }
-        .msg b { color: var(--accent); font-size: 11px; display: block; margin-bottom: 2px; }
+/* WHEEL */
+.game-zone {
+    width:280px;
+    height:280px;
+    margin:20px auto;
+    position:relative;
+}
+#wheelWrap {
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    transition:transform 8s cubic-bezier(.1,0,.1,1);
+}
+canvas { width:100%; height:100%; }
+.center {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:90px; height:90px;
+    border-radius:50%;
+    background:#000;
+    border:2px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    color:var(--accent);
+}
 
-        /* HISTORY */
-        .history-list { padding: 15px; }
-        .history-item { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; border: 1px solid var(--border); }
-        .h-win { font-weight: 800; color: var(--accent); }
+/* BET */
+.bet-box {
+    margin:0 15px;
+    background:var(--card);
+    padding:15px;
+    border-radius:15px;
+    display:flex;
+    gap:10px;
+}
+.bet-box input {
+    flex:1;
+    background:#000;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    color:#fff;
+    font-weight:700;
+}
+.bet-box button {
+    background:var(--accent);
+    border:none;
+    border-radius:10px;
+    font-weight:900;
+    padding:0 20px;
+}
 
-        /* NAVIGATION */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 15px; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn svg { width: 24px; height: 24px; margin-bottom: 4px; }
+/* PLAYERS */
+#players { padding:15px; }
+.player {
+    display:flex;
+    justify-content:space-between;
+    background:var(--card);
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:6px;
+}
 
-        /* PROFILE/FRIENDS */
-        .prof-card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
-        .ref-box { background: #000; padding: 15px; border-radius: 12px; border: 1px dashed var(--accent); margin-top: 15px; text-align: center; color: var(--accent); font-size: 13px; cursor: pointer; }
-    </style>
+/* REF */
+.card {
+    margin:15px;
+    background:var(--card);
+    border-radius:20px;
+    padding:20px;
+}
+.ref {
+    margin-top:10px;
+    border:1px dashed var(--accent);
+    padding:12px;
+    text-align:center;
+    border-radius:12px;
+    color:var(--accent);
+}
+
+/* NAV */
+.nav {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    height:75px;
+    background:#000;
+    border-top:1px solid var(--border);
+    display:flex;
+}
+.nav div {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:var(--text2);
+}
+.nav .active { color:var(--accent); }
+</style>
 </head>
+
 <body>
 
 <div class="header">
-    <div style="font-weight: 900; font-size: 20px;">TON<span style="color:var(--accent)">PVP</span></div>
-    <div class="balance-pill">
-        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" width="18">
-        <span id="bal-display">1000.00</span>
-    </div>
+    <div style="font-weight:900">TON<span style="color:var(--accent)">PVP</span></div>
+    <div class="balance"><span id="bal">1000.00</span> TON</div>
 </div>
 
-<div id="game-page" class="page active">
+<!-- GAME -->
+<div id="game" class="page active">
     <div class="game-zone">
-        <div class="wheel-box" id="wheel-wrap">
-            <canvas id="wheelCanvas" width="800" height="800"></canvas>
+        <div id="wheelWrap">
+            <canvas id="wheel" width="800" height="800"></canvas>
         </div>
-        <div class="center-ui">
-            <div id="timer">00:15</div>
-            <div style="font-size: 8px; color: #555;">ОЖИДАНИЕ</div>
-        </div>
+        <div class="center" id="timer">15</div>
     </div>
-    <div class="bet-controls">
-        <input type="number" id="bet-input" value="10">
-        <button class="btn-main" onclick="makeBet()">СТАВКА</button>
+
+    <div class="bet-box">
+        <input type="number" id="bet" value="10">
+        <button onclick="bet()">СТАВКА</button>
     </div>
-    <div id="active-players" style="padding: 0 15px;"></div>
+
+    <div id="players"></div>
 </div>
 
-<div id="chat-page" class="page">
-    <div class="messages" id="chat-msgs"></div>
-    <div class="bet-controls">
-        <input type="text" id="chat-input" placeholder="Сообщение...">
-        <button class="btn-main" onclick="sendChat()">></button>
+<!-- REF -->
+<div id="ref" class="page">
+    <div class="card">
+        <b style="color:var(--accent)">РЕФЕРАЛЫ</b>
+        <p>Ты получаешь <b>10%</b> с каждого депозита друга</p>
+        <div class="ref">t.me/tonpvp_bot?start=r_<span id="uid"></span></div>
+        <button style="margin-top:10px;width:100%" onclick="fakeDeposit()">Симулировать депозит друга</button>
     </div>
-</div>
 
-<div id="history-page" class="page">
-    <div class="history-list" id="hist-content"></div>
-</div>
-
-<div id="friends-page" class="page">
-    <div class="prof-card">
-        <div style="font-weight: 900; font-size: 18px; color: var(--accent);">РЕФЕРАЛЬНАЯ СИСТЕМА</div>
-        <p style="font-size: 13px; color: var(--text-sec);">Приглашай друзей и получай <b>15%</b> от каждого их пополнения на свой основной баланс!</p>
-        <div class="ref-box" onclick="copyRef()">t.me/tonpvp_bot?start=r_<span id="my-id"></span></div>
-        <button class="btn-main" style="width: 100%; margin-top: 15px; height: 45px;" onclick="addFakeRef()">Симулировать приглашение (+15%)</button>
-    </div>
-    <div class="prof-card">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span style="color:var(--text-sec)">Приглашено:</span>
-            <b id="ref-count">0</b>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-            <span style="color:var(--text-sec)">Доход:</span>
-            <b style="color:var(--accent)" id="ref-earn">0.00 TON</b>
-        </div>
+    <div class="card">
+        Приглашено: <b id="refs">0</b><br>
+        Доход: <b id="earn">0.00 TON</b>
     </div>
 </div>
 
-<div class="bottom-nav">
-    <div class="nav-btn active" onclick="showPage('game-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-        <span>PVP</span>
-    </div>
-    <div class="nav-btn" onclick="showPage('chat-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-        <span>ЧАТ</span>
-    </div>
-    <div class="nav-btn" onclick="showPage('history-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18z"/></svg>
-        <span>ИСТОРИЯ</span>
-    </div>
-    <div class="nav-btn" onclick="showPage('friends-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
-        <span>ДРУЗЬЯ</span>
-    </div>
+<!-- NAV -->
+<div class="nav">
+    <div class="active" onclick="openPage('game',this)">PVP</div>
+    <div onclick="openChat()">ЧАТ</div>
+    <div onclick="openPage('ref',this)">ДРУЗЬЯ</div>
 </div>
 
 <script>
-    // --- ENGINE & DATA ---
-    let user = {
-        bal: parseFloat(localStorage.getItem('upvp_bal')) || 1000,
-        id: localStorage.getItem('upvp_id') || Math.floor(Math.random()*90000+10000),
-        refs: parseInt(localStorage.getItem('upvp_refs')) || 0,
-        earn: parseFloat(localStorage.getItem('upvp_earn')) || 0,
-        history: JSON.parse(localStorage.getItem('upvp_hist')) || []
-    };
+/* USER */
+let user = {
+    bal:+localStorage.bal || 1000,
+    id:localStorage.id || Math.floor(Math.random()*90000+10000),
+    refs:+localStorage.refs || 0,
+    earn:+localStorage.earn || 0
+};
 
-    let players = [], isSpinning = false, rotation = 0, timer = 15;
-    const botNames = ['@crypto_king', '@ton_whale', '@shark', '@richie', '@lucky_one'];
-    const botPhrases = ['Ставлю 50!', 'Колесо, давай!', 'Всем удачи', 'Надеюсь на вин', 'Чат, как дела?'];
-    const colors = ['#ff8c00', '#e67e22', '#d35400', '#ffffff', '#333'];
+/* GAME */
+let players=[], time=15, spin=false, rot=0;
+const bots=['@rich','@tonny','@crypto','@whale'];
+const colors=['#ff8c00','#e67e22','#fff','#333'];
 
-    const canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d');
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
 
-    function save() {
-        localStorage.setItem('upvp_bal', user.bal);
-        localStorage.setItem('upvp_id', user.id);
-        localStorage.setItem('upvp_refs', user.refs);
-        localStorage.setItem('upvp_earn', user.earn);
-        localStorage.setItem('upvp_hist', JSON.stringify(user.history));
-        updateUI();
-    }
+function save(){
+    localStorage.bal=user.bal;
+    localStorage.id=user.id;
+    localStorage.refs=user.refs;
+    localStorage.earn=user.earn;
+    update();
+}
 
-    function updateUI() {
-        document.getElementById('bal-display').textContent = user.bal.toFixed(2);
-        document.getElementById('prof-bal').textContent = user.bal.toFixed(2) + ' TON';
-        document.getElementById('my-id').textContent = user.id;
-        document.getElementById('ref-count').textContent = user.refs;
-        document.getElementById('ref-earn').textContent = user.earn.toFixed(2) + ' TON';
-        
-        // Render Active Players
-        const total = players.reduce((s, p) => s + p.bet, 0);
-        document.getElementById('active-players').innerHTML = players.map(p => `
-            <div style="display:flex; justify-content:space-between; background:var(--card); padding:10px; border-radius:10px; margin-bottom:5px; border:1px solid #1a1a1a;">
-                <b>${p.name}</b>
-                <span style="color:var(--accent)">${p.bet} TON</span>
-            </div>
-        `).join('');
+function update(){
+    bal.textContent=user.bal.toFixed(2);
+    uid.textContent=user.id;
+    refs.textContent=user.refs;
+    earn.textContent=user.earn.toFixed(2);
 
-        // Render History
-        document.getElementById('hist-content').innerHTML = user.history.map(h => `
-            <div class="history-item">
-                <div><b>${h.winner}</b><br><small style="color:#555">Банк: ${h.bank} TON</small></div>
-                <div class="h-win">x${h.mult}</div>
-            </div>
-        `).join('');
-    }
+    playersDiv.innerHTML=players.map(p=>`
+        <div class="player">
+            <b>${p.name}</b>
+            <span>${p.bet} TON</span>
+        </div>`).join('');
+}
 
-    // --- WHEEL LOGIC ---
-    function drawWheel() {
-        const r = canvas.width / 2;
-        ctx.clearRect(0,0,800,800);
-        if(!players.length) { ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#111"; ctx.fill(); return; }
-        
-        let start = 0, total = players.reduce((s,p)=>s+p.bet, 0);
-        players.forEach((p, i) => {
-            const slice = (p.bet / total) * Math.PI * 2;
-            p.startA = start; p.endA = start + slice;
-            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r, start, start + slice);
-            ctx.fillStyle = colors[i % colors.length]; ctx.fill();
-            ctx.strokeStyle = "#000"; ctx.lineWidth = 4; ctx.stroke();
-            start += slice;
-        });
-    }
+function draw(){
+    ctx.clearRect(0,0,800,800);
+    if(!players.length) return;
+    let total=players.reduce((s,p)=>s+p.bet,0);
+    let a=0;
+    players.forEach((p,i)=>{
+        let s=(p.bet/total)*Math.PI*2;
+        p.mid=a+s/2;
+        ctx.beginPath();
+        ctx.moveTo(400,400);
+        ctx.arc(400,400,400,a,a+s);
+        ctx.fillStyle=colors[i%colors.length];
+        ctx.fill();
+        a+=s;
+    });
+}
 
-    function gameLoop() {
-        players = []; timer = 15; isSpinning = false;
-        document.getElementById('wheel-wrap').style.transition = 'none';
-        rotation %= 360; document.getElementById('wheel-wrap').style.transform = `rotate(${rotation}deg)`;
-        
-        const itv = setInterval(() => {
-            timer--;
-            document.getElementById('timer').textContent = `00:${timer < 10 ? '0'+timer : timer}`;
-            
-            if(timer % 3 === 0 && players.length < 6) {
-                players.push({name: botNames[Math.floor(Math.random()*botNames.length)], bet: Math.floor(Math.random()*50+10)});
-                if(Math.random() > 0.5) addMsg(botNames[Math.floor(Math.random()*botNames.length)], botPhrases[Math.floor(Math.random()*botPhrases.length)]);
-                drawWheel(); updateUI();
-            }
+function loop(){
+    players=[];
+    time=15;
+    spin=false;
+    wheelWrap.style.transition='none';
+    setIntervalTick();
+}
 
-            if(timer <= 0) {
-                clearInterval(itv);
-                if(players.length < 2) gameLoop(); else spin();
-            }
-        }, 1000);
-    }
-
-    function spin() {
-        isSpinning = true;
-        const total = players.reduce((s,p)=>s+p.bet, 0);
-        const rand = Math.random() * total;
-        let acc = 0, winner = players[0];
-        for(let p of players) {
-            acc += p.bet;
-            if(rand <= acc) { winner = p; break; }
+function setIntervalTick(){
+    let t=setInterval(()=>{
+        timer.textContent=time;
+        if(time%3===0 && players.length<5){
+            players.push({name:bots[Math.random()*bots.length|0],bet:Math.random()*50+10|0});
+            draw(); update();
         }
+        if(--time<=0){
+            clearInterval(t);
+            if(players.length<2) loop();
+            else spinWheel();
+        }
+    },1000);
+}
 
-        const mid = ((winner.startA + winner.endA)/2) * (180/Math.PI);
-        rotation += (360*10) + (360 - mid);
-        const ww = document.getElementById('wheel-wrap');
-        ww.style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
-        ww.style.transform = `rotate(${rotation}deg)`;
-
-        setTimeout(() => {
-            if(winner.isMe) user.bal += total;
-            user.history.unshift({winner: winner.name, bank: total, mult: (total/(winner.bet||1)).toFixed(1)});
-            if(user.history.length > 15) user.history.pop();
-            save();
-            setTimeout(gameLoop, 4000);
-        }, 8500);
-    }
-
-    // --- ACTIONS ---
-    function makeBet() {
-        const val = parseFloat(document.getElementById('bet-input').value);
-        if(isSpinning || val > user.bal || val <= 0) return;
-        user.bal -= val;
-        players.push({name: '@ВЫ', bet: val, isMe: true});
-        save(); drawWheel();
-    }
-
-    function addMsg(name, txt) {
-        const box = document.getElementById('chat-msgs');
-        const m = document.createElement('div');
-        m.className = 'msg';
-        m.innerHTML = `<b>${name}</b>${txt}`;
-        box.appendChild(m);
-        box.scrollTop = box.scrollHeight;
-    }
-
-    function sendChat() {
-        const i = document.getElementById('chat-input');
-        if(!i.value) return;
-        addMsg('@ВЫ', i.value);
-        i.value = '';
-    }
-
-    function addFakeRef() {
-        const bonus = 7.5;
-        user.bal += bonus; user.earn += bonus; user.refs++;
-        alert("Новый реферал! Зачислено +15% (7.50 TON)");
+function spinWheel(){
+    spin=true;
+    let total=players.reduce((s,p)=>s+p.bet,0);
+    let r=Math.random()*total,acc=0,w;
+    for(let p of players){acc+=p.bet;if(r<=acc){w=p;break}}
+    rot+=360*8+(360-(w.mid*180/Math.PI));
+    wheelWrap.style.transition='transform 8s cubic-bezier(.1,0,.1,1)';
+    wheelWrap.style.transform=`rotate(${rot}deg)`;
+    setTimeout(()=>{
+        if(w.me) user.bal+=total;
         save();
-    }
+        loop();
+    },8500);
+}
 
-    function showPage(id, btn) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-    }
+function bet(){
+    let v=+betInput.value;
+    if(spin||v<=0||v>user.bal) return;
+    user.bal-=v;
+    players.push({name:'@ВЫ',bet:v,me:true});
+    draw(); save();
+}
 
-    function copyRef() { alert("Ссылка скопирована!"); }
+function fakeDeposit(){
+    let dep=Math.random()*300+50|0;
+    let bonus=dep*0.1;
+    user.refs++;
+    user.earn+=bonus;
+    user.bal+=bonus;
+    alert(`Друг пополнил ${dep} TON\nТвой бонус +${bonus.toFixed(2)} TON`);
+    save();
+}
 
-    gameLoop();
+function openPage(id,el){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav div').forEach(n=>n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+}
+
+function openChat(){
+    window.open('https://t.me/+bRdL2okzUTdiZDVi','_blank');
+}
+
+const playersDiv=document.getElementById('players');
+const betInput=document.getElementById('bet');
+
+save();
+loop();
 </script>
 </body>
 </html>
