@@ -3,257 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TON PvP Ultimate Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <title>TON PvP — Premium Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050505;
-            --card: #0d0d0d;
+            --bg: #050608;
+            --card: #12141c;
             --accent: #ff8c00;
-            --accent2: #ffb347;
-            --border: #1a1a1a;
+            --accent-grad: linear-gradient(135deg, #ff8c00, #ffb347);
+            --border: #1e222d;
             --text: #ffffff;
-            --muted: #666;
-            --panel: #121212;
+            --muted: #707a8a;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
-        .header {
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: #000;
-            z-index: 10;
-        }
-        .balance-pill {
-            background: rgba(255, 140, 0, 0.1);
-            border: 1px solid var(--accent);
-            padding: 8px 16px;
-            border-radius: 14px;
-            font-weight: 900;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.1);
-        }
+        .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border); }
+        .logo { font-weight: 900; font-size: 22px; letter-spacing: -1px; }
+        .logo span { color: var(--accent); }
+        .balance-pill { background: var(--accent-grad); padding: 8px 16px; border-radius: 12px; font-weight: 900; color: #000; box-shadow: 0 4px 15px rgba(255,140,0,0.3); }
 
         /* PAGES */
-        .page { flex: 1; display: none; overflow-y: auto; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
+        .page { flex: 1; display: none; overflow-y: auto; padding-bottom: 90px; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* WHEEL ZONE */
-        .wheel-container {
-            width: 320px;
-            height: 320px;
-            margin: 30px auto;
-            position: relative;
+        /* WHEEL AREA */
+        .wheel-container { position: relative; width: 310px; height: 310px; margin: 25px auto; }
+        .wheel-outer { 
+            width: 100%; height: 100%; border-radius: 50%; padding: 8px; background: #1a1d26; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,140,0,0.1);
         }
-        .pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #fff;
-            z-index: 5;
-            filter: drop-shadow(0 0 10px var(--accent));
-        }
-        #wheelWrap {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1);
-            border: 6px solid #111;
-            background: #111;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(255, 140, 0, 0.15);
-        }
+        #wheelWrap { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); position: relative; overflow: hidden; }
         canvas { width: 100%; height: 100%; }
+        
+        .pointer {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 24px solid #fff;
+            z-index: 10; filter: drop-shadow(0 0 8px var(--accent));
+        }
+
         .center-hub {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85px; height: 85px;
-            border-radius: 50%;
-            background: #000;
-            border: 3px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 4;
-            box-shadow: inset 0 0 20px #000;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; border-radius: 50%; background: #000; border: 2px solid var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,140,0,0.2);
         }
-        #timer { font-size: 28px; font-weight: 900; color: #fff; }
-        .status-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        #timer { font-size: 26px; font-weight: 900; color: #fff; line-height: 1; }
+        .status-tag { font-size: 8px; font-weight: 800; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* BET BOX */
-        .bet-box {
-            margin: 0 20px 20px;
-            background: var(--panel);
-            border-radius: 20px;
-            padding: 15px;
-            display: flex;
-            gap: 12px;
-            border: 1px solid var(--border);
+        /* BETTING */
+        .bet-panel { margin: 15px; background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid var(--border); display: flex; gap: 10px; }
+        .bet-panel input { 
+            flex: 1; background: #090a0f; border: 1px solid var(--border); border-radius: 14px; 
+            padding: 14px; color: #fff; font-weight: 800; font-size: 16px; outline: none;
         }
-        .bet-box input {
-            flex: 1;
-            background: #000;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 800;
-            outline: none;
+        .bet-panel button { 
+            background: var(--accent-grad); border: none; border-radius: 14px; 
+            padding: 0 24px; font-weight: 900; color: #000; cursor: pointer; transition: 0.2s;
         }
-        .bet-box button {
-            background: linear-gradient(135deg, #ff8c00, #ffb347);
-            border: none;
-            border-radius: 12px;
-            font-weight: 900;
-            padding: 0 25px;
-            color: #000;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .bet-box button:active { transform: scale(0.95); }
+        .bet-panel button:active { transform: scale(0.96); }
 
-        /* PLAYERS LIST */
-        .players-title { padding: 0 25px 10px; font-size: 12px; font-weight: 800; color: var(--muted); display: flex; justify-content: space-between; }
-        .player-card {
-            display: flex;
-            align-items: center;
-            background: var(--panel);
-            margin: 0 20px 8px;
-            padding: 12px 16px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
+        /* PLAYERS */
+        .players-list { padding: 0 15px; }
+        .player-row { 
+            display: flex; align-items: center; background: var(--card); border-radius: 16px; 
+            padding: 12px 16px; margin-bottom: 8px; border: 1px solid var(--border);
         }
-        .p-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: var(--accent);
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: #000;
+        .p-avatar { 
+            width: 38px; height: 38px; border-radius: 50%; background: var(--accent); 
+            display: flex; align-items: center; justify-content: center; font-weight: 900; 
+            color: #000; margin-right: 14px; font-size: 16px;
         }
         .p-info { flex: 1; }
-        .p-name { font-weight: 800; font-size: 14px; }
-        .p-chance { font-size: 11px; color: var(--muted); }
-        .p-bet { font-weight: 900; color: var(--accent); }
+        .p-name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .p-meta { font-size: 11px; color: var(--muted); }
+        .p-amount { text-align: right; font-weight: 900; color: var(--accent); }
 
-        /* PROFILE */
-        .profile-header { text-align: center; padding: 40px 20px; }
-        .avatar-large { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #000; font-weight: 900; box-shadow: 0 0 30px rgba(255,140,0,0.3); }
-        .stat-card { background: var(--panel); margin: 0 20px 10px; padding: 18px; border-radius: 18px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .ref-box { background: #000; border: 1px dashed var(--accent); padding: 15px; border-radius: 12px; text-align: center; color: var(--accent); font-weight: 800; cursor: pointer; margin-top: 10px; }
-
-        /* HISTORY */
-        .hist-item { background: var(--panel); margin: 10px 20px; padding: 15px; border-radius: 15px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-
-        /* NAVIGATION */
-        .nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: 20px;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 800;
-            flex: 1;
-            transition: 0.2s;
-        }
+        /* NAV */
+        .navbar { position: fixed; bottom: 0; width: 100%; height: 75px; background: #000; border-top: 1px solid var(--border); display: flex; padding-bottom: 15px; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; font-weight: 800; }
         .nav-item.active { color: var(--accent); }
         .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
+
+        /* STATS CARD */
+        .stat-card { background: var(--card); margin: 15px; border-radius: 20px; padding: 20px; border: 1px solid var(--border); }
+        .stat-line { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #1a1d26; }
+        .stat-line:last-child { border: none; margin: 0; padding: 0; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="font-weight:900; font-size: 22px; letter-spacing: -1px;">TON<span style="color:var(--accent)">PVP</span></div>
-    <div class="balance-pill">
-        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" width="18">
-        <span id="bal-top">1000.00</span>
-    </div>
+    <div class="logo">TON<span>PVP</span></div>
+    <div class="balance-pill"><span id="bal">1000.00</span> TON</div>
 </div>
 
 <div id="game" class="page active">
     <div class="wheel-container">
         <div class="pointer"></div>
-        <div id="wheelWrap">
-            <canvas id="wheel" width="800" height="800"></canvas>
+        <div class="wheel-outer">
+            <div id="wheelWrap">
+                <canvas id="wheelCanvas" width="800" height="800"></canvas>
+            </div>
         </div>
         <div class="center-hub">
             <div id="timer">15</div>
-            <div class="status-label" id="status-text">СТАВКИ</div>
+            <div class="status-tag" id="status-text">Ожидание</div>
         </div>
     </div>
 
-    <div class="bet-box">
-        <input id="bet-input" type="number" value="10" min="1">
+    <div class="bet-panel">
+        <input type="number" id="bet-input" value="10" min="1">
         <button onclick="makeBet()">СТАВКА</button>
     </div>
 
-    <div class="players-title">
-        <span>ИГРОКИ</span>
-        <span id="bank-total">БАНК: 0 TON</span>
-    </div>
-    <div id="players-list"></div>
+    <div class="players-list" id="players-box"></div>
 </div>
 
 <div id="profile" class="page">
-    <div class="profile-header">
-        <div class="avatar-large">Я</div>
-        <h2 style="margin:0">Твой аккаунт</h2>
-        <div style="color:var(--muted); font-size: 12px;">ID: <span id="uid"></span></div>
+    <div class="stat-card">
+        <div style="font-weight:900; color:var(--accent); margin-bottom:15px">ВАШ ПРОФИЛЬ</div>
+        <div class="stat-line"><span>ID Аккаунта</span><b id="uid"></b></div>
+        <div class="stat-line"><span>Баланс</span><b id="pbal"></b></div>
     </div>
 
     <div class="stat-card">
-        <span style="color:var(--muted)">Баланс TON</span>
-        <b style="font-size:18px"><span id="bal-prof"></span> TON</b>
-    </div>
-
-    <div class="stat-card" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-        <b style="color:var(--accent)">РЕФЕРАЛЬНАЯ ПРОГРАММА</b>
-        <div style="font-size: 13px; color: var(--muted);">Приглашай друзей и получай 10% от их депозитов</div>
-        <div class="ref-box" style="width: 100%;" onclick="alert('Скопировано!')">t.me/tonpvp_bot?start=r_<span id="uid-ref"></span></div>
-        <button class="bet-box" style="width:100%; margin:10px 0 0; background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 12px; font-weight: 800;" onclick="fakeRef()">ТЕСТ БОНУСА (+10%)</button>
+        <div style="font-weight:900; color:var(--accent); margin-bottom:5px">РЕФЕРАЛЫ 10%</div>
+        <p style="font-size:12px; color:var(--muted)">Получай бонусы от каждого депозита друга</p>
+        <div style="background:#000; padding:12px; border-radius:12px; border:1px dashed var(--accent); text-align:center; color:var(--accent); font-weight:800; font-size:13px" onclick="alert('Ссылка скопирована!')">
+            t.me/tonpvp_bot?start=r_<span id="uid2"></span>
+        </div>
+        <button style="width:100%; margin-top:15px; background:#1a1d26; color:#fff; border:1px solid #333; padding:12px; border-radius:12px; font-weight:800" onclick="fakeRef()">Симулировать доход (+10%)</button>
     </div>
 </div>
 
 <div id="history" class="page">
-    <div style="padding: 25px 20px 10px; font-weight: 900; font-size: 20px;">ИСТОРИЯ ИГР</div>
-    <div id="hist-list"></div>
+    <div style="padding:20px; font-weight:900; font-size:18px">ИСТОРИЯ ИГР</div>
+    <div id="hist-box"></div>
 </div>
 
-<div class="nav">
+<div class="navbar">
     <div class="nav-item active" onclick="openPage('game', this)">
         <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
         PVP
@@ -263,7 +155,7 @@
         ЧАТ
     </div>
     <div class="nav-item" onclick="openPage('history', this)">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18zm-1 5v5l4.28 2.53.85-1.07-3.13-1.86V8z"/></svg>
         ИСТОРИЯ
     </div>
     <div class="nav-item" onclick="openPage('profile', this)">
@@ -274,16 +166,16 @@
 
 <script>
     let user = {
-        bal: +localStorage.bal || 1000,
+        bal: +localStorage.bal || 1000.00,
         id: localStorage.id || Math.floor(Math.random()*90000+10000),
         hist: JSON.parse(localStorage.hist || '[]')
     };
 
     let players = [], time = 15, isSpinning = false, rotation = 0;
-    const bots = ['@whale_ton', '@shark_rich', '@crypto_ninja', '@king_tonny', '@bull_market'];
-    const colors = ['#ff8c00', '#ffb347', '#ffffff', '#222', '#444'];
+    const bots = ['@whale_ton', '@crypto_ninja', '@shark_rich', '@ton_bull', '@lucky_man'];
+    const colors = ['#ff8c00', '#ffb347', '#ffffff', '#2a2e3a', '#4e5569'];
 
-    const canvas = document.getElementById('wheel');
+    const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
 
     function save() {
@@ -294,29 +186,30 @@
     }
 
     function updateUI() {
-        document.getElementById('bal-top').textContent = user.bal.toFixed(2);
-        document.getElementById('bal-prof').textContent = user.bal.toFixed(2);
+        document.getElementById('bal').textContent = user.bal.toFixed(2);
+        document.getElementById('pbal').textContent = user.bal.toFixed(2) + ' TON';
         document.getElementById('uid').textContent = user.id;
-        document.getElementById('uid-ref').textContent = user.id;
+        document.getElementById('uid2').textContent = user.id;
 
-        const totalBank = players.reduce((s, p) => s + p.bet, 0);
-        document.getElementById('bank-total').textContent = `БАНК: ${totalBank.toFixed(2)} TON`;
-
-        document.getElementById('players-list').innerHTML = players.map(p => `
-            <div class="player-card">
+        const total = players.reduce((s,p)=>s+p.bet,0);
+        document.getElementById('players-box').innerHTML = players.map(p => `
+            <div class="player-row">
                 <div class="p-avatar" style="background:${p.color}">${p.name[1].toUpperCase()}</div>
                 <div class="p-info">
-                    <div class="p-name">${p.name} ${p.me ? '<span style="color:var(--accent)">(ВЫ)</span>' : ''}</div>
-                    <div class="p-chance">Шанс: ${((p.bet/totalBank)*100 || 0).toFixed(1)}%</div>
+                    <div class="p-name">${p.name} ${p.me ? '<span style="color:var(--accent)">[ВЫ]</span>' : ''}</div>
+                    <div class="p-meta">Шанс: ${((p.bet/total)*100 || 0).toFixed(1)}%</div>
                 </div>
-                <div class="p-bet">${p.bet.toFixed(2)} TON</div>
+                <div class="p-amount">${p.bet.toFixed(2)}</div>
             </div>
         `).join('');
 
-        document.getElementById('hist-list').innerHTML = user.hist.map(h => `
-            <div class="hist-item">
-                <div><b style="font-size:16px">${h.w}</b><br><small style="color:var(--muted)">Выигрыш</small></div>
-                <b style="color:var(--accent)">+${h.b.toFixed(2)} TON</b>
+        document.getElementById('hist-box').innerHTML = user.hist.map(h => `
+            <div class="player-row" style="border-left:4px solid var(--accent)">
+                <div class="p-info">
+                    <div class="p-name">${h.w}</div>
+                    <div class="p-meta">Победный банк</div>
+                </div>
+                <div class="p-amount">+${h.b.toFixed(2)}</div>
             </div>
         `).join('');
     }
@@ -324,45 +217,28 @@
     function drawWheel() {
         const r = canvas.width / 2;
         ctx.clearRect(0,0,800,800);
-        
         if(!players.length) {
             ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#111"; ctx.fill();
             return;
         }
-
         let total = players.reduce((s,p)=>s+p.bet, 0);
-        let currentAngle = 0;
-
+        let start = 0;
         players.forEach((p, i) => {
-            const sliceAngle = (p.bet / total) * Math.PI * 2;
-            p.midAngle = currentAngle + sliceAngle / 2;
+            const slice = (p.bet / total) * Math.PI * 2;
+            p.mid = start + slice/2;
+            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r, start, start + slice);
+            ctx.fillStyle = p.color; ctx.fill();
+            ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.stroke();
 
-            // Draw Sector
-            ctx.beginPath();
-            ctx.moveTo(r, r);
-            ctx.arc(r, r, r, currentAngle, currentAngle + sliceAngle);
-            ctx.fillStyle = p.color;
-            ctx.fill();
-            ctx.strokeStyle = "#000";
-            ctx.lineWidth = 4;
-            ctx.stroke();
-
-            // Draw Icon/Letter on sector
+            // Иконка на секторе
             ctx.save();
-            ctx.translate(r, r);
-            ctx.rotate(p.midAngle);
-            ctx.beginPath();
-            ctx.arc(r * 0.75, 0, 35, 0, Math.PI * 2);
-            ctx.fillStyle = "#fff";
-            ctx.fill();
-            ctx.fillStyle = "#000";
-            ctx.font = "900 35px Inter";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(p.name[1].toUpperCase(), r * 0.75, 0);
+            ctx.translate(r,r); ctx.rotate(p.mid);
+            ctx.beginPath(); ctx.arc(r*0.75, 0, 35, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
+            ctx.fillStyle="#000"; ctx.font="900 35px Inter"; ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText(p.name[1].toUpperCase(), r*0.75, 0);
             ctx.restore();
 
-            currentAngle += sliceAngle;
+            start += slice;
         });
     }
 
@@ -371,70 +247,60 @@
         document.getElementById('wheelWrap').style.transition = 'none';
         rotation %= 360;
         document.getElementById('wheelWrap').style.transform = `rotate(${rotation}deg)`;
-        document.getElementById('status-text').textContent = "СТАВКИ";
-        drawWheel();
-        updateUI();
-        
+        document.getElementById('status-text').textContent = "Ставки";
+        drawWheel(); updateUI();
+
         const tick = setInterval(() => {
             document.getElementById('timer').textContent = time;
             if(time % 3 === 0 && players.length < 5) {
-                const botColor = colors[players.length % colors.length];
                 players.push({
                     name: bots[Math.floor(Math.random()*bots.length)], 
-                    bet: Math.floor(Math.random()*60+20),
-                    color: botColor
+                    bet: Math.floor(Math.random()*100+20),
+                    color: colors[players.length % colors.length]
                 });
                 drawWheel(); updateUI();
             }
             if(--time < 0) {
                 clearInterval(tick);
-                players.length > 1 ? spinWheel() : gameLoop();
+                players.length > 1 ? spin() : gameLoop();
             }
         }, 1000);
     }
 
-    function spinWheel() {
+    function spin() {
         isSpinning = true;
-        document.getElementById('status-text').textContent = "ИГРА";
+        document.getElementById('status-text').textContent = "Игра";
         let total = players.reduce((s,p)=>s+p.bet, 0);
         let rand = Math.random() * total;
         let acc = 0, winner;
-        
-        for(let p of players) {
-            acc += p.bet;
-            if(rand <= acc) { winner = p; break; }
-        }
+        for(let p of players) { acc += p.bet; if(rand <= acc) { winner = p; break; } }
 
-        const winAngle = (winner.midAngle * 180 / Math.PI);
-        rotation += (360 * 8) + (360 - winAngle);
-        
-        const wrap = document.getElementById('wheelWrap');
-        wrap.style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
-        wrap.style.transform = `rotate(${rotation}deg)`;
+        const winDeg = (winner.mid * 180 / Math.PI);
+        rotation += (360 * 8) + (360 - winDeg);
+        document.getElementById('wheelWrap').style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
+        document.getElementById('wheelWrap').style.transform = `rotate(${rotation}deg)`;
 
         setTimeout(() => {
             if(winner.me) user.bal += total;
             user.hist.unshift({w: winner.name, b: total});
             if(user.hist.length > 15) user.hist.pop();
             save();
-            document.getElementById('status-text').textContent = "ПОБЕДА!";
+            document.getElementById('status-text').textContent = "Победа!";
             setTimeout(gameLoop, 4000);
         }, 8500);
     }
 
     function makeBet() {
-        let val = +document.getElementById('bet-input').value;
-        if(isSpinning || val <= 0 || val > user.bal) return;
-        user.bal -= val;
-        players.push({name: '@ВЫ', bet: val, me: true, color: '#ff8c00'});
-        drawWheel();
-        save();
+        let v = +document.getElementById('bet-input').value;
+        if(isSpinning || v <= 0 || v > user.bal) return;
+        user.bal -= v;
+        players.push({name: '@ВЫ', bet: v, me: true, color: '#ff8c00'});
+        drawWheel(); save();
     }
 
     function fakeRef() {
-        const bonus = 50;
-        user.bal += bonus;
-        alert(`🎉 Реферал пополнил баланс! Тебе начислено +${bonus} TON (10%)`);
+        user.bal += 50;
+        alert("Бонус +50 TON за реферала начислен!");
         save();
     }
 
@@ -445,7 +311,7 @@
         el.classList.add('active');
     }
 
-    updateUI();
+    save();
     gameLoop();
 </script>
 
