@@ -2,331 +2,374 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>TON PVP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON PvP</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-
-:root {
-    --bg:#050505;
-    --card:#111;
-    --accent:#ff8c00;
-    --border:#222;
-    --text:#fff;
-    --text2:#666;
+:root{
+--bg:#070707;
+--card:#111;
+--accent:#ff8c00;
+--accent2:#ffb347;
+--border:#222;
+--text:#fff;
+--muted:#777;
 }
 
-* { box-sizing:border-box; font-family:Inter,sans-serif; }
-body {
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    height:100vh;
-    display:flex;
-    flex-direction:column;
+*{box-sizing:border-box;font-family:Inter}
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+height:100vh;
+display:flex;
+flex-direction:column;
 }
 
 /* HEADER */
-.header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 20px;
-    border-bottom:1px solid var(--border);
-    background:#000;
+.header{
+padding:15px 20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid var(--border);
+background:#000;
 }
-.balance {
-    background:rgba(255,140,0,.1);
-    border:1px solid var(--accent);
-    padding:8px 16px;
-    border-radius:12px;
-    font-weight:800;
-    color:var(--accent);
+.balance{
+background:linear-gradient(135deg,#ff8c00,#ffb347);
+padding:8px 14px;
+border-radius:14px;
+font-weight:900;
+color:#000;
 }
 
 /* PAGES */
-.page { flex:1; display:none; overflow-y:auto; padding-bottom:90px; }
-.page.active { display:block; }
+.page{flex:1;display:none;overflow-y:auto;padding-bottom:90px}
+.page.active{display:block}
 
 /* WHEEL */
-.game-zone {
-    width:280px;
-    height:280px;
-    margin:20px auto;
-    position:relative;
+.wheel-zone{
+width:300px;
+height:300px;
+margin:20px auto;
+position:relative;
 }
-#wheelWrap {
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    transition:transform 8s cubic-bezier(.1,0,.1,1);
+#wheelWrap{
+width:100%;
+height:100%;
+border-radius:50%;
+transition:transform 8s cubic-bezier(.1,0,.1,1);
+box-shadow:0 0 40px rgba(255,140,0,.25);
 }
-canvas { width:100%; height:100%; }
-.center {
-    position:absolute;
-    top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    width:90px; height:90px;
-    border-radius:50%;
-    background:#000;
-    border:2px solid var(--border);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:900;
-    color:var(--accent);
+canvas{width:100%;height:100%}
+.center{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:90px;
+height:90px;
+border-radius:50%;
+background:#000;
+border:2px solid var(--border);
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:900;
+font-size:22px;
+color:var(--accent);
 }
 
 /* BET */
-.bet-box {
-    margin:0 15px;
-    background:var(--card);
-    padding:15px;
-    border-radius:15px;
-    display:flex;
-    gap:10px;
+.bet-box{
+margin:15px;
+background:var(--card);
+border-radius:18px;
+padding:15px;
+display:flex;
+gap:10px;
+border:1px solid var(--border);
 }
-.bet-box input {
-    flex:1;
-    background:#000;
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:12px;
-    color:#fff;
-    font-weight:700;
+.bet-box input{
+flex:1;
+background:#000;
+border:1px solid var(--border);
+border-radius:12px;
+padding:12px;
+color:#fff;
+font-weight:700;
 }
-.bet-box button {
-    background:var(--accent);
-    border:none;
-    border-radius:10px;
-    font-weight:900;
-    padding:0 20px;
+.bet-box button{
+background:linear-gradient(135deg,#ff8c00,#ffb347);
+border:none;
+border-radius:12px;
+font-weight:900;
+padding:0 20px;
 }
 
 /* PLAYERS */
-#players { padding:15px; }
-.player {
-    display:flex;
-    justify-content:space-between;
-    background:var(--card);
-    padding:10px;
-    border-radius:10px;
-    margin-bottom:6px;
+.players{padding:0 15px}
+.player{
+display:flex;
+justify-content:space-between;
+background:var(--card);
+border-radius:12px;
+padding:10px 14px;
+margin-bottom:6px;
+border:1px solid var(--border);
 }
 
-/* REF */
-.card {
-    margin:15px;
-    background:var(--card);
-    border-radius:20px;
-    padding:20px;
+/* PROFILE */
+.card{
+margin:15px;
+background:var(--card);
+border-radius:20px;
+padding:18px;
+border:1px solid var(--border);
 }
-.ref {
-    margin-top:10px;
-    border:1px dashed var(--accent);
-    padding:12px;
-    text-align:center;
-    border-radius:12px;
-    color:var(--accent);
+.stat{
+display:flex;
+justify-content:space-between;
+margin:6px 0;
+color:var(--muted);
+}
+.stat b{color:#fff}
+
+/* REF */
+.refbox{
+margin-top:10px;
+border:1px dashed var(--accent);
+padding:12px;
+border-radius:12px;
+text-align:center;
+color:var(--accent);
+font-weight:700;
+}
+
+/* HISTORY */
+.history{
+padding:15px;
+}
+.hist{
+background:var(--card);
+border-radius:14px;
+padding:12px;
+margin-bottom:6px;
+border:1px solid var(--border);
+display:flex;
+justify-content:space-between;
 }
 
 /* NAV */
-.nav {
-    position:fixed;
-    bottom:0;
-    width:100%;
-    height:75px;
-    background:#000;
-    border-top:1px solid var(--border);
-    display:flex;
+.nav{
+position:fixed;
+bottom:0;
+width:100%;
+height:75px;
+background:#000;
+border-top:1px solid var(--border);
+display:flex;
 }
-.nav div {
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    font-size:11px;
-    color:var(--text2);
+.nav div{
+flex:1;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+font-size:11px;
+color:var(--muted);
+font-weight:800;
 }
-.nav .active { color:var(--accent); }
+.nav .active{color:var(--accent)}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <div style="font-weight:900">TON<span style="color:var(--accent)">PVP</span></div>
-    <div class="balance"><span id="bal">1000.00</span> TON</div>
+<div style="font-weight:900">TON<span style="color:var(--accent)">PVP</span></div>
+<div class="balance"><span id="bal">1000.00</span> TON</div>
 </div>
 
 <!-- GAME -->
 <div id="game" class="page active">
-    <div class="game-zone">
-        <div id="wheelWrap">
-            <canvas id="wheel" width="800" height="800"></canvas>
-        </div>
-        <div class="center" id="timer">15</div>
-    </div>
-
-    <div class="bet-box">
-        <input type="number" id="bet" value="10">
-        <button onclick="bet()">СТАВКА</button>
-    </div>
-
-    <div id="players"></div>
+<div class="wheel-zone">
+<div id="wheelWrap">
+<canvas id="wheel" width="800" height="800"></canvas>
+</div>
+<div class="center" id="timer">15</div>
 </div>
 
-<!-- REF -->
-<div id="ref" class="page">
-    <div class="card">
-        <b style="color:var(--accent)">РЕФЕРАЛЫ</b>
-        <p>Ты получаешь <b>10%</b> с каждого депозита друга</p>
-        <div class="ref">t.me/tonpvp_bot?start=r_<span id="uid"></span></div>
-        <button style="margin-top:10px;width:100%" onclick="fakeDeposit()">Симулировать депозит друга</button>
-    </div>
+<div class="bet-box">
+<input id="bet" type="number" value="10">
+<button onclick="makeBet()">СТАВКА</button>
+</div>
 
-    <div class="card">
-        Приглашено: <b id="refs">0</b><br>
-        Доход: <b id="earn">0.00 TON</b>
-    </div>
+<div class="players" id="players"></div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="page">
+<div class="card">
+<b style="color:var(--accent)">ПРОФИЛЬ</b>
+<div class="stat"><span>ID</span><b id="uid"></b></div>
+<div class="stat"><span>Баланс</span><b><span id="pbal"></span> TON</b></div>
+</div>
+
+<div class="card">
+<b style="color:var(--accent)">РЕФЕРАЛЬНАЯ СИСТЕМА</b>
+<p style="font-size:13px;color:var(--muted)">Ты получаешь <b>10%</b> от каждого депозита друга</p>
+<div class="refbox">t.me/tonpvp_bot?start=r_<span id="uid2"></span></div>
+<button style="width:100%;margin-top:10px" onclick="fakeRef()">Симулировать депозит реферала</button>
+<div class="stat"><span>Приглашено</span><b id="refs">0</b></div>
+<div class="stat"><span>Оборот</span><b id="turn">0 TON</b></div>
+<div class="stat"><span>Доход</span><b id="earn">0 TON</b></div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="page">
+<div class="history" id="hist"></div>
 </div>
 
 <!-- NAV -->
 <div class="nav">
-    <div class="active" onclick="openPage('game',this)">PVP</div>
-    <div onclick="openChat()">ЧАТ</div>
-    <div onclick="openPage('ref',this)">ДРУЗЬЯ</div>
+<div class="active" onclick="openPage('game',this)">PVP</div>
+<div onclick="openChat()">ЧАТ</div>
+<div onclick="openPage('history',this)">ИСТОРИЯ</div>
+<div onclick="openPage('profile',this)">ПРОФИЛЬ</div>
 </div>
 
 <script>
-/* USER */
-let user = {
-    bal:+localStorage.bal || 1000,
-    id:localStorage.id || Math.floor(Math.random()*90000+10000),
-    refs:+localStorage.refs || 0,
-    earn:+localStorage.earn || 0
+let user={
+bal:+localStorage.bal||1000,
+id:localStorage.id||Math.floor(Math.random()*90000+10000),
+refs:+localStorage.refs||0,
+earn:+localStorage.earn||0,
+turn:+localStorage.turn||0,
+hist:JSON.parse(localStorage.hist||'[]')
 };
 
-/* GAME */
-let players=[], time=15, spin=false, rot=0;
+let players=[],time=15,spin=false,rot=0;
 const bots=['@rich','@tonny','@crypto','@whale'];
-const colors=['#ff8c00','#e67e22','#fff','#333'];
+const colors=['#ff8c00','#ffb347','#fff','#333'];
 
-const canvas=document.getElementById('wheel');
-const ctx=canvas.getContext('2d');
+const c=document.getElementById('wheel');
+const ctx=c.getContext('2d');
 
 function save(){
-    localStorage.bal=user.bal;
-    localStorage.id=user.id;
-    localStorage.refs=user.refs;
-    localStorage.earn=user.earn;
-    update();
+localStorage.bal=user.bal;
+localStorage.id=user.id;
+localStorage.refs=user.refs;
+localStorage.earn=user.earn;
+localStorage.turn=user.turn;
+localStorage.hist=JSON.stringify(user.hist);
+update();
 }
 
 function update(){
-    bal.textContent=user.bal.toFixed(2);
-    uid.textContent=user.id;
-    refs.textContent=user.refs;
-    earn.textContent=user.earn.toFixed(2);
+bal.textContent=user.bal.toFixed(2);
+pbal.textContent=user.bal.toFixed(2);
+uid.textContent=user.id;
+uid2.textContent=user.id;
+refs.textContent=user.refs;
+earn.textContent=user.earn.toFixed(2)+' TON';
+turn.textContent=user.turn.toFixed(2)+' TON';
 
-    playersDiv.innerHTML=players.map(p=>`
-        <div class="player">
-            <b>${p.name}</b>
-            <span>${p.bet} TON</span>
-        </div>`).join('');
+playersBox.innerHTML=players.map(p=>`
+<div class="player"><b>${p.name}</b><span>${p.bet} TON</span></div>`).join('');
+
+hist.innerHTML=user.hist.map(h=>`
+<div class="hist"><b>${h.w}</b><span>${h.b} TON</span></div>`).join('');
 }
 
 function draw(){
-    ctx.clearRect(0,0,800,800);
-    if(!players.length) return;
-    let total=players.reduce((s,p)=>s+p.bet,0);
-    let a=0;
-    players.forEach((p,i)=>{
-        let s=(p.bet/total)*Math.PI*2;
-        p.mid=a+s/2;
-        ctx.beginPath();
-        ctx.moveTo(400,400);
-        ctx.arc(400,400,400,a,a+s);
-        ctx.fillStyle=colors[i%colors.length];
-        ctx.fill();
-        a+=s;
-    });
+ctx.clearRect(0,0,800,800);
+if(!players.length)return;
+let total=players.reduce((s,p)=>s+p.bet,0),a=0;
+players.forEach((p,i)=>{
+let s=p.bet/total*Math.PI*2;
+p.mid=a+s/2;
+ctx.beginPath();
+ctx.moveTo(400,400);
+ctx.arc(400,400,400,a,a+s);
+ctx.fillStyle=colors[i%colors.length];
+ctx.fill();
+a+=s;
+});
 }
 
 function loop(){
-    players=[];
-    time=15;
-    spin=false;
-    wheelWrap.style.transition='none';
-    setIntervalTick();
+players=[];time=15;spin=false;
+wheelWrap.style.transition='none';
+tick();
 }
 
-function setIntervalTick(){
-    let t=setInterval(()=>{
-        timer.textContent=time;
-        if(time%3===0 && players.length<5){
-            players.push({name:bots[Math.random()*bots.length|0],bet:Math.random()*50+10|0});
-            draw(); update();
-        }
-        if(--time<=0){
-            clearInterval(t);
-            if(players.length<2) loop();
-            else spinWheel();
-        }
-    },1000);
+function tick(){
+let t=setInterval(()=>{
+timer.textContent=time;
+if(time%3===0&&players.length<5){
+players.push({name:bots[Math.random()*bots.length|0],bet:Math.random()*60+20|0});
+draw();update();
+}
+if(--time<=0){
+clearInterval(t);
+players.length>1?spinWheel():loop();
+}
+},1000);
 }
 
 function spinWheel(){
-    spin=true;
-    let total=players.reduce((s,p)=>s+p.bet,0);
-    let r=Math.random()*total,acc=0,w;
-    for(let p of players){acc+=p.bet;if(r<=acc){w=p;break}}
-    rot+=360*8+(360-(w.mid*180/Math.PI));
-    wheelWrap.style.transition='transform 8s cubic-bezier(.1,0,.1,1)';
-    wheelWrap.style.transform=`rotate(${rot}deg)`;
-    setTimeout(()=>{
-        if(w.me) user.bal+=total;
-        save();
-        loop();
-    },8500);
+spin=true;
+let total=players.reduce((s,p)=>s+p.bet,0);
+let r=Math.random()*total,a=0,w;
+for(let p of players){a+=p.bet;if(r<=a){w=p;break}}
+rot+=360*8+(360-(w.mid*180/Math.PI));
+wheelWrap.style.transition='transform 8s cubic-bezier(.1,0,.1,1)';
+wheelWrap.style.transform=`rotate(${rot}deg)`;
+setTimeout(()=>{
+if(w.me)user.bal+=total;
+user.hist.unshift({w:w.name,b:total});
+if(user.hist.length>20)user.hist.pop();
+save();loop();
+},8500);
 }
 
-function bet(){
-    let v=+betInput.value;
-    if(spin||v<=0||v>user.bal) return;
-    user.bal-=v;
-    players.push({name:'@ВЫ',bet:v,me:true});
-    draw(); save();
+function makeBet(){
+let v=+bet.value;
+if(spin||v<=0||v>user.bal)return;
+user.bal-=v;
+players.push({name:'@ВЫ',bet:v,me:true});
+draw();save();
 }
 
-function fakeDeposit(){
-    let dep=Math.random()*300+50|0;
-    let bonus=dep*0.1;
-    user.refs++;
-    user.earn+=bonus;
-    user.bal+=bonus;
-    alert(`Друг пополнил ${dep} TON\nТвой бонус +${bonus.toFixed(2)} TON`);
-    save();
+function fakeRef(){
+let dep=Math.random()*400+100|0;
+let bonus=dep*0.1;
+user.refs++;
+user.turn+=dep;
+user.earn+=bonus;
+user.bal+=bonus;
+alert(`Реферал пополнил ${dep} TON\nТвой доход +${bonus.toFixed(2)} TON`);
+save();
 }
 
 function openPage(id,el){
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.nav div').forEach(n=>n.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    el.classList.add('active');
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.nav div').forEach(n=>n.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+el.classList.add('active');
 }
 
 function openChat(){
-    window.open('https://t.me/+bRdL2okzUTdiZDVi','_blank');
+window.open('https://t.me/+bRdL2okzUTdiZDVi','_blank');
 }
 
-const playersDiv=document.getElementById('players');
-const betInput=document.getElementById('bet');
-
-save();
-loop();
+const playersBox=document.getElementById('players');
+save();loop();
 </script>
+
 </body>
 </html>
