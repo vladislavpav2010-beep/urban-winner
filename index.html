@@ -3,331 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TON PvP — Ultimate Edition</title>
+    <title>TON PvP Ultimate</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         
         :root {
-            --bg: #050505; --card: #121212; --accent: #ff8c00;
-            --text: #ffffff; --text-sec: #777; --input: #1a1a1a;
+            --bg: #050505; --card: #111111; --accent: #ff8c00;
+            --text: #ffffff; --text-sec: #666; --border: #222;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #1a1a1a; background: #000; }
-        .logo { font-weight: 900; font-size: 20px; color: var(--accent); }
-        .balance-pill { background: rgba(255,140,0,0.1); border: 1px solid var(--accent); padding: 7px 14px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--accent); font-size: 14px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); background: #000; }
+        .balance-pill { background: rgba(255,140,0,0.1); border: 1px solid var(--accent); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--accent); }
 
-        /* NAVIGATION & PAGES */
-        .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 90px; }
+        /* PAGES */
+        .page { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
         .page.active { display: flex; }
 
-        /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #000; border-top: 1px solid #1a1a1a; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sec); cursor: pointer; flex: 1; }
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn svg { width: 20px; height: 20px; }
-        .nav-btn span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
-
-        /* PVP PAGE (WHEEL) */
-        .wheel-container { position: relative; width: 250px; height: 250px; margin: 15px auto; flex-shrink: 0; }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #fff; z-index: 10; filter: drop-shadow(0 0 10px var(--accent)); }
-        .wheel-box { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); border: 4px solid #1a1a1a; }
+        /* GAME */
+        .game-zone { position: relative; width: 280px; height: 280px; margin: 20px auto; flex-shrink: 0; }
+        .wheel-box { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); border: 5px solid var(--border); box-shadow: 0 0 30px rgba(255,140,0,0.1); }
         canvas { width: 100%; height: 100%; }
-        .center-ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; background: #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #1a1a1a; box-shadow: inset 0 0 15px #000; }
-        #timer { font-size: 20px; font-weight: 900; }
-        #status { font-size: 8px; color: var(--text-sec); text-transform: uppercase; }
+        .center-ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid var(--border); }
+        #timer { font-size: 24px; font-weight: 900; color: var(--accent); }
 
-        .bet-bar { padding: 12px 15px; background: var(--card); margin: 0 15px 15px; border-radius: 16px; border: 1px solid #222; display: flex; gap: 8px; }
-        .bet-bar input { flex: 1; background: #000; border: 1px solid #333; border-radius: 10px; padding: 10px; color: #fff; font-weight: 700; outline: none; }
-        .btn-bet { background: var(--accent); color: #000; border: none; padding: 0 18px; border-radius: 10px; font-weight: 900; }
+        .bet-controls { padding: 15px; display: flex; gap: 10px; background: var(--card); margin: 0 15px 15px; border-radius: 15px; border: 1px solid var(--border); }
+        input { flex: 1; background: #000; border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: #fff; font-weight: 700; outline: none; }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 900; cursor: pointer; }
 
-        /* CHAT PAGE */
-        .chat-area { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: var(--card); padding: 10px 14px; border-radius: 14px; font-size: 14px; border-left: 3px solid var(--accent); width: fit-content; max-width: 80%; }
-        .msg b { color: var(--accent); display: block; font-size: 11px; margin-bottom: 2px; }
-        .chat-input { padding: 15px; background: #000; border-top: 1px solid #1a1a1a; display: flex; gap: 8px; }
-        .chat-input input { flex: 1; background: var(--input); border: 1px solid #333; padding: 12px; border-radius: 12px; color: #fff; }
+        /* CHAT */
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+        .messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .msg { background: var(--card); padding: 10px 14px; border-radius: 12px; font-size: 14px; max-width: 85%; border: 1px solid #1a1a1a; }
+        .msg b { color: var(--accent); font-size: 11px; display: block; margin-bottom: 2px; }
 
-        /* HISTORY PAGE */
-        .hist-list { padding: 15px; }
-        .hist-item { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1a1a1a; }
-        .hist-winner { font-weight: 800; font-size: 15px; }
-        .hist-bank { color: var(--accent); font-weight: 900; }
+        /* HISTORY */
+        .history-list { padding: 15px; }
+        .history-item { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; border: 1px solid var(--border); }
+        .h-win { font-weight: 800; color: var(--accent); }
 
-        /* FRIENDS / PROFILE */
-        .p-section { padding: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #222; margin-bottom: 12px; }
-        .ref-link { background: #000; padding: 12px; border-radius: 10px; border: 1px dashed var(--accent); font-size: 12px; color: var(--accent); margin-top: 10px; text-align: center; }
-        .btn-action { width: 100%; background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 12px; margin-top: 10px; font-weight: 700; }
+        /* NAVIGATION */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #000; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: 15px; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn svg { width: 24px; height: 24px; margin-bottom: 4px; }
 
-        .player-item { display: flex; align-items: center; background: var(--card); padding: 10px 15px; margin: 0 15px 5px; border-radius: 12px; border: 1px solid #1a1a1a; }
-        .p-av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #000; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
-        .p-name { flex: 1; font-size: 14px; font-weight: 700; }
-        .p-bet { font-weight: 900; color: var(--accent); }
+        /* PROFILE/FRIENDS */
+        .prof-card { background: var(--card); margin: 15px; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
+        .ref-box { background: #000; padding: 15px; border-radius: 12px; border: 1px dashed var(--accent); margin-top: 15px; text-align: center; color: var(--accent); font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="logo">TON<span>PVP</span></div>
+    <div style="font-weight: 900; font-size: 20px;">TON<span style="color:var(--accent)">PVP</span></div>
     <div class="balance-pill">
-        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" width="16">
-        <span id="top-bal">1000.00</span>
+        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" width="18">
+        <span id="bal-display">1000.00</span>
     </div>
 </div>
 
 <div id="game-page" class="page active">
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <div class="wheel-box" id="wheel">
+    <div class="game-zone">
+        <div class="wheel-box" id="wheel-wrap">
             <canvas id="wheelCanvas" width="800" height="800"></canvas>
         </div>
         <div class="center-ui">
             <div id="timer">00:15</div>
-            <div id="status">Ставки</div>
+            <div style="font-size: 8px; color: #555;">ОЖИДАНИЕ</div>
         </div>
     </div>
-    <div class="bet-bar">
-        <input type="number" id="bet-amt" value="10" min="1">
-        <button class="btn-bet" onclick="placeUserBet()">СТАВКА</button>
+    <div class="bet-controls">
+        <input type="number" id="bet-input" value="10">
+        <button class="btn-main" onclick="makeBet()">СТАВКА</button>
     </div>
-    <div id="player-list"></div>
+    <div id="active-players" style="padding: 0 15px;"></div>
 </div>
 
 <div id="chat-page" class="page">
-    <div class="chat-area" id="chat-box">
-        <div class="msg"><b>Система</b>Добро пожаловать в PvP чат!</div>
-    </div>
-    <div class="chat-input">
-        <input type="text" id="chat-msg" placeholder="Введите сообщение...">
-        <button class="btn-bet" onclick="sendMsg()">></button>
+    <div class="messages" id="chat-msgs"></div>
+    <div class="bet-controls">
+        <input type="text" id="chat-input" placeholder="Сообщение...">
+        <button class="btn-main" onclick="sendChat()">></button>
     </div>
 </div>
 
 <div id="history-page" class="page">
-    <div class="hist-list" id="hist-box">
-        <div style="text-align: center; color: #555; margin-top: 20px;">История пуста</div>
-    </div>
+    <div class="history-list" id="hist-content"></div>
 </div>
 
 <div id="friends-page" class="page">
-    <div class="p-section">
-        <div class="card">
-            <div style="font-size: 13px; color: var(--text-sec);">Твой баланс</div>
-            <div style="font-size: 28px; font-weight: 900; color: var(--accent);" id="prof-bal">1000.00 TON</div>
+    <div class="prof-card">
+        <div style="font-weight: 900; font-size: 18px; color: var(--accent);">РЕФЕРАЛЬНАЯ СИСТЕМА</div>
+        <p style="font-size: 13px; color: var(--text-sec);">Приглашай друзей и получай <b>15%</b> от каждого их пополнения на свой основной баланс!</p>
+        <div class="ref-box" onclick="copyRef()">t.me/tonpvp_bot?start=r_<span id="my-id"></span></div>
+        <button class="btn-main" style="width: 100%; margin-top: 15px; height: 45px;" onclick="addFakeRef()">Симулировать приглашение (+15%)</button>
+    </div>
+    <div class="prof-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="color:var(--text-sec)">Приглашено:</span>
+            <b id="ref-count">0</b>
         </div>
-        <div class="card" style="border-color: var(--accent);">
-            <div style="font-weight: 900; color: var(--accent);">РЕФЕРАЛЫ 15%</div>
-            <div style="font-size: 12px; color: var(--text-sec); margin-top: 5px;">Получай 15% от депозитов друзей моментально!</div>
-            <div class="ref-link">t.me/tonpvp_bot?start=ref<span id="ref-id">00000</span></div>
-            <button class="btn-action" onclick="simulateRef()">Пригласить друга (тест +15%)</button>
-        </div>
-        <div class="card">
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color:var(--text-sec)">Приглашено:</span>
-                <b id="ref-count">0</b>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                <span style="color:var(--text-sec)">Заработано:</span>
-                <b id="ref-earn" style="color:var(--accent)">0.00 TON</b>
-            </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span style="color:var(--text-sec)">Доход:</span>
+            <b style="color:var(--accent)" id="ref-earn">0.00 TON</b>
         </div>
     </div>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-btn active" onclick="nav('game-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4"/></svg>
-        <span>Игра</span>
+    <div class="nav-btn active" onclick="showPage('game-page', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        <span>PVP</span>
     </div>
-    <div class="nav-btn" onclick="nav('chat-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <span>Чат</span>
+    <div class="nav-btn" onclick="showPage('chat-page', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span>ЧАТ</span>
     </div>
-    <div class="nav-btn" onclick="nav('history-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18zm-1 5v5l4.28 2.53.85-1.07-3.13-1.86V8z"/></svg>
-        <span>История</span>
+    <div class="nav-btn" onclick="showPage('history-page', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18z"/></svg>
+        <span>ИСТОРИЯ</span>
     </div>
-    <div class="nav-btn" onclick="nav('friends-page', this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>Друзья</span>
+    <div class="nav-btn" onclick="showPage('friends-page', this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
+        <span>ДРУЗЬЯ</span>
     </div>
 </div>
 
 <script>
-    // DATA CORE
-    let store = {
-        bal: parseFloat(localStorage.getItem('upvp_bal')) || 1000.00,
-        refID: localStorage.getItem('upvp_refid') || Math.floor(Math.random()*99999),
-        refCount: parseInt(localStorage.getItem('upvp_refcount')) || 0,
-        refEarn: parseFloat(localStorage.getItem('upvp_refearn')) || 0,
+    // --- ENGINE & DATA ---
+    let user = {
+        bal: parseFloat(localStorage.getItem('upvp_bal')) || 1000,
+        id: localStorage.getItem('upvp_id') || Math.floor(Math.random()*90000+10000),
+        refs: parseInt(localStorage.getItem('upvp_refs')) || 0,
+        earn: parseFloat(localStorage.getItem('upvp_earn')) || 0,
         history: JSON.parse(localStorage.getItem('upvp_hist')) || []
     };
 
-    let players = [], isSpinning = false, rot = 0, time = 15, timerLoop;
-    const botNames = ['@shark', '@ton_whale', '@king', '@lucky', '@bull', '@rich'];
-    const botMsgs = ['Удачи всем!', 'Ставлю всё!', 'Колесо сегодня щедрое', 'Го некст', 'Надеюсь на вин', 'TON растет 🚀'];
-    const colors = ['#ff8c00', '#d35400', '#ffffff', '#333', '#555'];
-    
+    let players = [], isSpinning = false, rotation = 0, timer = 15;
+    const botNames = ['@crypto_king', '@ton_whale', '@shark', '@richie', '@lucky_one'];
+    const botPhrases = ['Ставлю 50!', 'Колесо, давай!', 'Всем удачи', 'Надеюсь на вин', 'Чат, как дела?'];
+    const colors = ['#ff8c00', '#e67e22', '#d35400', '#ffffff', '#333'];
+
     const canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d');
 
-    function sync() {
-        localStorage.setItem('upvp_bal', store.bal);
-        localStorage.setItem('upvp_refid', store.refID);
-        localStorage.setItem('upvp_refcount', store.refCount);
-        localStorage.setItem('upvp_refearn', store.refEarn);
-        localStorage.setItem('upvp_hist', JSON.stringify(store.history));
-
-        document.getElementById('top-bal').textContent = store.bal.toFixed(2);
-        document.getElementById('prof-bal').textContent = store.bal.toFixed(2) + ' TON';
-        document.getElementById('ref-id').textContent = store.refID;
-        document.getElementById('ref-count').textContent = store.refCount;
-        document.getElementById('ref-earn').textContent = store.refEarn.toFixed(2) + ' TON';
-
-        renderPlayers(); renderHistory();
+    function save() {
+        localStorage.setItem('upvp_bal', user.bal);
+        localStorage.setItem('upvp_id', user.id);
+        localStorage.setItem('upvp_refs', user.refs);
+        localStorage.setItem('upvp_earn', user.earn);
+        localStorage.setItem('upvp_hist', JSON.stringify(user.history));
+        updateUI();
     }
 
-    // WHEEL ENGINE
-    function draw() {
+    function updateUI() {
+        document.getElementById('bal-display').textContent = user.bal.toFixed(2);
+        document.getElementById('prof-bal').textContent = user.bal.toFixed(2) + ' TON';
+        document.getElementById('my-id').textContent = user.id;
+        document.getElementById('ref-count').textContent = user.refs;
+        document.getElementById('ref-earn').textContent = user.earn.toFixed(2) + ' TON';
+        
+        // Render Active Players
+        const total = players.reduce((s, p) => s + p.bet, 0);
+        document.getElementById('active-players').innerHTML = players.map(p => `
+            <div style="display:flex; justify-content:space-between; background:var(--card); padding:10px; border-radius:10px; margin-bottom:5px; border:1px solid #1a1a1a;">
+                <b>${p.name}</b>
+                <span style="color:var(--accent)">${p.bet} TON</span>
+            </div>
+        `).join('');
+
+        // Render History
+        document.getElementById('hist-content').innerHTML = user.history.map(h => `
+            <div class="history-item">
+                <div><b>${h.winner}</b><br><small style="color:#555">Банк: ${h.bank} TON</small></div>
+                <div class="h-win">x${h.mult}</div>
+            </div>
+        `).join('');
+    }
+
+    // --- WHEEL LOGIC ---
+    function drawWheel() {
         const r = canvas.width / 2;
         ctx.clearRect(0,0,800,800);
         if(!players.length) { ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#111"; ctx.fill(); return; }
         
-        let total = players.reduce((s,p)=>s+p.bet, 0);
-        let start = 0;
-        players.forEach(p => {
-            p.chance = p.bet / total;
-            p.startA = start;
-            p.endA = start + (p.chance * Math.PI * 2);
-            start = p.endA;
-
-            ctx.save();
-            ctx.translate(r,r); ctx.rotate(-Math.PI/2);
-            ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r, p.startA, p.endA);
-            ctx.fillStyle = p.color; ctx.fill();
-            ctx.strokeStyle="#000"; ctx.lineWidth=4; ctx.stroke();
-            
-            // Icon
-            const mid = p.startA + (p.endA-p.startA)/2;
-            ctx.rotate(mid); ctx.translate(r*0.75, 0); ctx.rotate(Math.PI/2 - mid);
-            ctx.beginPath(); ctx.arc(0,0,35,0,Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
-            ctx.fillStyle="#000"; ctx.font="900 35px Inter"; ctx.textAlign="center"; ctx.textBaseline="middle";
-            ctx.fillText(p.name[1].toUpperCase(),0,2);
-            ctx.restore();
+        let start = 0, total = players.reduce((s,p)=>s+p.bet, 0);
+        players.forEach((p, i) => {
+            const slice = (p.bet / total) * Math.PI * 2;
+            p.startA = start; p.endA = start + slice;
+            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r, start, start + slice);
+            ctx.fillStyle = colors[i % colors.length]; ctx.fill();
+            ctx.strokeStyle = "#000"; ctx.lineWidth = 4; ctx.stroke();
+            start += slice;
         });
     }
 
-    function renderPlayers() {
-        document.getElementById('player-list').innerHTML = players.sort((a,b)=>b.bet-a.bet).map(p => `
-            <div class="player-item">
-                <div class="p-av" style="background:${p.color}">${p.name[1].toUpperCase()}</div>
-                <div class="p-name">${p.name} ${p.isMe?'(ВЫ)':''}</div>
-                <div class="p-bet">${p.bet.toFixed(2)}</div>
-            </div>
-        `).join('');
-    }
-
-    function renderHistory() {
-        const box = document.getElementById('hist-box');
-        if(!store.history.length) return;
-        box.innerHTML = store.history.map(h => `
-            <div class="hist-item">
-                <div>
-                    <div class="hist-winner">${h.name}</div>
-                    <div style="font-size:10px; color:#555">Шанс: ${h.chance}%</div>
-                </div>
-                <div class="hist-bank">+${h.bank.toFixed(2)} TON</div>
-            </div>
-        `).join('');
-    }
-
-    function placeUserBet() {
-        const amt = parseFloat(document.getElementById('bet-amt').value);
-        if(isSpinning || amt > store.bal || amt <= 0) return;
-        store.bal -= amt;
-        let me = players.find(p=>p.isMe);
-        if(me) me.bet += amt; else players.push({name:'@ТЫ', bet:amt, color:'#ff8c00', isMe:true});
-        sync(); draw();
-    }
-
-    function startNewRound() {
-        players = []; isSpinning = false; time = 15;
-        document.getElementById('status').textContent = "Ставки";
-        document.getElementById('wheel').style.transition = 'none';
-        rot %= 360; document.getElementById('wheel').style.transform = `rotate(${rot}deg)`;
-        sync(); draw();
-
-        timerLoop = setInterval(() => {
-            time--;
-            document.getElementById('timer').textContent = `00:${time<10?'0'+time:time}`;
-            if(time % 3 === 0 && players.length < 8) {
-                players.push({name: botNames[Math.floor(Math.random()*botNames.length)], bet: Math.random()*50+5, color: colors[Math.floor(Math.random()*colors.length)], isMe:false});
-                if(Math.random() > 0.5) addChatMsg(botNames[Math.floor(Math.random()*botNames.length)], botMsgs[Math.floor(Math.random()*botMsgs.length)]);
-                sync(); draw();
+    function gameLoop() {
+        players = []; timer = 15; isSpinning = false;
+        document.getElementById('wheel-wrap').style.transition = 'none';
+        rotation %= 360; document.getElementById('wheel-wrap').style.transform = `rotate(${rotation}deg)`;
+        
+        const itv = setInterval(() => {
+            timer--;
+            document.getElementById('timer').textContent = `00:${timer < 10 ? '0'+timer : timer}`;
+            
+            if(timer % 3 === 0 && players.length < 6) {
+                players.push({name: botNames[Math.floor(Math.random()*botNames.length)], bet: Math.floor(Math.random()*50+10)});
+                if(Math.random() > 0.5) addMsg(botNames[Math.floor(Math.random()*botNames.length)], botPhrases[Math.floor(Math.random()*botPhrases.length)]);
+                drawWheel(); updateUI();
             }
-            if(time <= 0) { clearInterval(timerLoop); if(players.length < 2) startNewRound(); else spin(); }
+
+            if(timer <= 0) {
+                clearInterval(itv);
+                if(players.length < 2) gameLoop(); else spin();
+            }
         }, 1000);
     }
 
     function spin() {
         isSpinning = true;
-        document.getElementById('status').textContent = "Играем";
         const total = players.reduce((s,p)=>s+p.bet, 0);
-        const winPoint = Math.random() * total;
+        const rand = Math.random() * total;
         let acc = 0, winner = players[0];
-        for(let p of players) { acc += p.bet; if(winPoint <= acc) { winner = p; break; } }
+        for(let p of players) {
+            acc += p.bet;
+            if(rand <= acc) { winner = p; break; }
+        }
 
-        const winMid = ((winner.startA + winner.endA)/2) * (180/Math.PI);
-        rot += (360*10) + (360 - winMid);
-        document.getElementById('wheel').style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
-        document.getElementById('wheel').style.transform = `rotate(${rot}deg)`;
+        const mid = ((winner.startA + winner.endA)/2) * (180/Math.PI);
+        rotation += (360*10) + (360 - mid);
+        const ww = document.getElementById('wheel-wrap');
+        ww.style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
+        ww.style.transform = `rotate(${rotation}deg)`;
 
         setTimeout(() => {
-            if(winner.isMe) { store.bal += total; }
-            store.history.unshift({name: winner.name, bank: total, chance: (winner.chance*100).toFixed(1)});
-            if(store.history.length > 20) store.history.pop();
-            sync();
-            setTimeout(startNewRound, 4000);
+            if(winner.isMe) user.bal += total;
+            user.history.unshift({winner: winner.name, bank: total, mult: (total/(winner.bet||1)).toFixed(1)});
+            if(user.history.length > 15) user.history.pop();
+            save();
+            setTimeout(gameLoop, 4000);
         }, 8500);
     }
 
-    // CHAT & REF LOGIC
-    function addChatMsg(name, text) {
-        const box = document.getElementById('chat-box');
+    // --- ACTIONS ---
+    function makeBet() {
+        const val = parseFloat(document.getElementById('bet-input').value);
+        if(isSpinning || val > user.bal || val <= 0) return;
+        user.bal -= val;
+        players.push({name: '@ВЫ', bet: val, isMe: true});
+        save(); drawWheel();
+    }
+
+    function addMsg(name, txt) {
+        const box = document.getElementById('chat-msgs');
         const m = document.createElement('div');
         m.className = 'msg';
-        m.innerHTML = `<b>${name}</b>${text}`;
+        m.innerHTML = `<b>${name}</b>${txt}`;
         box.appendChild(m);
         box.scrollTop = box.scrollHeight;
     }
 
-    function sendMsg() {
-        const inp = document.getElementById('chat-msg');
-        if(!inp.value.trim()) return;
-        addChatMsg('@ТЫ', inp.value);
-        inp.value = '';
+    function sendChat() {
+        const i = document.getElementById('chat-input');
+        if(!i.value) return;
+        addMsg('@ВЫ', i.value);
+        i.value = '';
     }
 
-    function simulateRef() {
+    function addFakeRef() {
         const bonus = 7.5;
-        store.bal += bonus; store.refEarn += bonus; store.refCount++;
-        alert(`🎉 Реферал пополнил баланс! Бонус +${bonus} TON начислен.`);
-        sync();
+        user.bal += bonus; user.earn += bonus; user.refs++;
+        alert("Новый реферал! Зачислено +15% (7.50 TON)");
+        save();
     }
 
-    function nav(id, btn) {
-        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    function showPage(id, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         btn.classList.add('active');
     }
 
-    startNewRound();
+    function copyRef() { alert("Ссылка скопирована!"); }
+
+    gameLoop();
 </script>
 </body>
 </html>
-
-        
