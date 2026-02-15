@@ -1,206 +1,291 @@
-<script>
-/* ================== НАСТРОЙКИ ================== */
-let user = { bal: 5.0 };
-let players = [];
-let time = 15;
-let rot = 0;
-let isSpin = false;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TON PVP & CASES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #111111;
+            --accent: #ff8c00;
+            --ton: #0088cc;
+            --border: rgba(255, 255, 255, 0.08);
+            --muted: #8e8e93;
+        }
 
-/* ================== КЕЙС ПРИЗЫ ================== */
-const caseItems = [
-    {
-        name: 'TON x1',
-        img: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',
-        color: '#0088cc'
-    },
-    {
-        name: 'TON x2',
-        img: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-        color: '#30d158'
-    },
-    {
-        name: 'TON x5',
-        img: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
-        color: '#ff8c00'
-    },
-    {
-        name: 'JACKPOT',
-        img: 'https://cdn-icons-png.flaticon.com/512/2721/2721296.png',
-        color: '#ff3b30'
-    }
-];
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-/* ================== БОТЫ ================== */
-const botPool = [
-    { name: '@Pepe', bet: 0, color: '#30d158', img: caseItems[0].img },
-    { name: '@Whale', bet: 0, color: '#0088cc', img: caseItems[1].img },
-    { name: '@Duck', bet: 0, color: '#ffd60a', img: caseItems[2].img }
-];
+        /* HEADER */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .logo { font-weight: 900; font-size: 22px; letter-spacing: -1px; }
+        .logo span { color: var(--accent); }
+        .bal-pill { background: #1a1a1a; padding: 8px 14px; border-radius: 100px; display: flex; align-items: center; gap: 8px; font-weight: 900; border: 1px solid var(--border); }
 
-/* ================== CANVAS ================== */
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+        /* NAVIGATION */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #050505; display: flex; border-top: 1px solid var(--border); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #444; text-transform: uppercase; cursor: pointer; }
+        .nav-item.active { color: #fff; }
+        .nav-item img { width: 24px; height: 24px; margin-bottom: 4px; opacity: 0.3; }
+        .nav-item.active img { opacity: 1; filter: drop-shadow(0 0 8px var(--accent)); }
 
-/* ================== UI ================== */
-function updateUI() {
-    document.getElementById('h-bal').textContent = user.bal.toFixed(2);
+        /* PAGES */
+        .page { flex: 1; display: none; overflow-y: auto; padding: 10px 16px 100px; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    document.getElementById('p-list').innerHTML = players.map(p => `
-        <div class="p-row">
-            <div class="p-info">
-                <img src="${p.img}" class="p-img" style="border-color:${p.color}">
-                <div>
-                    <b>${p.name}</b><br>
-                    <small style="color:var(--accent); font-weight:900;">
-                        ${((p.bet / total) * 100 || 0).toFixed(1)}%
-                    </small>
-                </div>
+        /* PVP WHEEL (LARGE) */
+        .wheel-box { position: relative; width: 90vw; height: 90vw; max-width: 360px; max-height: 360px; margin: 10px auto 25px; }
+        #canvas { width: 100%; height: 100%; filter: drop-shadow(0 0 30px rgba(255,140,0,0.15)); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; }
+        .timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; background: #000; border-radius: 50%; border: 4px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; }
+
+        /* INPUTS & BUTTONS */
+        .bet-row { display: flex; background: var(--card); border-radius: 20px; padding: 6px; border: 1px solid var(--border); gap: 10px; }
+        .bet-row input { background: none; border: none; color: #fff; font-size: 18px; font-weight: 900; padding: 10px; width: 100%; text-align: center; }
+        .btn-orange { background: var(--accent); color: #000; border: none; padding: 0 30px; border-radius: 16px; font-weight: 900; font-size: 16px; cursor: pointer; }
+
+        /* CHAT STYLE */
+        .chat-area { display: flex; flex-direction: column; height: 100%; gap: 10px; }
+        .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .msg-bubble { background: #161618; padding: 10px 14px; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid var(--border); max-width: 85%; }
+        .msg-user { color: var(--accent); font-weight: 800; font-size: 12px; margin-bottom: 2px; display: block; }
+        .msg-sys { background: rgba(0, 136, 204, 0.1); color: #00aaff; width: 100%; text-align: center; padding: 8px; font-size: 12px; font-weight: 700; border-radius: 12px; border: 1px solid rgba(0, 136, 204, 0.2); }
+        .mini-ton { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+        /* CASES (FROM VIDEO) */
+        .case-card { background: radial-gradient(circle at center, #1c1c1e 0%, #0b0b0c 100%); border-radius: 24px; padding: 25px; text-align: center; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .btn-case { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; font-size: 15px; margin-bottom: 10px; cursor: pointer; }
+        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .item-box { background: var(--card); border-radius: 20px; padding: 15px; text-align: center; border: 1px solid var(--border); position: relative; }
+        .item-box img { width: 64px; height: 64px; margin-bottom: 8px; }
+        .item-name { font-size: 12px; color: var(--muted); font-weight: 600; }
+        .item-val { font-size: 13px; font-weight: 800; margin-top: 4px; }
+
+        /* PLAYER LIST */
+        .p-card { background: var(--card); border-radius: 20px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid var(--border); }
+        .p-info { display: flex; align-items: center; gap: 12px; }
+        .p-img { width: 44px; height: 44px; border-radius: 12px; border: 2px solid #333; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">TON<span>PVP</span></div>
+    <div class="bal-pill">
+        <span id="h-bal">0.00</span>
+        <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" style="width:18px;">
+    </div>
+</div>
+
+<div id="game" class="page active">
+    <div class="wheel-box">
+        <div class="pointer"></div>
+        <div id="wWrap"><canvas id="canvas" width="800" height="800"></canvas></div>
+        <div class="timer-center" id="timer">15</div>
+    </div>
+
+    <div class="bet-row">
+        <input type="number" id="bet-val" value="1.0">
+        <button class="btn-orange" onclick="makeBet()">BET</button>
+    </div>
+
+    <h3 style="margin: 25px 0 10px; font-size: 12px; color: var(--muted); font-weight: 900; letter-spacing: 1px;">ИГРОКИ В РАУНДЕ</h3>
+    <div id="p-list"></div>
+</div>
+
+<div id="chat" class="page">
+    <div class="chat-area">
+        <div class="messages" id="chat-box">
+            <div class="msg-sys">
+                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" class="mini-ton"> 
+                Добро пожаловать в чат TONPVP!
             </div>
-            <b>${p.bet.toFixed(2)} TON</b>
+            <div class="msg-bubble">
+                <span class="msg-user">@PepeLord</span>
+                Кто готов проиграть свои TON? Ха-ха! 🐸
+            </div>
         </div>
-    `).join('');
-}
+        <div class="bet-row" style="margin-top:10px;">
+            <input type="text" placeholder="Введите сообщение..." style="text-align:left; padding-left:15px;">
+            <button class="btn-orange" style="padding:0 20px;">></button>
+        </div>
+    </div>
+</div>
 
-/* ================== ОТРИСОВКА КЕЙСА ================== */
-function draw() {
-    const r = 400;
-    ctx.clearRect(0, 0, 800, 800);
+<div id="cases" class="page">
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <h2 style="font-weight:900; font-size:20px;">Кейсы за Билеты</h2>
+        <span style="color:var(--muted); font-size:12px;">Свернуть ▲</span>
+    </div>
 
-    if (!players.length) {
-        ctx.beginPath();
-        ctx.arc(r, r, r, 0, Math.PI * 2);
-        ctx.fillStyle = '#161618';
-        ctx.fill();
-        return;
-    }
+    <div class="case-card">
+        <h3 style="font-weight:900; margin-bottom:15px; color:var(--accent);">Стартовый</h3>
+        <img src="https://img.icons8.com/plasticine/400/box.png" style="width:180px; margin-bottom:20px;">
+        <button class="btn-case" style="background:#ff2d55; color:#fff;">Не хватает 🎫 15</button>
+        <button class="btn-case" style="background:#34c759; color:#fff;">Пригласить друзей</button>
+        <button class="btn-case" style="background:#2c2c2e; color:#fff;">Демо</button>
+    </div>
 
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    let start = 0;
+    <div style="margin-top:25px; display:flex; align-items:center; gap:8px;">
+        <img src="https://img.icons8.com/fluency/48/gift.png" style="width:20px;">
+        <h3 style="font-size:16px; font-weight:900;">Что в кейсе?</h3>
+    </div>
 
-    players.forEach((p, i) => {
-        const slice = (p.bet / total) * Math.PI * 2;
-        const mid = start + slice / 2;
-        p.mid = mid;
+    <div class="case-grid">
+        <div class="item-box">
+            <img src="https://img.icons8.com/external-flatart-icons-flat-flatarticons/128/external-calendar-birthday-party-flatart-icons-flat-flatarticons.png">
+            <div class="item-name">Desk Calendar</div>
+            <div class="item-val">💎 6.8 / ⭐ 680</div>
+        </div>
+        <div class="item-box">
+            <img src="https://img.icons8.com/fluency/128/diamond.png">
+            <div class="item-name">Diamond</div>
+            <div class="item-val">💎 1 / ⭐ 100</div>
+        </div>
+        <div class="item-box">
+            <img src="https://img.icons8.com/external-flatart-icons-flat-flatarticons/128/external-cup-winner-flatart-icons-flat-flatarticons.png">
+            <div class="item-name">Cup</div>
+            <div class="item-val">💎 1 / ⭐ 100</div>
+        </div>
+        <div class="item-box">
+            <img src="https://img.icons8.com/external-flatart-icons-flat-flatarticons/128/external-ring-love-flatart-icons-flat-flatarticons.png">
+            <div class="item-name">Ring</div>
+            <div class="item-val">💎 1 / ⭐ 100</div>
+        </div>
+    </div>
+</div>
 
-        ctx.beginPath();
-        ctx.moveTo(r, r);
-        ctx.arc(r, r, r, start, start + slice);
-        ctx.fillStyle = p.color;
-        ctx.fill();
+<div id="profile" class="page">
+    <div style="background:var(--card); border-radius:24px; padding:30px; text-align:center; border:1px solid var(--border);">
+        <img src="https://ui-avatars.com/api/?name=V&background=ff8c00&color=000&size=128" style="width:100px; border-radius:30px; margin-bottom:15px; border:4px solid #000;">
+        <h2 style="font-weight:900;">Владислав</h2>
+        <div style="color:var(--accent); font-weight:800; margin-top:5px;">ID: 78908</div>
+    </div>
 
-        const img = new Image();
-        img.src = p.img;
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px;">
+        <div style="background:var(--card); padding:15px; border-radius:20px; border:1px solid var(--border);">
+            <small style="color:var(--muted); font-weight:900; font-size:10px;">BALANCE</small>
+            <div style="font-size:18px; font-weight:900; color:#fff;">0.00 TON</div>
+        </div>
+        <div style="background:var(--card); padding:15px; border-radius:20px; border:1px solid var(--border);">
+            <small style="color:var(--muted); font-weight:900; font-size:10px;">TICKETS</small>
+            <div style="font-size:18px; font-weight:900; color:#fff;">12 🎫</div>
+        </div>
+    </div>
+</div>
 
-        img.onload = () => {
-            ctx.save();
-            ctx.translate(
-                r + Math.cos(mid) * 230,
-                r + Math.sin(mid) * 230
-            );
-            ctx.rotate(mid);
-            ctx.drawImage(img, -32, -32, 64, 64);
-            ctx.restore();
-        };
+<div class="nav">
+    <div class="nav-item active" onclick="nav('game', this)">
+        <img src="https://img.icons8.com/fluency-systems-filled/48/ffffff/controller.png">
+        ПВП
+    </div>
+    <div class="nav-item" onclick="nav('cases', this)">
+        <img src="https://img.icons8.com/fluency-systems-filled/48/ffffff/briefcase.png">
+        КЕЙСЫ
+    </div>
+    <div class="nav-item" onclick="nav('chat', this)">
+        <img src="https://img.icons8.com/fluency-systems-filled/48/ffffff/chat.png">
+        ЧАТ
+    </div>
+    <div class="nav-item" onclick="nav('profile', this)">
+        <img src="https://img.icons8.com/fluency-systems-filled/48/ffffff/user-male-circle.png">
+        АККАУНТ
+    </div>
+</div>
 
-        start += slice;
-    });
-}
+<script>
+    let user = { bal: 15.0 };
+    let players = [], time = 15, rot = 0, isSpin = false;
+    
+    const bots = [
+        { name: '@Pepe', img: 'https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Frog.png', color: '#30d158' },
+        { name: '@Whale', img: 'https://img.icons8.com/color/96/whale.png', color: '#0088cc' },
+        { name: '@Richy', img: 'https://img.icons8.com/color/96/shiba-inu.png', color: '#ff9f0a' }
+    ];
 
-/* ================== ИГРОВОЙ ЦИКЛ ================== */
-function gameLoop() {
-    players = [];
-    time = 15;
-    isSpin = false;
+    const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
 
-    const wrap = document.getElementById('wWrap');
-    wrap.style.transition = 'none';
-    rot %= 360;
-    wrap.style.transform = `rotate(${rot}deg)`;
-
-    draw();
-    updateUI();
-
-    const t = setInterval(() => {
-        document.getElementById('timer').textContent = time;
-
-        if (time % 5 === 0 && players.length < 3) {
-            const bot = botPool[players.length];
-            bot.bet = Math.random() * 3 + 1;
-            players.push({ ...bot });
-            draw();
-            updateUI();
-        }
-
-        if (--time < 0) {
-            clearInterval(t);
-            players.length > 1 ? spin() : gameLoop();
-        }
-    }, 1000);
-}
-
-/* ================== СПИН ================== */
-function spin() {
-    isSpin = true;
-
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    let rand = Math.random() * total;
-    let acc = 0;
-    let win;
-
-    for (let p of players) {
-        acc += p.bet;
-        if (rand <= acc) {
-            win = p;
-            break;
-        }
-    }
-
-    rot += 360 * 6 + (360 - (win.mid * 180 / Math.PI));
-    const wrap = document.getElementById('wWrap');
-    wrap.style.transition = 'transform 7s cubic-bezier(0.1,0,0.1,1)';
-    wrap.style.transform = `rotate(${rot}deg)`;
-
-    setTimeout(() => {
-        const chat = document.getElementById('chat-box');
-        chat.innerHTML += `
-            <div class="m-sys">
-                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" class="mini-ton">
-                Выпал кейс: <b>${win.name}</b> — ${total.toFixed(2)} TON
+    function updateUI() {
+        document.getElementById('h-bal').textContent = user.bal.toFixed(2);
+        const total = players.reduce((s,p)=>s+p.bet, 0);
+        document.getElementById('p-list').innerHTML = players.map(p => `
+            <div class="p-card">
+                <div class="p-info">
+                    <img src="${p.img}" class="p-img" style="border-color:${p.color}">
+                    <div>
+                        <b style="font-size:14px;">${p.name}</b><br>
+                        <small style="color:var(--accent); font-weight:900;">${((p.bet/total)*100 || 0).toFixed(1)}%</small>
+                    </div>
+                </div>
+                <b style="font-size:16px;">${p.bet.toFixed(2)} TON</b>
             </div>
-        `;
-        chat.scrollTop = chat.scrollHeight;
+        `).join('');
+    }
 
-        if (win.name === '@Вы') user.bal += total;
-        setTimeout(gameLoop, 3000);
-    }, 7500);
-}
+    function draw() {
+        const r = 400; ctx.clearRect(0,0,800,800);
+        if(!players.length) { ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#161618"; ctx.fill(); return; }
+        let total = players.reduce((s,p)=>s+p.bet, 0), start = 0;
+        players.forEach(p => {
+            const slice = (p.bet/total)*Math.PI*2;
+            p.mid = start + slice/2;
+            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r,start,start+slice);
+            ctx.fillStyle = p.color; ctx.fill();
+            start += slice;
+        });
+    }
 
-/* ================== СТАВКА ================== */
-function makeBet() {
-    const v = parseFloat(document.getElementById('bet-val').value);
-    if (isSpin || v <= 0 || v > user.bal) return;
+    function gameLoop() {
+        players = []; time = 15; isSpin = false;
+        document.getElementById('wWrap').style.transition = 'none';
+        rot %= 360; document.getElementById('wWrap').style.transform = `rotate(${rot}deg)`;
+        draw(); updateUI();
+        const t = setInterval(() => {
+            document.getElementById('timer').textContent = time;
+            if(time % 5 === 0 && players.length < 3) {
+                players.push({ ...bots[players.length], bet: Math.random() * 3 + 1 });
+                draw(); updateUI();
+            }
+            if(--time < 0) { clearInterval(t); players.length > 1 ? spin() : gameLoop(); }
+        }, 1000);
+    }
 
-    user.bal -= v;
-    players.push({
-        name: '@Вы',
-        bet: v,
-        color: '#ff8c00',
-        img: caseItems[Math.floor(Math.random() * caseItems.length)].img
-    });
+    function spin() {
+        isSpin = true;
+        let total = players.reduce((s,p)=>s+p.bet,0), rand = Math.random()*total, acc=0, win;
+        for(let p of players) { acc += p.bet; if(rand <= acc) { win = p; break; } }
+        rot += (360*6) + (360 - (win.mid*180/Math.PI));
+        document.getElementById('wWrap').style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
+        document.getElementById('wWrap').style.transform = `rotate(${rot}deg)`;
+        
+        setTimeout(() => {
+            const cb = document.getElementById('chat-box');
+            cb.innerHTML += `<div class="msg-sys"><img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" class="mini-ton">Победил ${win.name}! Выигрыш: ${total.toFixed(2)} TON</div>`;
+            cb.scrollTop = cb.scrollHeight;
+            if(win.name === '@Вы') user.bal += total;
+            setTimeout(gameLoop, 3000);
+        }, 7500);
+    }
 
-    draw();
-    updateUI();
-}
+    function makeBet() {
+        let v = parseFloat(document.getElementById('bet-val').value);
+        if(isSpin || v <= 0 || v > user.bal) return;
+        user.bal -= v;
+        players.push({ name: '@Вы', bet: v, color: '#ff8c00', img: 'https://ui-avatars.com/api/?name=ME&background=ff8c00&color=000' });
+        draw(); updateUI();
+    }
 
-/* ================== НАВИГАЦИЯ ================== */
-function nav(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    el.classList.add('active');
-}
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
 
-/* ================== START ================== */
-gameLoop();
+    gameLoop();
 </script>
+</body>
+</html>
