@@ -1,206 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TON PVP — Cases & Promo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --card: #111111;
+            --card-border: #222;
+            --accent: #ff8c00;
+            --text: #ffffff;
+            --muted: #777;
+            --blue: #0098ea;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER */
+        .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--card-border); backdrop-filter: blur(10px); z-index: 100; }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: -1px; }
+        .logo span { color: var(--accent); }
+        .balance-pill { background: #1a1a1a; border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 14px; font-weight: 900; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+
+        /* PAGES */
+        .page { flex: 1; display: none; overflow-y: auto; padding-bottom: 100px; animation: fadeIn 0.2s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* WHEEL (PVP) */
+        .wheel-container { position: relative; width: 300px; height: 300px; margin: 30px auto; }
+        #wheelWrap { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); border: 8px solid #111; box-shadow: 0 0 30px rgba(255,140,0,0.1); }
+        canvas { width: 100%; height: 100%; border-radius: 50%; }
+        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border-radius: 50%; background: #000; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; z-index: 10; font-weight: 900; }
+
+        /* CASE PAGE */
+        .case-card { background: var(--card); border: 1px solid var(--card-border); margin: 20px; border-radius: 24px; padding: 30px 20px; text-align: center; }
+        .case-img { width: 140px; height: 140px; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+        .case-title { font-size: 24px; font-weight: 900; margin-bottom: 5px; }
+        .case-price { color: var(--accent); font-weight: 800; font-size: 16px; margin-bottom: 25px; }
+        .btn-open { background: var(--accent); color: #000; border: none; padding: 18px; width: 100%; border-radius: 16px; font-weight: 900; font-size: 16px; cursor: pointer; }
+        .btn-open:disabled { background: #222; color: #555; }
+
+        /* TICKETS DISPLAY */
+        .tickets-bar { background: rgba(255,140,0,0.1); padding: 12px; margin: 0 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 14px; }
+
+        /* PROMO SECTION */
+        .section-title { padding: 20px 20px 10px; font-weight: 900; font-size: 14px; color: var(--muted); text-transform: uppercase; }
+        .promo-row { display: flex; gap: 8px; padding: 0 20px 10px; }
+        .promo-row input { flex: 1; background: var(--card); border: 1px solid var(--card-border); padding: 14px; border-radius: 12px; color: #fff; font-weight: 700; }
+        .btn-promo { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 12px; font-weight: 800; }
+
+        /* PROFILE */
+        .profile-hero { padding: 30px 20px; text-align: center; }
+        .avatar { width: 80px; height: 80px; background: var(--accent); border-radius: 25px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #000; font-weight: 900; }
+        .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px; }
+        .inv-item { background: var(--card); border: 1px solid var(--card-border); aspect-ratio: 1; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
+        /* NAV */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #0a0a0a; border-top: 1px solid var(--card-border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; font-weight: 800; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">TON<span>PVP</span></div>
+    <div class="balance-pill"><span id="bal-top">0.00</span> TON</div>
+</div>
+
+<div id="game" class="page active">
+    <div class="wheel-container">
+        <div id="wheelWrap"><canvas id="canvas" width="800" height="800"></canvas></div>
+        <div class="center-hub" id="timer">15</div>
+    </div>
+    <div style="padding: 0 20px;">
+        <input type="number" id="bet-input" value="10" style="width:100%; padding:15px; background:#111; border:1px solid #222; border-radius:12px; color:#fff; font-weight:800; margin-bottom:10px;">
+        <button onclick="makeBet()" style="width:100%; padding:15px; background:var(--accent); border:none; border-radius:12px; font-weight:900;">ПОСТАВИТЬ</button>
+    </div>
+    <div id="players-list" style="padding: 20px;"></div>
+</div>
+
+<div id="cases" class="page">
+    <div class="section-title">Магазин кейсов</div>
+    <div class="tickets-bar">
+        <span>Ваши билеты:</span>
+        <span id="ticket-count" style="color:var(--accent)">0 🎫</span>
+    </div>
+
+    <div class="case-card">
+        <div class="case-img">📦</div>
+        <div class="case-title">КЕЙС БОМЖА</div>
+        <div class="case-price">Цена: 15 Билетов</div>
+        <button class="btn-open" id="btn-open-case" onclick="openCase()">ОТКРЫТЬ</button>
+    </div>
+    
+    <div style="text-align: center; color: var(--muted); font-size: 12px; padding: 0 40px;">
+        Выпадение: 0.01, 0.03, 0.05, 0.1 или 0.2 TON
+    </div>
+</div>
+
+<div id="history" class="page">
+    <div class="section-title">История игр</div>
+    <div id="hist-list" style="padding: 0 20px;"></div>
+</div>
+
+<div id="profile" class="page">
+    <div class="profile-hero">
+        <div class="avatar">Я</div>
+        <h2 id="u-id">ID: 00000</h2>
+        <p id="u-bal" style="color: var(--muted); margin-top: 5px;">0.00 TON</p>
+    </div>
+
+    <div class="section-title">Промокоды</div>
+    
+    <div id="promo-create-area">
+        <div class="promo-row">
+            <input type="text" id="promo-gen" placeholder="Создать свой код...">
+            <button class="btn-promo" onclick="createPromo()">ОК</button>
+        </div>
+    </div>
+    <div id="my-promo-display" style="display:none; padding: 0 20px 15px;">
+        <div style="background:#111; padding:15px; border-radius:12px; border:1px dashed var(--accent); text-align:center;">
+            <span style="font-size:12px; color:var(--muted)">ВАШ КОД:</span><br>
+            <b id="my-promo-name" style="font-size:20px; color:var(--accent)">---</b>
+            <button onclick="simulateFriend()" style="display:block; width:100%; margin-top:10px; background:none; border:1px solid #333; color:#555; font-size:10px; padding:5px; border-radius:5px;">Симуляция: Друг ввел код (+1 билет)</button>
+        </div>
+    </div>
+
+    <div class="promo-row">
+        <input type="text" id="promo-use" placeholder="Активировать чужой...">
+        <button class="btn-promo" onclick="activatePromo()" style="background:var(--accent)">ВВЕСТИ</button>
+    </div>
+
+    <div class="section-title">Инвентарь</div>
+    <div class="inv-grid" id="inv-grid">
+        <div class="inv-item">🔒</div>
+        <div class="inv-item">🔒</div>
+        <div class="inv-item">🔒</div>
+    </div>
+    
+    <button onclick="logout()" style="width:calc(100% - 40px); margin: 30px 20px; padding:15px; background:none; border:1px solid #ff4444; color:#ff4444; border-radius:12px; font-weight:800;">ВЫЙТИ ИЗ АККАУНТА</button>
+</div>
+
+<div class="nav">
+    <div class="nav-item active" onclick="nav('game',this)">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        PVP
+    </div>
+    <div class="nav-item" onclick="nav('cases',this)">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+        КЕЙСЫ
+    </div>
+    <div class="nav-item" onclick="nav('history',this)">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18zm-1 5v5l4.28 2.53.85-1.07-3.13-1.86V8z"/></svg>
+        ИСТОРИЯ
+    </div>
+    <div class="nav-item" onclick="nav('profile',this)">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        АККАУНТ
+    </div>
+</div>
+
 <script>
-/* ================== НАСТРОЙКИ ================== */
-let user = { bal: 5.0 };
-let players = [];
-let time = 15;
-let rot = 0;
-let isSpin = false;
+    // DATA
+    let user = {
+        bal: parseFloat(localStorage.bal) || 1000.0,
+        id: localStorage.id || Math.floor(10000 + Math.random() * 90000),
+        tickets: parseInt(localStorage.tickets) || 0,
+        myPromo: localStorage.myPromo || '',
+        usedPromo: localStorage.usedPromo === 'true', // Активировал ли ЧУЖОЙ код
+        hist: JSON.parse(localStorage.hist || '[]')
+    };
 
-/* ================== КЕЙС ПРИЗЫ ================== */
-const caseItems = [
-    {
-        name: 'TON x1',
-        img: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',
-        color: '#0088cc'
-    },
-    {
-        name: 'TON x2',
-        img: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-        color: '#30d158'
-    },
-    {
-        name: 'TON x5',
-        img: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
-        color: '#ff8c00'
-    },
-    {
-        name: 'JACKPOT',
-        img: 'https://cdn-icons-png.flaticon.com/512/2721/2721296.png',
-        color: '#ff3b30'
+    let players = [], time = 15, rot = 0, isSpin = false;
+    const bots = ['@whale', '@ton_king', '@lucky', '@rich_guy', '@crypto_ninja'];
+    const colors = ['#ff8c00', '#ffb347', '#ffffff', '#2a2e3a', '#4e5569'];
+    const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+
+    function save() {
+        localStorage.bal = user.bal;
+        localStorage.id = user.id;
+        localStorage.tickets = user.tickets;
+        localStorage.myPromo = user.myPromo;
+        localStorage.usedPromo = user.usedPromo;
+        localStorage.hist = JSON.stringify(user.hist);
+        updateUI();
     }
-];
 
-/* ================== БОТЫ ================== */
-const botPool = [
-    { name: '@Pepe', bet: 0, color: '#30d158', img: caseItems[0].img },
-    { name: '@Whale', bet: 0, color: '#0088cc', img: caseItems[1].img },
-    { name: '@Duck', bet: 0, color: '#ffd60a', img: caseItems[2].img }
-];
+    function updateUI() {
+        document.getElementById('bal-top').textContent = user.bal.toFixed(2);
+        document.getElementById('u-bal').textContent = user.bal.toFixed(2) + ' TON';
+        document.getElementById('u-id').textContent = 'ID: ' + user.id;
+        document.getElementById('ticket-count').textContent = user.tickets + ' 🎫';
+        
+        // Кейс кнопка
+        document.getElementById('btn-open-case').disabled = (user.tickets < 15);
 
-/* ================== CANVAS ================== */
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+        // Промо блок
+        if (user.myPromo) {
+            document.getElementById('promo-create-area').style.display = 'none';
+            document.getElementById('my-promo-display').style.display = 'block';
+            document.getElementById('my-promo-name').textContent = user.myPromo;
+        }
 
-/* ================== UI ================== */
-function updateUI() {
-    document.getElementById('h-bal').textContent = user.bal.toFixed(2);
-
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    document.getElementById('p-list').innerHTML = players.map(p => `
-        <div class="p-row">
-            <div class="p-info">
-                <img src="${p.img}" class="p-img" style="border-color:${p.color}">
-                <div>
-                    <b>${p.name}</b><br>
-                    <small style="color:var(--accent); font-weight:900;">
-                        ${((p.bet / total) * 100 || 0).toFixed(1)}%
-                    </small>
+        // Рендер игроков
+        const total = players.reduce((s,p)=>s+p.bet, 0);
+        document.getElementById('players-list').innerHTML = players.map(p => `
+            <div style="background:#111; border:1px solid #222; padding:12px; border-radius:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:30px; height:30px; background:${p.color}; border-radius:50%;"></div>
+                    <b>${p.name}</b>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:900; color:var(--accent)">${p.bet.toFixed(2)} TON</div>
+                    <div style="font-size:10px; color:#555">Шанс: ${((p.bet/total)*100 || 0).toFixed(1)}%</div>
                 </div>
             </div>
-            <b>${p.bet.toFixed(2)} TON</b>
-        </div>
-    `).join('');
-}
+        `).join('');
 
-/* ================== ОТРИСОВКА КЕЙСА ================== */
-function draw() {
-    const r = 400;
-    ctx.clearRect(0, 0, 800, 800);
-
-    if (!players.length) {
-        ctx.beginPath();
-        ctx.arc(r, r, r, 0, Math.PI * 2);
-        ctx.fillStyle = '#161618';
-        ctx.fill();
-        return;
-    }
-
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    let start = 0;
-
-    players.forEach((p, i) => {
-        const slice = (p.bet / total) * Math.PI * 2;
-        const mid = start + slice / 2;
-        p.mid = mid;
-
-        ctx.beginPath();
-        ctx.moveTo(r, r);
-        ctx.arc(r, r, r, start, start + slice);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-
-        const img = new Image();
-        img.src = p.img;
-
-        img.onload = () => {
-            ctx.save();
-            ctx.translate(
-                r + Math.cos(mid) * 230,
-                r + Math.sin(mid) * 230
-            );
-            ctx.rotate(mid);
-            ctx.drawImage(img, -32, -32, 64, 64);
-            ctx.restore();
-        };
-
-        start += slice;
-    });
-}
-
-/* ================== ИГРОВОЙ ЦИКЛ ================== */
-function gameLoop() {
-    players = [];
-    time = 15;
-    isSpin = false;
-
-    const wrap = document.getElementById('wWrap');
-    wrap.style.transition = 'none';
-    rot %= 360;
-    wrap.style.transform = `rotate(${rot}deg)`;
-
-    draw();
-    updateUI();
-
-    const t = setInterval(() => {
-        document.getElementById('timer').textContent = time;
-
-        if (time % 5 === 0 && players.length < 3) {
-            const bot = botPool[players.length];
-            bot.bet = Math.random() * 3 + 1;
-            players.push({ ...bot });
-            draw();
-            updateUI();
-        }
-
-        if (--time < 0) {
-            clearInterval(t);
-            players.length > 1 ? spin() : gameLoop();
-        }
-    }, 1000);
-}
-
-/* ================== СПИН ================== */
-function spin() {
-    isSpin = true;
-
-    const total = players.reduce((s, p) => s + p.bet, 0);
-    let rand = Math.random() * total;
-    let acc = 0;
-    let win;
-
-    for (let p of players) {
-        acc += p.bet;
-        if (rand <= acc) {
-            win = p;
-            break;
-        }
-    }
-
-    rot += 360 * 6 + (360 - (win.mid * 180 / Math.PI));
-    const wrap = document.getElementById('wWrap');
-    wrap.style.transition = 'transform 7s cubic-bezier(0.1,0,0.1,1)';
-    wrap.style.transform = `rotate(${rot}deg)`;
-
-    setTimeout(() => {
-        const chat = document.getElementById('chat-box');
-        chat.innerHTML += `
-            <div class="m-sys">
-                <img src="https://cryptologos.cc/logos/toncoin-ton-logo.png" class="mini-ton">
-                Выпал кейс: <b>${win.name}</b> — ${total.toFixed(2)} TON
+        // История
+        document.getElementById('hist-list').innerHTML = user.hist.map(h => `
+            <div style="padding:12px; border-bottom:1px solid #111; display:flex; justify-content:space-between;">
+                <b>${h.w}</b> <span style="color:var(--accent)">+${h.b.toFixed(2)} TON</span>
             </div>
-        `;
-        chat.scrollTop = chat.scrollHeight;
+        `).join('');
+    }
 
-        if (win.name === '@Вы') user.bal += total;
-        setTimeout(gameLoop, 3000);
-    }, 7500);
-}
+    // CASES LOGIC
+    function openCase() {
+        if (user.tickets < 15) return;
+        user.tickets -= 15;
+        
+        const prizes = [0.01, 0.01, 0.03, 0.03, 0.05, 0.05, 0.1, 0.2];
+        const win = prizes[Math.floor(Math.random() * prizes.length)];
+        
+        user.bal += win;
+        save();
+        alert(`📦 Кейс открыт!\nВы выбили: ${win} TON`);
+    }
 
-/* ================== СТАВКА ================== */
-function makeBet() {
-    const v = parseFloat(document.getElementById('bet-val').value);
-    if (isSpin || v <= 0 || v > user.bal) return;
+    // PROMO LOGIC
+    function createPromo() {
+        if (user.myPromo) return;
+        const val = document.getElementById('promo-gen').value.trim().toUpperCase();
+        if (val.length < 3) return alert("Минимум 3 символа");
+        user.myPromo = val;
+        save();
+    }
 
-    user.bal -= v;
-    players.push({
-        name: '@Вы',
-        bet: v,
-        color: '#ff8c00',
-        img: caseItems[Math.floor(Math.random() * caseItems.length)].img
-    });
+    function activatePromo() {
+        if (user.usedPromo) return alert("Вы уже активировали промокод!");
+        const val = document.getElementById('promo-use').value.trim().toUpperCase();
+        if (!val) return;
+        if (val === user.myPromo) return alert("Нельзя вводить свой код!");
 
-    draw();
-    updateUI();
-}
+        // Награда скрыта (0.1 TON)
+        user.bal += 0.1;
+        user.usedPromo = true;
+        save();
+        document.getElementById('promo-use').value = '';
+        alert("Успешно!");
+    }
 
-/* ================== НАВИГАЦИЯ ================== */
-function nav(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    el.classList.add('active');
-}
+    function simulateFriend() {
+        user.tickets += 1;
+        save();
+        alert("Ваш код активирован другом! +1 Билет");
+    }
 
-/* ================== START ================== */
-gameLoop();
+    // WHEEL ENGINE
+    function draw() {
+        const r = 400; ctx.clearRect(0,0,800,800);
+        if(!players.length) { ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#111"; ctx.fill(); return; }
+        let total = players.reduce((s,p)=>s+p.bet, 0), start = 0;
+        players.forEach(p => {
+            const slice = (p.bet/total)*Math.PI*2;
+            p.mid = start + slice/2;
+            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r,start,start+slice);
+            ctx.fillStyle = p.color; ctx.fill();
+            ctx.strokeStyle="#000"; ctx.lineWidth=4; ctx.stroke();
+            start += slice;
+        });
+    }
+
+    function gameLoop() {
+        players = []; time = 15; isSpin = false;
+        document.getElementById('wheelWrap').style.transition = 'none';
+        rot %= 360; document.getElementById('wheelWrap').style.transform = `rotate(${rot}deg)`;
+        draw(); updateUI();
+
+        const t = setInterval(() => {
+            document.getElementById('timer').textContent = time;
+            if(time % 3 === 0 && players.length < 5) {
+                players.push({
+                    name: bots[Math.floor(Math.random()*bots.length)],
+                    bet: Math.floor(Math.random()*40+5),
+                    color: colors[players.length % colors.length]
+                });
+                draw(); updateUI();
+            }
+            if(--time < 0) { clearInterval(t); players.length > 1 ? spin() : gameLoop(); }
+        }, 1000);
+    }
+
+    function spin() {
+        isSpin = true;
+        let total = players.reduce((s,p)=>s+p.bet,0), rand = Math.random()*total, acc=0, win;
+        for(let p of players) { acc += p.bet; if(rand <= acc) { win = p; break; } }
+        rot += (360*7) + (360 - (win.mid*180/Math.PI));
+        document.getElementById('wheelWrap').style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
+        document.getElementById('wheelWrap').style.transform = `rotate(${rot}deg)`;
+        setTimeout(() => {
+            if(win.name === '@Вы') user.bal += total;
+            user.hist.unshift({w: win.name, b: total});
+            if(user.hist.length > 15) user.hist.pop();
+            save(); setTimeout(gameLoop, 3000);
+        }, 8500);
+    }
+
+    function makeBet() {
+        let v = +document.getElementById('bet-input').value;
+        if(isSpin || v <= 0 || v > user.bal) return;
+        user.bal -= v; players.push({name: '@Вы', bet: v, color: '#ff8c00'});
+        draw(); save();
+    }
+
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+
+    function logout() { if(confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); } }
+
+    gameLoop();
+    save();
 </script>
+</body>
+</html>
