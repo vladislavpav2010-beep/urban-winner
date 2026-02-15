@@ -3,63 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TON PvP — Elite Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>TON PvP — Premium App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050608; --card: #0f111a; --accent: #ff8c00; --gold: #f3ba2f;
-            --border: #1e222d; --text: #ffffff; --muted: #707a8a;
+            --bg: #000000;
+            --card: #0f0f0f;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent: #ff8c00;
+            --gold: #f3ba2f;
+            --text: #ffffff;
+            --muted: #707a8a;
             --grad: linear-gradient(135deg, #ff8c00 0%, #ffb347 100%);
             --gold-grad: linear-gradient(135deg, #f3ba2f 0%, #ffdb4d 100%);
+            --glass: rgba(15, 15, 15, 0.8);
         }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
-        .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); z-index: 100; }
-        .balance-pill { background: var(--grad); padding: 8px 16px; border-radius: 12px; font-weight: 900; color: #000; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,140,0,0.3); }
+        .header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--glass); border-bottom: 1px solid var(--card-border); backdrop-filter: blur(12px); z-index: 100; position: relative; }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: -0.5px; }
+        .logo span { color: var(--accent); }
+        .balance-pill { background: rgba(255, 140, 0, 0.1); border: 1px solid rgba(255, 140, 0, 0.3); padding: 8px 16px; border-radius: 12px; font-weight: 900; color: var(--accent); display: flex; align-items: center; gap: 8px; box-shadow: 0 0 15px rgba(255,140,0,0.15); }
 
         /* PAGES */
-        .page { flex: 1; display: none; overflow-y: auto; padding-bottom: 90px; animation: fadeIn 0.3s ease; }
+        .page { flex: 1; display: none; overflow-y: auto; padding-bottom: 110px; animation: fadeIn 0.3s cubic-bezier(0.1, 0, 0.1, 1); }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* WHEEL */
-        .wheel-container { position: relative; width: 310px; height: 310px; margin: 25px auto; }
-        .wheel-outer { width: 100%; height: 100%; border-radius: 50%; padding: 10px; background: #161923; border: 4px solid #1e222d; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        /* WHEEL ZONE */
+        .wheel-container { position: relative; width: 310px; height: 310px; margin: 30px auto; }
+        .wheel-outer { width: 100%; height: 100%; border-radius: 50%; padding: 8px; background: #0a0a0a; border: 1px solid var(--card-border); box-shadow: 0 0 40px rgba(255,140,0,0.1); }
         #wheelWrap { width: 100%; height: 100%; border-radius: 50%; transition: transform 8s cubic-bezier(0.1, 0, 0.1, 1); }
         canvas { width: 100%; height: 100%; border-radius: 50%; }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 20; filter: drop-shadow(0 0 8px var(--accent)); }
-        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border-radius: 50%; background: #000; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; z-index: 15; font-size: 28px; font-weight: 900; box-shadow: inset 0 0 15px rgba(255,140,0,0.2); }
+        .pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 24px solid #fff; z-index: 20; filter: drop-shadow(0 0 8px var(--accent)); }
+        .center-hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 75px; height: 75px; border-radius: 50%; background: #000; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; z-index: 15; font-size: 26px; font-weight: 900; box-shadow: inset 0 0 20px rgba(255,140,0,0.2); }
 
-        /* BET PANEL */
-        .bet-panel { padding: 15px; background: var(--card); margin: 0 15px 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; gap: 10px; }
-        .bet-panel input { flex: 1; background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: #fff; font-weight: 800; outline: none; }
-        .bet-panel button { background: var(--grad); border: none; border-radius: 12px; padding: 0 20px; font-weight: 900; color: #000; cursor: pointer; }
+        /* BET PANEL (STICKY) */
+        .bet-panel { padding: 15px; background: var(--glass); backdrop-filter: blur(10px); border-top: 1px solid var(--card-border); position: sticky; bottom: 75px; display: flex; gap: 10px; z-index: 50; }
+        .bet-panel input { flex: 1; background: #000; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; color: #fff; font-weight: 800; font-size: 16px; transition: 0.2s; }
+        .bet-panel input:focus { border-color: var(--accent); }
+        .bet-panel button { background: var(--grad); border: none; border-radius: 12px; padding: 0 24px; font-weight: 900; font-size: 15px; color: #000; cursor: pointer; transition: transform 0.1s; }
+        .bet-panel button:active { transform: scale(0.96); }
+
+        /* LISTS & CARDS */
+        .list-wrap { padding: 0 15px 15px; }
+        .item-card { background: var(--card); margin-bottom: 8px; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--card-border); display: flex; align-items: center; transition: 0.2s; }
+        .item-card.rich { border: 1px solid rgba(243, 186, 47, 0.5); background: linear-gradient(90deg, #0a0800 0%, #1a1500 100%); }
+        .av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; margin-right: 12px; font-size: 16px; }
+        .info { flex: 1; }
+        .info b { display: block; font-size: 14px; margin-bottom: 2px; }
+        .info span { font-size: 11px; color: var(--muted); font-weight: 600; }
+        .val { font-weight: 900; font-size: 15px; color: var(--accent); text-align: right; }
+        .item-card.rich .val { color: var(--gold); }
 
         /* FILTER BUTTONS */
         .filters { display: flex; gap: 8px; padding: 0 15px 15px; }
-        .f-btn { flex: 1; padding: 10px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 800; text-align: center; }
-        .f-btn.active { background: var(--accent); color: #000; border: none; }
-        .f-btn.gold.active { background: var(--gold-grad); }
+        .f-btn { flex: 1; padding: 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); font-size: 12px; font-weight: 800; text-align: center; cursor: pointer; transition: 0.2s; }
+        .f-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+        .f-btn.gold.active { background: var(--gold-grad); border-color: var(--gold); }
 
-        /* LIST ITEMS */
-        .item { background: var(--card); margin: 0 15px 8px; padding: 12px 15px; border-radius: 15px; border: 1px solid var(--border); display: flex; align-items: center; }
-        .item.rich { border: 1px solid var(--gold); background: linear-gradient(90deg, #0f111a 0%, #1a1608 100%); box-shadow: 0 0 15px rgba(243,186,47,0.1); }
-        .av { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; margin-right: 12px; }
-        .info { flex: 1; }
-        .info b { display: block; font-size: 14px; }
-        .info span { font-size: 11px; color: var(--muted); }
-        .val { font-weight: 900; font-size: 16px; color: var(--accent); }
-        .item.rich .val { color: var(--gold); }
-
-        /* REF BOX */
-        .ref-box { background: #000; border: 2px dashed var(--accent); border-radius: 15px; padding: 20px; text-align: center; margin: 15px; cursor: pointer; }
-        .ref-box:active { transform: scale(0.98); }
+        /* TASK/REF SECTION */
+        .profile-head { text-align: center; padding: 30px 15px 20px; }
+        .profile-av { width: 70px; height: 70px; background: var(--grad); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: #000; box-shadow: 0 0 20px rgba(255,140,0,0.3); }
+        .task-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 20px; margin: 0 15px; }
+        .task-box.done { opacity: 0.6; border-color: transparent; }
+        .task-btn { width: 100%; padding: 14px; border-radius: 12px; background: rgba(255,140,0,0.1); border: 1px solid var(--accent); color: var(--accent); font-weight: 800; font-size: 14px; margin-top: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .task-btn.done { background: #1a1a1a; border-color: #333; color: #666; cursor: default; }
 
         /* NAV */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #000; border-top: 1px solid var(--border); display: flex; padding-bottom: 15px; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; font-weight: 800; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: rgba(5,5,5,0.9); border-top: 1px solid var(--card-border); backdrop-filter: blur(15px); display: flex; padding-bottom: env(safe-area-inset-bottom, 15px); z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 10px; font-weight: 800; transition: color 0.2s; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
     </style>
@@ -67,8 +83,11 @@
 <body>
 
 <div class="header">
-    <div style="font-weight:900; font-size:20px">TON<span>PVP</span></div>
-    <div class="balance-pill"><span id="bal">1000.00</span> TON</div>
+    <div class="logo">TON<span>PVP</span></div>
+    <div class="balance-pill">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12h3v8h14v-8h3L12 2zm0 2.83l7.17 7.17h-2.17V20H7v-8H4.83L12 4.83z"/></svg>
+        <span id="bal-top">0.00</span>
+    </div>
 </div>
 
 <div id="game" class="page active">
@@ -77,47 +96,60 @@
         <div class="wheel-outer"><div id="wheelWrap"><canvas id="canvas" width="800" height="800"></canvas></div></div>
         <div class="center-hub" id="timer">15</div>
     </div>
+    
     <div class="bet-panel">
-        <input type="number" id="bet-input" value="10">
+        <input type="number" id="bet-input" value="10" min="1" step="0.1">
         <button onclick="makeBet()">СТАВКА</button>
     </div>
-    <div id="players-list"></div>
+    
+    <div class="list-wrap" id="players-list"></div>
 </div>
 
 <div id="history" class="page">
-    <div style="padding:20px; font-weight:900; font-size:22px">ИСТОРИЯ</div>
+    <div style="padding: 25px 15px 15px; font-weight: 900; font-size: 22px;">История игр</div>
     <div class="filters">
-        <div class="f-btn active" onclick="setHistFilter('all', this)">Все</div>
-        <div class="f-btn gold" onclick="setHistFilter('rich', this)">Богатые</div>
-        <div class="f-btn" onclick="setHistFilter('normal', this)">Обычные</div>
+        <div class="f-btn active" onclick="setFilter('all', this)">Все</div>
+        <div class="f-btn gold" onclick="setFilter('rich', this)">Богатые</div>
+        <div class="f-btn" onclick="setFilter('normal', this)">Обычные</div>
     </div>
-    <div id="hist-list"></div>
+    <div class="list-wrap" id="hist-list"></div>
 </div>
 
 <div id="profile" class="page">
-    <div class="item" style="margin-top:20px; padding:25px; flex-direction:column">
-        <div class="av" style="width:60px; height:60px; margin:0 0 15px 0; font-size:24px">Я</div>
-        <b id="u-id">ID: 00000</b>
-        <span id="u-bal" style="color:var(--accent); font-weight:900; font-size:18px; margin-top:5px">1000 TON</span>
+    <div class="profile-head">
+        <div class="profile-av">Я</div>
+        <div style="font-weight: 900; font-size: 20px; margin-bottom: 4px;" id="u-id">ID: 00000</div>
+        <div style="color: var(--muted); font-size: 13px;">Баланс: <b style="color:var(--text)" id="u-bal">0.00 TON</b></div>
     </div>
-    <div class="ref-box" onclick="copyRef()">
-        <span style="font-size:11px; color:var(--muted)">ВАША ССЫЛКА (10%)</span>
-        <div id="ref-link" style="color:var(--accent); font-weight:900; margin:5px 0">t.me/tonpvp_bot?start=r_00000</div>
-        <span style="font-size:10px; color:var(--muted)">Нажми, чтобы скопировать</span>
+
+    <div style="padding: 0 15px 10px; font-weight: 800; font-size: 14px; color: var(--muted);">ЗАДАНИЯ</div>
+    
+    <div class="task-box" id="task-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <b style="font-size: 15px;">Скопировать ссылку</b>
+            <b style="color: var(--accent);">+0.1 TON</b>
+        </div>
+        <div style="font-size: 12px; color: var(--muted); line-height: 1.4;">
+            Твоя реферальная ссылка: <br>
+            <span style="color: #fff; font-family: monospace;" id="ref-link">t.me/tonpvp_bot?start=r_00000</span>
+        </div>
+        <button class="task-btn" id="task-btn" onclick="completeTask()">
+            Выполнить задание
+        </button>
     </div>
 </div>
 
 <div class="nav">
     <div class="nav-item active" onclick="nav('game',this)">
         <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-        PVP
+        РУЛЕТКА
     </div>
     <div class="nav-item" onclick="window.open('https://t.me/+bRdL2okzUTdiZDVi')">
         <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
         ЧАТ
     </div>
     <div class="nav-item" onclick="nav('history',this)">
-        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18z"/></svg>
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 117 7 7.07 7.07 0 01-6-3.18l-1.42 1.42A8.9 8.9 0 0013 21a9 9 0 010-18zm-1 5v5l4.28 2.53.85-1.07-3.13-1.86V8z"/></svg>
         ИСТОРИЯ
     </div>
     <div class="nav-item" onclick="nav('profile',this)">
@@ -127,52 +159,88 @@
 </div>
 
 <script>
+    // Инициализация данных пользователя
     let user = {
-        bal: +localStorage.bal || 1000,
+        bal: parseFloat(localStorage.bal) || 1000.00,
         id: localStorage.id || Math.floor(Math.random()*90000+10000),
-        hist: JSON.parse(localStorage.hist || '[]')
+        hist: JSON.parse(localStorage.hist || '[]'),
+        taskDone: localStorage.taskDone === 'true' // Проверка одноразового задания
     };
 
-    let players = [], time = 15, rot = 0, isSpin = false, currentHistFilter = 'all';
-    const bots = ['@whale', '@ton_shark', '@rich_man', '@bull', '@lucky'];
+    let players = [], time = 15, rot = 0, isSpin = false, currentFilter = 'all';
+    const bots = ['@whale_ton', '@shark_win', '@crypto_god', '@bull_run', '@lucky_guy'];
     const colors = ['#ff8c00', '#ffb347', '#ffffff', '#2a2e3a', '#4e5569'];
 
     const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
 
+    // Сохранение и обновление интерфейса
     function save() {
-        localStorage.bal = user.bal; localStorage.id = user.id;
+        localStorage.bal = user.bal; 
+        localStorage.id = user.id;
         localStorage.hist = JSON.stringify(user.hist);
+        localStorage.taskDone = user.taskDone;
         updateUI();
     }
 
     function updateUI() {
-        document.getElementById('bal').textContent = user.bal.toFixed(2);
+        // Балансы
+        document.getElementById('bal-top').textContent = user.bal.toFixed(2);
         document.getElementById('u-bal').textContent = user.bal.toFixed(2) + ' TON';
         document.getElementById('u-id').textContent = 'ID: ' + user.id;
         document.getElementById('ref-link').textContent = 't.me/tonpvp_bot?start=r_' + user.id;
         
+        // Рендер игроков (Рулетка)
         const total = players.reduce((s,p)=>s+p.bet, 0);
         document.getElementById('players-list').innerHTML = players.map(p => `
-            <div class="item ${p.bet >= 100 ? 'rich' : ''}">
+            <div class="item-card ${p.bet >= 100 ? 'rich' : ''}">
                 <div class="av" style="background:${p.color}">${p.name[1].toUpperCase()}</div>
-                <div class="info"><b>${p.name}</b><span>Шанс: ${((p.bet/total)*100 || 0).toFixed(1)}%</span></div>
-                <div class="val">${p.bet}</div>
+                <div class="info">
+                    <b>${p.name} ${p.me ? '<span style="color:var(--accent)">[ВЫ]</span>' : ''}</b>
+                    <span>Шанс победы: ${((p.bet/total)*100 || 0).toFixed(1)}%</span>
+                </div>
+                <div class="val">${p.bet.toFixed(2)} TON</div>
             </div>
         `).join('');
 
+        // Рендер истории с фильтрацией
         let hList = user.hist;
-        if(currentHistFilter === 'rich') hList = hList.filter(h => h.b >= 100);
-        if(currentHistFilter === 'normal') hList = hList.filter(h => h.b < 100);
+        if(currentFilter === 'rich') hList = hList.filter(h => h.b >= 100);
+        if(currentFilter === 'normal') hList = hList.filter(h => h.b < 100);
         
         document.getElementById('hist-list').innerHTML = hList.map(h => `
-            <div class="item ${h.b >= 100 ? 'rich' : ''}">
+            <div class="item-card ${h.b >= 100 ? 'rich' : ''}">
                 <div class="av" style="background:${h.b >= 100 ? 'var(--gold)' : 'var(--accent)'}">${h.w[1].toUpperCase()}</div>
-                <div class="info"><b>${h.w}</b><span>Выигрыш</span></div>
-                <div class="val">${h.b.toFixed(1)} TON</div>
+                <div class="info"><b>${h.w}</b><span>Сорвал банк</span></div>
+                <div class="val">+${h.b.toFixed(2)} TON</div>
             </div>
         `).join('');
+
+        // Обновление кнопки задания
+        const taskBtn = document.getElementById('task-btn');
+        const taskBox = document.getElementById('task-container');
+        if (user.taskDone) {
+            taskBtn.textContent = 'Выполнено';
+            taskBtn.className = 'task-btn done';
+            taskBox.className = 'task-box done';
+        }
     }
 
+    // Одноразовое задание на 0.1 TON
+    function completeTask() {
+        if (user.taskDone) return; // Защита от повторного клика
+
+        const link = document.getElementById('ref-link').textContent;
+        navigator.clipboard.writeText(link).then(() => {
+            user.bal += 0.1;
+            user.taskDone = true;
+            save(); // Сохраняем в localStorage
+            alert("✅ Задание выполнено!\nНачислено: 0.10 TON");
+        }).catch(err => {
+            alert("Ошибка копирования. Попробуйте вручную.");
+        });
+    }
+
+    // Отрисовка колеса
     function draw() {
         const r = 400; ctx.clearRect(0,0,800,800);
         if(!players.length) { ctx.beginPath(); ctx.arc(r,r,r,0,Math.PI*2); ctx.fillStyle="#111"; ctx.fill(); return; }
@@ -182,11 +250,19 @@
             p.mid = start + slice/2;
             ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,r,start,start+slice);
             ctx.fillStyle = p.color; ctx.fill();
-            ctx.strokeStyle="#000"; ctx.lineWidth=2; ctx.stroke();
+            ctx.strokeStyle="#000"; ctx.lineWidth=3; ctx.stroke();
+            
+            // Буквы на секторах
+            ctx.save(); ctx.translate(r,r); ctx.rotate(p.mid);
+            ctx.beginPath(); ctx.arc(r*0.75,0,32,0,Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
+            ctx.fillStyle="#000"; ctx.font="900 32px Inter"; ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText(p.name[1].toUpperCase(), r*0.75, 0);
+            ctx.restore();
             start += slice;
         });
     }
 
+    // Игровой цикл
     function gameLoop() {
         players = []; time = 15; isSpin = false;
         document.getElementById('wheelWrap').style.transition = 'none';
@@ -198,7 +274,7 @@
             if(time % 3 === 0 && players.length < 5) {
                 players.push({
                     name: bots[Math.floor(Math.random()*bots.length)],
-                    bet: Math.random() > 0.8 ? 150 : Math.floor(Math.random()*50+10),
+                    bet: Math.random() > 0.85 ? Math.floor(Math.random()*200+100) : Math.floor(Math.random()*40+5),
                     color: colors[players.length % colors.length]
                 });
                 draw(); updateUI();
@@ -207,21 +283,26 @@
         }, 1000);
     }
 
+    // Вращение колеса
     function spin() {
         isSpin = true;
+        document.getElementById('timer').textContent = "Win";
         let total = players.reduce((s,p)=>s+p.bet,0), rand = Math.random()*total, acc=0, win;
         for(let p of players) { acc += p.bet; if(rand <= acc) { win = p; break; } }
+        
         rot += (360*8) + (360 - (win.mid*180/Math.PI));
         document.getElementById('wheelWrap').style.transition = 'transform 8s cubic-bezier(0.1, 0, 0.1, 1)';
         document.getElementById('wheelWrap').style.transform = `rotate(${rot}deg)`;
+        
         setTimeout(() => {
             if(win.me) user.bal += total;
             user.hist.unshift({w: win.name, b: total});
-            if(user.hist.length > 20) user.hist.pop();
+            if(user.hist.length > 30) user.hist.pop(); // Храним 30 последних игр
             save(); setTimeout(gameLoop, 4000);
         }, 8500);
     }
 
+    // Ставка пользователя
     function makeBet() {
         let v = +document.getElementById('bet-input').value;
         if(isSpin || v <= 0 || v > user.bal) return;
@@ -229,19 +310,15 @@
         draw(); save();
     }
 
-    function copyRef() {
-        navigator.clipboard.writeText(document.getElementById('ref-link').textContent);
-        alert("Ссылка скопирована! +10 TON (Тест)");
-        user.bal += 10; save();
-    }
-
-    function setHistFilter(f, el) {
-        currentHistFilter = f;
+    // Фильтры истории
+    function setFilter(f, el) {
+        currentFilter = f;
         document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
         updateUI();
     }
 
+    // Навигация
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -249,7 +326,9 @@
         el.classList.add('active');
     }
 
-    save(); gameLoop();
+    // Старт
+    save(); 
+    gameLoop();
 </script>
 </body>
 </html>
