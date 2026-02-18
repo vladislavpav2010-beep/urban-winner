@@ -3,888 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON ROLLS ELITE - Платформа №1</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
-    
+    <title>TON ROLLS ELITE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* =========================================
-           1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (CSS VARIABLES)
-           =========================================
-        */
         :root {
-            --bg-main: #050505;
-            --bg-card: #0d0d0f;
-            --bg-darker: #080808;
-            --bg-lighter: #121214;
-            
-            --color-accent: #0088cc;
-            --color-accent-glow: rgba(0, 136, 204, 0.4);
-            --color-gold: #f7a809;
-            --color-gold-glow: rgba(247, 168, 9, 0.3);
-            --color-text-bright: #ffffff;
-            --color-text-muted: #707075;
-            --color-border: #1f1f22;
-            --color-green: #2ecb71;
-            --color-red: #e74c3c;
-            --color-purple: #a335ee;
-            
-            --transition-fast: 0.2s ease;
-            --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-standard: 0 4px 15px rgba(0,0,0,0.5);
+            --bg: #050505;
+            --card: #0d0d0f;
+            --accent: #0088cc;
+            --gold: #f7a809;
+            --text: #ffffff;
+            --text-m: #707075;
+            --border: #1f1f22;
+            --green: #2ecb71;
+            --red: #e74c3c;
         }
 
-        /* =========================================
-           2. БАЗОВЫЕ СТИЛИ СБРОСА (RESET)
-           =========================================
-        */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-drag: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; height: 100vh; }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-main);
-            color: var(--color-text-bright);
-            font-family: 'Manrope', sans-serif;
-            overflow: hidden; /* Запрет скролла всего тела для App-like эффекта */
-            line-height: 1.4;
-        }
-
-        /* =========================================
-           3. ШАПКА ПРИЛОЖЕНИЯ (HEADER)
-           =========================================
-        */
+        /* HEADER */
         .header {
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            background: rgba(5, 5, 5, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--color-border);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
+            height: 65px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; background: rgba(5,5,5,0.8); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100;
         }
+        .logo { font-family: 'Outfit'; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+        .logo svg { width: 24px; height: 24px; }
+        
+        .header-rigth { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { width: 38px; height: 38px; background: var(--card); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer;}
 
-        .logo {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: -0.5px;
-        }
+        /* BALANCE */
+        .balance-pill { background: #121214; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 800; font-family: 'Outfit'; }
+        .balance-pill svg { width: 16px; height: 16px; }
 
-        .logo svg {
-            width: 26px;
-            height: 26px;
-            filter: drop-shadow(0 0 5px var(--color-accent));
-        }
+        /* NAVIGATION */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #080808; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding-bottom: 15px; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-m); font-size: 10px; font-weight: 700; text-transform: uppercase; width: 25%; cursor: pointer;}
+        .nav-item.active { color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
-        .header-rigth {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        /* SCREENS */
+        .content { padding-top: 65px; padding-bottom: 80px; height: 100vh; overflow-y: auto; }
+        .screen { display: none; padding: 15px; animation: slideUp 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .balance-pill {
-            background: var(--bg-lighter);
-            padding: 7px 14px;
-            border-radius: 100px;
-            border: 1px solid var(--color-border);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 800;
-            font-family: 'Outfit', sans-serif;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-        }
+        /* MODALS (Подписка) */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; width: 100%; max-width: 340px; padding: 25px; text-align: center; }
+        .modal-card h2 { font-family: 'Outfit'; margin-bottom: 10px; }
+        .modal-card p { font-size: 14px; color: var(--text-m); margin-bottom: 20px; }
+        .tg-btn { display: block; background: #2481cc; color: #fff; text-decoration: none; padding: 14px; border-radius: 12px; margin-bottom: 10px; font-weight: 700; }
 
-        .balance-pill span {
-            font-size: 15px;
-        }
+        /* UI ELEMENTS */
+        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: #fff; border-radius: 16px; font-weight: 900; font-family: 'Outfit'; text-transform: uppercase; border: none; cursor: pointer; }
+        .main-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
+        .cancel-btn { background: transparent; color: var(--text-m); border: 1px solid var(--border); padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        .bet-input-wrap { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .bet-input-wrap svg { width: 24px; height: 24px; }
+        .bet-input-wrap input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 800; width: 100%; outline: none; }
 
-        .balance-pill svg {
-            width: 18px;
-            height: 18px;
-        }
+        /* SOLO MENU */
+        .solo-menu-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .solo-mode-card { background: #121214; border: 1px solid var(--border); border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .solo-mode-card:active { transform: scale(0.97); border-color: var(--accent); }
+        .solo-mode-card h3 { font-family: 'Outfit'; font-size: 24px; color: var(--accent); margin-bottom: 5px; }
+        .solo-mode-card p { font-size: 12px; color: var(--text-m); }
+        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-card);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--color-border);
-            cursor: pointer;
-            transition: var(--transition-fast);
-        }
+        /* ARENA PVP */
+        .arena-card { background: var(--card); border-radius: 24px; padding: 20px; text-align: center; border: 1px solid var(--border); margin-bottom: 15px; }
+        .bank-info { font-size: 12px; color: var(--text-m); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
+        .bank-info b { font-size: 20px; color: var(--gold); font-family: 'Outfit'; }
+        .wheel-box { position: relative; width: 280px; height: 280px; margin: 0 auto 20px; }
+        canvas#wheel { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 15px rgba(0,0,0,0.5)); }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #fff; z-index: 5; }
+        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #050505; border-radius: 50%; border: 4px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; font-family: 'Outfit'; }
 
-        .icon-btn:active {
-            transform: scale(0.9);
-            background: var(--color-border);
-        }
+        /* CASE ITEMS */
+        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .case-card-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; text-align: center; position: relative; }
+        .case-card-item.locked { opacity: 0.5; filter: grayscale(1); }
+        .case-badge { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 3px 6px; border-radius: 6px; }
 
-        /* =========================================
-           4. ОСНОВНОЙ КОНТЕНТ (SCREENS)
-           =========================================
-        */
-        .content {
-            padding-top: 65px;
-            padding-bottom: 90px;
-            height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+        /* UPGRADE */
+        .upgrade-box { text-align: center; }
+        .up-circle-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 20px; }
+        .up-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .up-bg { fill: none; stroke: #1a1a1e; stroke-width: 12; }
+        .up-progress { fill: none; stroke: var(--accent); stroke-width: 12; stroke-dasharray: 282.7; stroke-dashoffset: 140; stroke-linecap: round; transition: 0.3s; filter: drop-shadow(0 0 8px var(--accent)); }
+        .up-data { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .up-perc { font-size: 42px; font-weight: 900; font-family: 'Outfit'; }
+        .up-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .up-btn { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: var(--text-m); font-weight: 800; cursor: pointer;}
+        .up-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        .screen {
-            display: none;
-            padding: 20px 15px;
-            animation: screenFadeIn 0.4s ease;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes screenFadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* =========================================
-           5. КЕЙС-РУЛЕТКА (ELITE CASE SYSTEM)
-           =========================================
-        */
-        .case-container {
-            text-align: center;
-            width: 100%;
-        }
-
-        .roulette-wrapper {
-            position: relative;
-            width: 100%;
-            height: 130px;
-            background: #080809;
-            border: 1px solid var(--color-border);
-            border-radius: 20px;
-            margin: 25px 0;
-            overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-        }
-
-        .roulette-line {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: var(--color-accent);
-            z-index: 50;
-            transform: translateX(-50%);
-            box-shadow: 0 0 15px var(--color-accent);
-        }
-
-        .roulette-line::before, .roulette-line::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-        }
-        .roulette-line::before { top: 0; border-top: 10px solid var(--color-accent); }
-        .roulette-line::after { bottom: 0; border-bottom: 10px solid var(--color-accent); }
-
-        .roulette-track {
-            display: flex;
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            transition: transform 6s cubic-bezier(0.15, 0, 0.05, 1);
-            will-change: transform;
-            align-items: center;
-        }
-
-        .case-item {
-            min-width: 110px;
-            height: 110px;
-            margin: 0 6px;
-            background: var(--bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            position: relative;
-            transition: 0.3s;
-        }
-
-        .case-item span.amount {
-            font-family: 'Outfit';
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .case-item.rare { border-color: var(--color-accent); background: rgba(0, 136, 204, 0.05); }
-        .case-item.epic { border-color: var(--color-purple); background: rgba(163, 53, 238, 0.05); }
-        .case-item.legendary { 
-            border-color: var(--color-gold); 
-            background: rgba(247, 168, 9, 0.05);
-            box-shadow: inset 0 0 10px var(--color-gold-glow);
-        }
-
-        /* =========================================
-           6. СЕТКА ПРЕДМЕТОВ (CASE DROP LIST)
-           =========================================
-        */
-        .drop-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 30px;
-            padding: 0 5px;
-        }
-
-        .drop-card {
-            background: var(--bg-card);
-            border: 1px solid var(--color-border);
-            border-radius: 15px;
-            padding: 12px 8px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-
-        .drop-card img, .drop-card .emoji {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .drop-card .val {
-            font-weight: 800;
-            font-size: 13px;
-            color: var(--color-text-bright);
-        }
-
-        .drop-card .prob {
-            font-size: 9px;
-            color: var(--color-text-muted);
-            margin-top: 4px;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        /* =========================================
-           7. ИНТЕРФЕЙС SOLO (МЕНЮ)
-           =========================================
-        */
-        .solo-menu-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .mode-card {
-            background: var(--bg-lighter);
-            border: 1px solid var(--color-border);
-            border-radius: 24px;
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-medium);
-        }
-
-        .mode-card:active { transform: scale(0.97); }
-
-        .mode-card h3 {
-            font-family: 'Outfit';
-            font-size: 24px;
-            margin-bottom: 6px;
-            color: var(--color-accent);
-        }
-
-        .mode-card p {
-            font-size: 13px;
-            color: var(--color-text-muted);
-        }
-
-        .mode-card .badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--color-gold);
-            color: #000;
-            font-size: 10px;
-            font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 8px;
-            text-transform: uppercase;
-        }
-
-        /* =========================================
-           8. КНОПКИ И ВВОД (UI CONTROLS)
-           =========================================
-        */
-        .main-btn {
-            width: 100%;
-            padding: 20px;
-            background: var(--color-accent);
-            color: #fff;
-            border-radius: 18px;
-            font-weight: 900;
-            font-family: 'Outfit', sans-serif;
-            text-transform: uppercase;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 15px var(--color-accent-glow);
-            transition: var(--transition-fast);
-            font-size: 16px;
-            letter-spacing: 0.5px;
-        }
-
-        .main-btn:active { transform: translateY(2px); box-shadow: none; }
-        .main-btn:disabled { 
-            background: #252528; 
-            color: #555; 
-            box-shadow: none; 
-            cursor: not-allowed; 
-        }
-
-        .back-btn {
-            background: transparent;
-            border: 1px solid var(--color-border);
-            color: var(--color-text-bright);
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        /* =========================================
-           9. PVP ARENA (КОЛЕСО)
-           =========================================
-        */
-        .arena-card {
-            background: var(--bg-card);
-            border-radius: 28px;
-            padding: 25px;
-            text-align: center;
-            border: 1px solid var(--color-border);
-        }
-
-        .wheel-box {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 20px auto;
-        }
-
-        canvas#wheel {
-            width: 100%;
-            height: 100%;
-            transform: rotate(-90deg);
-        }
-
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 75px;
-            height: 75px;
-            background: var(--bg-main);
-            border-radius: 50%;
-            border: 4px solid var(--color-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 900;
-            font-family: 'Outfit';
-            z-index: 10;
-        }
-
-        /* =========================================
-           10. НАВИГАЦИЯ (BOTTOM NAV)
-           =========================================
-        */
-        .nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 85px;
-            background: rgba(8, 8, 8, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--color-border);
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: 20px;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            color: var(--color-text-muted);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            width: 25%;
-            transition: var(--transition-fast);
-        }
-
-        .nav-item.active {
-            color: var(--color-accent);
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        /* =========================================
-           11. ПРОФИЛЬ И ПРОГРЕСС
-           =========================================
-        */
-        .lvl-section {
-            background: var(--bg-lighter);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid var(--color-border);
-            margin-top: 20px;
-        }
-
-        .lvl-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: 800;
-            font-size: 13px;
-        }
-
-        .lvl-bar-bg {
-            height: 10px;
-            background: #1a1a1e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .lvl-bar-fill {
-            height: 100%;
-            background: var(--color-accent);
-            width: 0%;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px var(--color-accent-glow);
-        }
-
+        /* PROGRESS BARS (PROFILE) */
+        .lvl-container { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: left;}
+        .lvl-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; }
+        .lvl-bar { background: #1a1a1e; height: 8px; border-radius: 4px; overflow: hidden; }
+        .lvl-fill { background: var(--accent); width: 0%; height: 100%; transition: 0.4s; }
     </style>
 </head>
 <body>
 
-    <svg id="ton-logo-svg" style="display: none;" viewBox="0 0 512 512">
+    <svg id="ton-logo-template" style="display: none;" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="256" cy="256" r="256" fill="#0098EA"/>
         <path d="M113.81 184.223L243.621 391.705C248.983 400.279 263.017 400.279 268.379 391.705L398.19 184.223C404.93 173.444 397.202 159 384.49 159H127.51C114.798 159 107.07 173.444 113.81 184.223Z" fill="white"/>
     </svg>
 
-    <header class="header">
+    <div id="sub-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>БОНУС 0.40 TON 🎁</h2>
+            <p>Подпишись на два наших канала, чтобы получить приветственный баланс!</p>
+            
+            <a href="https://t.me/durov" target="_blank" class="tg-link tg-btn" onclick="state.subClicks++">Твой Канал 1 📢</a>
+            <a href="https://t.me/telegram" target="_blank" class="tg-link tg-btn" onclick="state.subClicks++">Твой Канал 2 💬</a>
+            
+            <button class="main-btn" onclick="claimBonus()">ПРОВЕРИТЬ</button>
+            <button class="cancel-btn" onclick="closeBonus()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div class="header">
         <div class="logo">
-            <svg><use href="#ton-logo-svg"></use></svg>
-            <span>TON ROLLS</span>
+            <svg><use href="#ton-logo-template"></use></svg>
+            <span>ROLLS</span>
         </div>
         <div class="header-rigth">
             <div class="balance-pill">
-                <span id="bal-display">0.00</span>
-                <svg><use href="#ton-logo-svg"></use></svg>
+                <span id="bal-val">0.00</span>
+                <svg><use href="#ton-logo-template"></use></svg>
             </div>
-            <div class="icon-btn" onclick="openChat()">💬</div>
+            <div class="icon-btn" onclick="alert('Чат в разработке')">
+                <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            </div>
         </div>
-    </header>
+    </div>
 
-    <main class="content">
+    <div class="content">
         
-        <section id="view-pvp" class="screen active">
+        <div id="view-pvp" class="screen active">
             <div class="arena-card">
-                <div style="text-transform: uppercase; font-size: 11px; color: var(--color-text-muted); font-weight: 800; letter-spacing: 1px;">Общий банк битвы</div>
-                <div id="pvp-bank" style="font-size: 28px; font-weight: 900; font-family: 'Outfit'; color: var(--color-gold); margin: 5px 0;">0.00 TON</div>
-                
+                <div class="bank-info">БАНК ИГРЫ: <b id="pvp-total">0.00 TON</b></div>
                 <div class="wheel-box">
+                    <div class="wheel-pointer"></div>
                     <canvas id="wheel" width="600" height="600"></canvas>
                     <div class="wheel-center" id="pvp-timer">20</div>
-                    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 100;"></div>
                 </div>
-
-                <div style="background: var(--bg-lighter); border: 1px solid var(--color-border); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                    <svg style="width:20px; height:20px;"><use href="#ton-logo-svg"></use></svg>
-                    <input type="number" id="pvp-bet" value="1.00" style="background:none; border:none; color:#fff; font-size:18px; font-weight:800; width:100%; outline:none;">
+                <div class="bet-input-wrap">
+                    <svg><use href="#ton-logo-template"></use></svg>
+                    <input type="number" id="pvp-input" value="10.00">
                 </div>
-                
-                <button class="main-btn" onclick="handleJoinPVP()">Вступить в игру</button>
+                <button class="main-btn" onclick="joinPVP()">Вступить в битву</button>
             </div>
-        </section>
+            <div id="pvp-list" style="margin-top: 15px;"></div>
+        </div>
 
-        <section id="view-solo" class="screen">
+        <div id="view-solo" class="screen">
             
-            <div id="solo-main-menu">
-                <h2 style="font-family: 'Outfit'; text-align: center; margin-bottom: 20px;">ИГРОВЫЕ РЕЖИМЫ</h2>
+            <div id="solo-menu-block">
+                <h2 style="font-family: 'Outfit'; text-align: center;">SOLO РЕЖИМ</h2>
                 <div class="solo-menu-grid">
-                    
-                    <div class="mode-card" onclick="switchSolo('elite')">
-                        <div class="badge">Hot</div>
-                        <h3>ELITE CASE</h3>
-                        <p>Цена: 1.50 TON. Испытай удачу в рулетке!</p>
-                    </div>
-
-                    <div class="mode-card" onclick="switchSolo('upgrade')">
+                    <div class="solo-mode-card" onclick="openSoloMode('upgrade')">
                         <h3>UPGRADE</h3>
-                        <p>Рискуй и умножай баланс до x50 за раз.</p>
+                        <p>Умножай свой баланс с шансом на успех</p>
                     </div>
-
-                    <div class="mode-card" onclick="switchSolo('lvl-cases')">
-                        <h3>LVL CASES</h3>
-                        <p>Бесплатные кейсы за каждый новый уровень.</p>
-                    </div>
-
-                </div>
-            </div>
-
-            <div id="solo-elite-view" style="display: none;">
-                <button class="back-btn" onclick="exitSoloMode()">◀ К списку режимов</button>
-                <div class="case-container">
-                    <h2 style="font-family: 'Outfit';">ELITE ROLL</h2>
-                    <p style="color: var(--color-text-muted); font-size: 13px;">Стоимость открытия — 1.50 TON</p>
-
-                    <div class="roulette-wrapper">
-                        <div class="roulette-line"></div>
-                        <div id="roulette-track" class="roulette-track"></div>
-                    </div>
-
-                    <button id="btn-spin-elite" class="main-btn" onclick="startEliteSpin()">ОТКРЫТЬ ЗА 1.5 TON</button>
-
-                    <div style="margin-top: 35px; text-align: left;">
-                        <span style="font-size: 12px; font-weight: 800; color: var(--color-text-muted); padding-left: 5px;">СОДЕРЖИМОЕ КЕЙСА:</span>
-                        <div class="drop-list" id="elite-drop-list">
-                            </div>
+                    <div class="solo-mode-card" onclick="openSoloMode('cases')">
+                        <h3>КЕЙСЫ</h3>
+                        <p>Открывай кейсы за уровни и получай TON</p>
                     </div>
                 </div>
             </div>
 
-            <div id="solo-upgrade-view" style="display: none;">
-                <button class="back-btn" onclick="exitSoloMode()">◀ Назад</button>
-                <div style="text-align: center; padding: 20px;">
-                    <h2 style="font-family: 'Outfit';">UPGRADE MODE</h2>
-                    <div id="up-chance-display" style="font-size: 48px; font-weight: 900; color: var(--color-accent); margin: 30px 0;">47.5%</div>
-                    <button class="main-btn" onclick="handleUpgrade()">Попытать удачу</button>
+            <div id="solo-upgrade-block" style="display: none;">
+                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
+                <div class="upgrade-box">
+                    <h2 style="font-family: 'Outfit'; margin-bottom: 20px;">UPGRADE</h2>
+                    <div class="up-circle-wrap">
+                        <svg class="up-svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="up-bg"/>
+                            <circle id="up-progress" cx="50" cy="50" r="45" class="up-progress"/>
+                        </svg>
+                        <div class="up-data"><div class="up-perc" id="up-chance">50%</div></div>
+                    </div>
+                    <div class="up-grid">
+                        <button class="up-btn active" onclick="setMult(2, this)">x2</button>
+                        <button class="up-btn" onclick="setMult(5, this)">x5</button>
+                        <button class="up-btn" onclick="setMult(10, this)">x10</button>
+                        <button class="up-btn" onclick="setMult(50, this)">x50</button>
+                    </div>
+                    <div class="bet-input-wrap">
+                        <input type="number" id="up-input" value="10.00" oninput="recalcUp()">
+                    </div>
+                    <button class="main-btn" onclick="playUpgrade()">Апгрейд</button>
                 </div>
             </div>
 
-        </section>
+            <div id="solo-cases-block" style="display: none;">
+                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
+                <h2 style="font-family: 'Outfit'; text-align: center; margin-bottom: 20px;">УРОВНЕВЫЕ КЕЙСЫ</h2>
+                <div class="case-grid" id="case-container">
+                    </div>
+            </div>
 
-        <section id="view-profile" class="screen">
-            <div style="text-align: center;">
-                <div style="position: relative; display: inline-block;">
-                    <img src="https://ui-avatars.com/api/?name=P&background=0088cc&color=fff" style="width: 90px; border-radius: 25px; border: 3px solid var(--color-border);">
-                </div>
-                <h3 style="margin-top: 15px; font-family: 'Outfit'; font-size: 22px;">@Player_TON</h3>
+        </div>
+
+        <div id="view-shop" class="screen">
+            <h2 style="text-align: center; margin-top: 50px; font-family: 'Outfit';">МАГАЗИН</h2>
+            <p style="text-align: center; color: var(--text-m);">Скины в разработке</p>
+        </div>
+
+        <div id="view-profile" class="screen">
+            <div style="text-align: center; padding: 20px;">
+                <img src="https://ui-avatars.com/api/?name=Player&background=0088cc&color=fff" style="width: 80px; border-radius: 20px; border: 2px solid var(--accent);">
+                <h3 style="margin-top: 10px;">@Player_TON</h3>
                 
-                <div class="lvl-section">
-                    <div class="lvl-info">
-                        <span>УРОВЕНЬ <span id="user-lvl">1</span></span>
-                        <span id="lvl-next-val">10.00 TON</span>
+                <div class="lvl-container" style="margin-top: 20px;">
+                    <div class="lvl-header">
+                        <span>УРОВЕНЬ <span id="cur-lvl" style="color:var(--accent)">1</span></span>
+                        <span id="lvl-next-text">10 TON</span>
                     </div>
-                    <div class="lvl-bar-bg">
-                        <div id="user-lvl-fill" class="lvl-bar-fill"></div>
-                    </div>
-                    <div style="margin-top: 10px; font-size: 10px; color: var(--color-text-muted); text-align: left;">
-                        Прокручено всего: <span id="user-wager">0.00</span> / <span id="user-target">10.00</span> TON
-                    </div>
+                    <div class="lvl-bar"><div id="lvl-fill" class="lvl-fill"></div></div>
+                    <div style="font-size: 10px; color: var(--text-m); margin-top: 8px;">Оборот: <span id="total-wager">0.00</span> / <span id="next-target">10</span> TON</div>
                 </div>
-
-                <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div style="background: var(--bg-card); padding: 15px; border-radius: 15px; border: 1px solid var(--color-border);">
-                        <div style="font-size: 10px; color: var(--color-text-muted);">Игр в PVP</div>
-                        <div style="font-weight: 800;">12</div>
-                    </div>
-                    <div style="background: var(--bg-card); padding: 15px; border-radius: 15px; border: 1px solid var(--color-border);">
-                        <div style="font-size: 10px; color: var(--color-text-muted);">Кейсов открыто</div>
-                        <div style="font-weight: 800;">4</div>
-                    </div>
-                </div>
-
-                <button onclick="systemReset()" style="margin-top: 40px; color: var(--color-red); background: none; border: 1px solid var(--color-red); padding: 10px; border-radius: 10px; font-size: 12px; width: 100%;">СБРОСИТЬ ДАННЫЕ АККАУНТА</button>
+                
+                <button onclick="resetData()" style="margin-top: 15px; padding: 10px; border-radius: 8px; background: var(--red); color: white; border: none; width: 100%; cursor: pointer;">Сбросить аккаунт (для теста)</button>
             </div>
-        </section>
-
-    </main>
+        </div>
+    </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="navigate('pvp', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
-            <span>Арена</span>
+        <div class="nav-item active" onclick="tab('pvp', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg><span>Арена</span>
         </div>
-        <div class="nav-item" onclick="navigate('solo', this)">
-            <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
-            <span>Solo</span>
+        <div class="nav-item" onclick="tab('solo', this)">
+            <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg><span>Solo</span>
         </div>
-        <div class="nav-item" onclick="navigate('profile', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span>Профиль</span>
+        <div class="nav-item" onclick="tab('shop', this)">
+            <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Магазин</span>
+        </div>
+        <div class="nav-item" onclick="tab('profile', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Профиль</span>
         </div>
     </nav>
 
-    <script>
-        /**
-         * ГЛОБАЛЬНОЕ СОСТОЯНИЕ (STATE)
-         */
-        let appState = {
-            balance: parseFloat(localStorage.getItem('user_bal')) || 10.00,
-            wager: parseFloat(localStorage.getItem('user_wager')) || 0.00,
-            level: parseInt(localStorage.getItem('user_lvl')) || 1,
-            isSpinning: false,
-            currentScreen: 'pvp',
-            pvp: {
-                totalBank: 0.00,
-                timer: 20,
-                players: []
-            }
-        };
+<script>
+    // ==========================================
+    // СИСТЕМА СОХРАНЕНИЯ (LOCAL STORAGE)
+    // ==========================================
+    let state = {
+        bal: parseFloat(localStorage.getItem('ton_bal')) || 0.0,
+        subClicks: 0,
+        wager: parseFloat(localStorage.getItem('ton_wager')) || 0.0,
+        lvl: parseInt(localStorage.getItem('ton_lvl')) || 1,
+        openedCases: JSON.parse(localStorage.getItem('ton_cases')) || [],
+        bonusClaimed: localStorage.getItem('ton_bonus') === 'true',
+        
+        pvp: { players: [], timer: 20, spinning: false },
+        solo: { mult: 2 }
+    };
 
-        /**
-         * КОНФИГУРАЦИЯ ЭЛИТНОГО КЕЙСА (1.5 TON)
-         */
-        const ELITE_CASE_ITEMS = [
-            { id: 1, name: "Окурок", val: 0.10, chance: 40, rarity: 'common', icon: '💩' },
-            { id: 2, name: "Коробка", val: 0.35, chance: 30, rarity: 'common', icon: '📦' },
-            { id: 3, name: "Малый TON", val: 1.00, chance: 15, rarity: 'rare', icon: '💎' },
-            { id: 4, name: "ОКУП", val: 1.50, chance: 14.8, rarity: 'rare', icon: '💰' },
-            { id: 5, name: "SILVER", val: 50.0, chance: 0.15, rarity: 'epic', icon: '🔥' },
-            { id: 6, name: "JACKPOT", val: 100.0, chance: 0.05, rarity: 'legendary', icon: '👑' }
-        ];
+    const LVL_THRESHOLDS = [10, 20, 30, 40, 50];
+    const CASE_LOOT = [0.001, 0.02, 0.1, 0.3, 0.5, 0.75, 1.0];
 
-        /**
-         * ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
-         */
-        window.addEventListener('DOMContentLoaded', () => {
-            renderEliteItemsInfo();
-            updateGlobalUI();
-            
-            // Заглушка для PVP колеса
-            const canvas = document.getElementById('wheel');
-            const ctx = canvas.getContext('2d');
-            ctx.beginPath();
-            ctx.arc(300, 300, 280, 0, 2 * Math.PI);
-            ctx.fillStyle = '#121214';
-            ctx.fill();
-        });
+    function saveState() {
+        localStorage.setItem('ton_bal', state.bal);
+        localStorage.setItem('ton_wager', state.wager);
+        localStorage.setItem('ton_lvl', state.lvl);
+        localStorage.setItem('ton_cases', JSON.stringify(state.openedCases));
+        localStorage.setItem('ton_bonus', state.bonusClaimed);
+        updateUI();
+    }
 
-        /**
-         * ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
-         */
-        function updateGlobalUI() {
-            document.getElementById('bal-display').innerText = appState.balance.toFixed(2);
-            document.getElementById('user-lvl').innerText = appState.level;
-            document.getElementById('user-wager').innerText = appState.wager.toFixed(2);
-            
-            const target = appState.level * 15; // Формула уровня
-            document.getElementById('user-target').innerText = target.toFixed(2);
-            document.getElementById('lvl-next-val').innerText = target.toFixed(2) + " TON";
-            
-            const perc = (appState.wager / target) * 100;
-            document.getElementById('user-lvl-fill').style.width = Math.min(perc, 100) + "%";
-            
-            localStorage.setItem('user_bal', appState.balance);
-            localStorage.setItem('user_wager', appState.wager);
-            localStorage.setItem('user_lvl', appState.level);
+    // Сброс для теста 
+    function resetData() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    // ==========================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ==========================================
+    window.onload = () => {
+        if (!state.bonusClaimed) {
+            setTimeout(() => {
+                document.getElementById('sub-modal').style.display = 'flex';
+            }, 1000);
+        } else {
+            if(state.bal === 0 && state.wager === 0) { state.bal = 10; saveState(); }
         }
+        updateUI();
+        drawWheel();
+        recalcUp();
+        renderCases();
+    };
 
-        /**
-         * НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ
-         */
-        function navigate(screenId, el) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    // БОНУС ЗА ПОДПИСКУ (ЗАКРЫТЬ И ПРОВЕРИТЬ)
+    function closeBonus() {
+        document.getElementById('sub-modal').style.display = 'none';
+    }
+
+    function claimBonus() {
+        if(state.subClicks >= 2) {
+            state.bal += 0.40;
+            state.bonusClaimed = true;
+            saveState();
+            closeBonus();
+            alert("Красава! 0.40 TON зачислены на баланс!");
+        } else {
+            alert("Пожалуйста, перейди по обеим ссылкам на каналы!");
+        }
+    }
+
+    // НАВИГАЦИЯ
+    function tab(name, el) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('view-' + name).classList.add('active');
+        el.classList.add('active');
+        
+        if(name === 'solo') backToSoloMenu();
+    }
+
+    function openSoloMode(mode) {
+        document.getElementById('solo-menu-block').style.display = 'none';
+        if (mode === 'upgrade') {
+            document.getElementById('solo-upgrade-block').style.display = 'block';
+        } else if (mode === 'cases') {
+            document.getElementById('solo-cases-block').style.display = 'block';
+            renderCases(); 
+        }
+    }
+
+    function backToSoloMenu() {
+        document.getElementById('solo-upgrade-block').style.display = 'none';
+        document.getElementById('solo-cases-block').style.display = 'none';
+        document.getElementById('solo-menu-block').style.display = 'block';
+    }
+
+    function addWager(amt) {
+        state.wager += amt;
+        let nextT = LVL_THRESHOLDS[state.lvl-1] || 50;
+        if(state.wager >= nextT && state.lvl < 5) {
+            state.lvl++;
+            alert("🔥 ПОЗДРАВЛЯЕМ! ДОСТИГНУТ УРОВЕНЬ " + state.lvl + "!");
+        }
+        saveState();
+    }
+
+    function updateUI() {
+        document.getElementById('bal-val').innerText = state.bal.toFixed(2);
+        document.getElementById('cur-lvl').innerText = state.lvl;
+        document.getElementById('total-wager').innerText = state.wager.toFixed(2);
+        
+        let target = LVL_THRESHOLDS[state.lvl-1] || 50;
+        document.getElementById('next-target').innerText = target;
+        document.getElementById('lvl-next-text').innerText = target + " TON";
+        let perc = (state.wager / target) * 100;
+        document.getElementById('lvl-fill').style.width = Math.min(perc, 100) + "%";
+    }
+
+    // ==========================================
+    // КЕЙСЫ
+    // ==========================================
+    function renderCases() {
+        const container = document.getElementById('case-container');
+        container.innerHTML = '';
+        for(let i=1; i<=5; i++) {
+            const isLocked = state.lvl < i;
+            const isOpened = state.openedCases.includes(i);
+            const card = document.createElement('div');
+            card.className = `case-card-item ${isLocked ? 'locked' : ''}`;
             
-            document.getElementById('view-' + screenId).classList.add('active');
-            el.classList.add('active');
-            appState.currentScreen = screenId;
-        }
-
-        /**
-         * УПРАВЛЕНИЕ SOLO РЕЖИМАМИ
-         */
-        function switchSolo(mode) {
-            document.getElementById('solo-main-menu').style.display = 'none';
-            if(mode === 'elite') {
-                document.getElementById('solo-elite-view').style.display = 'block';
-                prepareRoulette();
-            } else if(mode === 'upgrade') {
-                document.getElementById('solo-upgrade-view').style.display = 'block';
-            }
-        }
-
-        function exitSoloMode() {
-            document.getElementById('solo-main-menu').style.display = 'block';
-            document.getElementById('solo-elite-view').style.display = 'none';
-            document.getElementById('solo-upgrade-view').style.display = 'none';
-        }
-
-        /**
-         * ЛОГИКА ЭЛИТНОГО КЕЙСА
-         */
-        function renderEliteItemsInfo() {
-            const list = document.getElementById('elite-drop-list');
-            list.innerHTML = ELITE_CASE_ITEMS.map(item => `
-                <div class="drop-card" style="border-bottom: 2px solid var(--color-${item.rarity === 'common' ? 'border' : (item.rarity === 'rare' ? 'accent' : (item.rarity === 'epic' ? 'purple' : 'gold'))})">
-                    <span class="emoji">${item.icon}</span>
-                    <div class="val">${item.val.toFixed(2)}</div>
-                    <div class="prob">${item.chance}%</div>
-                </div>
-            `).join('');
-        }
-
-        function prepareRoulette() {
-            const track = document.getElementById('roulette-track');
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0)';
-            track.innerHTML = '';
-            
-            // Генерируем 70 случайных предметов для ленты
-            for(let i = 0; i < 80; i++) {
-                // В начале и конце ленты ставим больше "мусора" для реализма
-                const randItem = ELITE_CASE_ITEMS[Math.floor(Math.random() * 4)]; 
-                const card = createItemCard(randItem);
-                track.appendChild(card);
-            }
-        }
-
-        function createItemCard(item) {
-            const div = document.createElement('div');
-            div.className = `case-item ${item.rarity}`;
-            div.innerHTML = `
-                <span style="font-size: 32px;">${item.icon}</span>
-                <span class="amount">${item.val.toFixed(2)}</span>
+            // Вставил SVG иконку сундука вместо картинки из интернета
+            card.innerHTML = `
+                <div class="case-badge">LVL ${i}</div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="${isLocked ? '#777' : '#f7a809'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;">
+                    <rect x="3" y="8" width="18" height="12" rx="2" ry="2"></rect>
+                    <path d="M12 8v12"></path>
+                    <path d="M8 8V6a4 4 0 0 1 8 0v2"></path>
+                </svg>
+                <div style="font-weight: 800; font-size: 14px;">КЕЙС ${i}</div>
+                <button class="main-btn" style="padding: 10px; font-size: 12px; margin-top:10px;" 
+                    onclick="openCase(${i})" ${isLocked || isOpened ? 'disabled' : ''}>
+                    ${isOpened ? 'ОТКРЫТ' : (isLocked ? 'ЗАКРЫТ' : 'ОТКРЫТЬ')}
+                </button>
             `;
-            return div;
+            container.appendChild(card);
         }
+    }
 
-        function startEliteSpin() {
-            if(appState.isSpinning) return;
-            if(appState.balance < 1.5) {
-                alert("Недостаточно TON для открытия!");
-                return;
-            }
+    function openCase(id) {
+        if(state.openedCases.includes(id)) return;
+        const win = CASE_LOOT[Math.floor(Math.random() * CASE_LOOT.length)];
+        state.bal += win;
+        state.openedCases.push(id);
+        saveState();
+        alert(`🎉 ВЫИГРЫШ: ${win} TON!`);
+        renderCases(); 
+    }
 
-            // Списываем баланс
-            appState.balance -= 1.5;
-            appState.wager += 1.5;
-            appState.isSpinning = true;
-            document.getElementById('btn-spin-elite').disabled = true;
-            updateGlobalUI();
+    // ==========================================
+    // PVP АРЕНА (КОЛЕСО)
+    // ==========================================
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const colors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71', '#9b59b6'];
 
-            const track = document.getElementById('roulette-track');
-            prepareRoulette(); // Обновляем ленту перед спином
-
-            // ОПРЕДЕЛЯЕМ ПОБЕДИТЕЛЯ (МАТЕМАТИКА ШАНСОВ)
-            const randomPoint = Math.random() * 100;
-            let winner = ELITE_CASE_ITEMS[0];
-            let currentSum = 0;
-
-            for(const item of ELITE_CASE_ITEMS) {
-                currentSum += item.chance;
-                if(randomPoint <= currentSum) {
-                    winner = item;
-                    break;
-                }
-            }
-
-            // Вставляем победителя на 70-ю позицию (куда приедет рулетка)
-            const cards = track.querySelectorAll('.case-item');
-            const targetIndex = 70;
-            const winningCard = createItemCard(winner);
-            cards[targetIndex].replaceWith(winningCard);
-
-            // ЗАПУСК АНИМАЦИИ
-            // Ширина карточки 110 + margin 12 = 122px
-            const cardFullWidth = 122;
-            const trackContainerWidth = document.querySelector('.roulette-wrapper').offsetWidth;
-            const centerOffset = (trackContainerWidth / 2) - (cardFullWidth / 2);
-            const finalPosition = -(targetIndex * cardFullWidth) + centerOffset;
-
-            setTimeout(() => {
-                track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
-                // Небольшой случайный сдвиг внутри карточки для естественности
-                const randomInnerOffset = (Math.random() * 60) - 30;
-                track.style.transform = `translateX(${finalPosition + randomInnerOffset}px)`;
-            }, 50);
-
-            // ЗАВЕРШЕНИЕ СПИНА
-            setTimeout(() => {
-                appState.balance += winner.val;
-                appState.isSpinning = false;
-                document.getElementById('btn-spin-elite').disabled = false;
-                
-                // Проверка на повышение уровня
-                const nextTarget = appState.level * 15;
-                if(appState.wager >= nextTarget) {
-                    appState.level++;
-                    alert(`🎊 ПОЗДРАВЛЯЕМ! Вы достигли уровня ${appState.level}!`);
-                }
-                
-                updateGlobalUI();
-                alert(`Выпало: ${winner.name} (+${winner.val.toFixed(2)} TON)`);
-            }, 6500);
+    function drawWheel() {
+        const r = canvas.width / 2;
+        ctx.clearRect(0,0,600,600);
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        if (total === 0) {
+            ctx.beginPath(); ctx.arc(r,r,r-20,0,Math.PI*2);
+            ctx.fillStyle = '#121214'; ctx.fill();
+            return;
         }
+        let start = 0;
+        state.pvp.players.forEach((p) => {
+            const arc = (p.bet / total) * 2 * Math.PI;
+            ctx.beginPath(); ctx.moveTo(r,r);
+            ctx.arc(r, r, r-10, start, start + arc);
+            ctx.fillStyle = p.color; ctx.fill();
+            ctx.lineWidth = 4; ctx.strokeStyle = '#050505'; ctx.stroke();
+            start += arc;
+        });
+    }
 
-        /**
-         * ПРОЧИЕ ФУНКЦИИ
-         */
-        function handleJoinPVP() {
-            const bet = parseFloat(document.getElementById('pvp-bet').value);
-            if(bet > appState.balance) return alert("Мало TON");
-            appState.balance -= bet;
-            appState.wager += bet;
-            updateGlobalUI();
-            alert("Ставка принята! Ожидание игроков...");
-        }
+    function joinPVP() {
+        if (state.pvp.spinning) return;
+        const bet = parseFloat(document.getElementById('pvp-input').value);
+        if (isNaN(bet) || bet <= 0) return alert("Введите сумму!");
+        if (state.bal < bet) return alert("Недостаточно TON");
+        
+        state.bal -= bet;
+        addWager(bet); 
+        
+        state.pvp.players.push({ 
+            name: "Вы", 
+            bet: bet, 
+            color: colors[state.pvp.players.length % colors.length], 
+            ava: "https://ui-avatars.com/api/?name=ME&background=0088cc&color=fff" 
+        });
+        updatePVPList();
+        drawWheel();
+    }
 
-        function systemReset() {
-            if(confirm("Вы уверены, что хотите сбросить прогресс?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+    function updatePVPList() {
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        document.getElementById('pvp-total').innerText = total.toFixed(2) + " TON";
+        document.getElementById('pvp-list').innerHTML = state.pvp.players.map(p => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #121214; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 4px solid ${p.color}">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="${p.ava}" style="width: 32px; border-radius: 8px;">
+                    <span style="font-weight: 800; font-size: 14px;">${p.name}</span>
+                </div>
+                <div style="font-weight: 900;">${p.bet.toFixed(2)} TON</div>
+            </div>
+        `).join('');
+    }
 
-        function openChat() {
-            alert("Чат временно недоступен. Ведутся технические работы.");
+    setInterval(() => {
+        if (state.pvp.spinning || state.pvp.players.length === 0) return;
+        state.pvp.timer--;
+        document.getElementById('pvp-timer').innerText = state.pvp.timer;
+        if (state.pvp.timer <= 0) spinPVP();
+    }, 1000);
+
+    function spinPVP() {
+        state.pvp.spinning = true;
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        const rand = Math.random() * total;
+        let winner = state.pvp.players[0], acc = 0;
+        
+        for(let p of state.pvp.players) { 
+            acc += p.bet; 
+            if (rand <= acc) { winner = p; break; } 
         }
         
-    </script>
+        canvas.style.transition = "transform 5s cubic-bezier(0.1, 0, 0.1, 1)";
+        canvas.style.transform = `rotate(${360 * 5 + Math.random() * 360}deg)`;
+        
+        setTimeout(() => {
+            alert("Победил " + winner.name);
+            if (winner.name === "Вы") {
+                state.bal += total;
+                saveState();
+            }
+            state.pvp = { players: [], timer: 20, spinning: false };
+            canvas.style.transition = "none"; canvas.style.transform = "rotate(-90deg)";
+            updatePVPList(); drawWheel();
+        }, 5500);
+    }
+
+    // ==========================================
+    // SOLO UPGRADE
+    // ==========================================
+    function setMult(m, btn) {
+        state.solo.mult = m;
+        document.querySelectorAll('.up-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        recalcUp();
+    }
+
+    function recalcUp() {
+        const chance = (100 / state.solo.mult) * 0.95; 
+        document.getElementById('up-chance').innerText = chance.toFixed(0) + "%";
+        document.getElementById('up-progress').style.strokeDashoffset = 282.7 - (282.7 * (chance / 100));
+    }
+
+    function playUpgrade() {
+        const bet = parseFloat(document.getElementById('up-input').value);
+        if (isNaN(bet) || bet <= 0) return alert("Введите сумму!");
+        if (state.bal < bet) return alert("Недостаточно TON");
+        
+        state.bal -= bet;
+        addWager(bet);
+        
+        const chance = (100 / state.solo.mult) * 0.95;
+        if (Math.random() * 100 <= chance) {
+            const win = bet * state.solo.mult;
+            state.bal += win; 
+            saveState();
+            alert(`✅ УСПЕХ! Выиграно ${win.toFixed(2)} TON`);
+        } else {
+            saveState();
+            alert("❌ НЕ ПОВЕЗЛО");
+        }
+    }
+</script>
 </body>
 </html>
+
+
