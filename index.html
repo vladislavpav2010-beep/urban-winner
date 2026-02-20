@@ -1,604 +1,116 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CIRCLE GIFT - MASTER PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        /* === ПОЛНАЯ БАЗА ПЕРЕМЕННЫХ И СТИЛЕЙ === */
-        :root {
-            --bg-color: #030305;
-            --card-bg: #0c0c10;
-            --primary: #6366f1; /* Индиго/Фиолетовый вместо банального синего */
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --gold: #fbbf24;
-            --text-main: #ffffff;
-            --text-muted: #6b7280;
-            --border-color: #1f2937;
-            --danger: #ef4444;
-            --success: #10b981;
-            --nav-bg: rgba(10, 10, 15, 0.95);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON ROLLS</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-        body { background: var(--bg-color); color: var(--text-main); font-family: 'Manrope', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-
-        /* === HEADER === */
-        .app-header {
-            height: 70px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color); position: fixed; top: 0; width: 100%; z-index: 1000;
-        }
-        .logo-block { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px; display: flex; align-items: center; gap: 10px; color: var(--text-main); letter-spacing: 1px; }
-        .logo-block svg { width: 28px; height: 28px; fill: var(--primary); filter: drop-shadow(0 0 8px var(--primary-glow)); }
-        
-        .balance-widget { 
-            background: #111116; padding: 8px 16px; border-radius: 12px; 
-            border: 1px solid var(--border-color); display: flex; align-items: center; 
-            gap: 8px; font-weight: 800; font-family: 'Outfit'; font-size: 16px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        /* === SCREENS & NAVIGATION === */
-        .main-content { padding-top: 80px; padding-bottom: 100px; flex: 1; overflow-y: auto; scroll-behavior: smooth; }
-        .screen { display: none; padding: 0 15px; animation: screenFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .screen.active { display: block; }
-        @keyframes screenFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bottom-nav { 
-            position: fixed; bottom: 0; width: 100%; height: 85px; 
-            background: var(--nav-bg); border-top: 1px solid var(--border-color); 
-            display: flex; justify-content: space-around; padding-bottom: 25px; z-index: 1000;
-            backdrop-filter: blur(15px);
-        }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 800; text-transform: uppercase; width: 25%; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active { color: var(--primary); }
-        .nav-btn svg { width: 26px; height: 26px; fill: currentColor; transition: transform 0.2s; }
-        .nav-btn.active svg { transform: translateY(-3px); filter: drop-shadow(0 4px 6px var(--primary-glow)); }
-
-        /* === UI COMPONENTS === */
-        .panel { background: var(--card-bg); border-radius: 24px; padding: 25px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        .action-btn { 
-            width: 100%; padding: 18px; background: var(--primary); color: #fff; 
-            border-radius: 16px; font-weight: 900; font-family: 'Outfit'; font-size: 15px;
-            text-transform: uppercase; border: none; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 6px 20px var(--primary-glow); letter-spacing: 1px;
-        }
-        .action-btn:active { transform: scale(0.96); box-shadow: none; }
-        .action-btn:disabled { background: #2a2a35; color: #555; box-shadow: none; cursor: not-allowed; }
-
-        .input-box { background: #08080b; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .input-box input { background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 800; width: 100%; font-family: 'Outfit'; }
-
-        /* === ARENA WHEEL (ПОЛНОЦЕННАЯ РУЛЕТКА) === */
-        .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 0 auto 30px; }
-        #arena-canvas { width: 100%; height: 100%; border-radius: 50%; filter: drop-shadow(0 0 25px rgba(0,0,0,0.6)); transition: transform 5s cubic-bezier(0.2, 0, 0, 1); border: 4px solid var(--border-color); }
-        .wheel-indicator { 
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent;
-            border-top: 35px solid var(--text-main); z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
-        }
-        .arena-bank { font-size: 13px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; text-align: center;}
-        
-        /* СПИСОК ИГРОКОВ (БОТОВ) */
-        .player-row { 
-            background: #111116; padding: 14px 18px; border-radius: 14px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 10px; border: 1px solid var(--border-color);
-            animation: slideInRight 0.3s ease-out forwards;
-        }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* === ХАРДКОРНЫЙ PLINKO === */
-        .plinko-board { 
-            position: relative; width: 100%; height: 380px; background: #050508; 
-            border-radius: 24px; border: 1px solid var(--border-color); margin-bottom: 20px; 
-            overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-        }
-        .plinko-peg { position: absolute; width: 8px; height: 8px; background: #333; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 4px rgba(255,255,255,0.1); }
-        .plinko-ball { position: absolute; font-size: 24px; z-index: 10; pointer-events: none; filter: drop-shadow(0 0 10px var(--primary)); }
-        
-        .plinko-multipliers { position: absolute; bottom: 0; width: 100%; height: 50px; display: flex; gap: 4px; padding: 0 6px 6px; }
-        .p-mult-box { flex: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: #fff; font-family: 'Outfit'; border-top: 1px solid rgba(255,255,255,0.1); }
-        
-        /* Цвета множителей Плинко (Жесткие цвета для минусов) */
-        .m-bad { background: linear-gradient(180deg, #3f1515, #1a0505); color: var(--danger); }
-        .m-mid { background: linear-gradient(180deg, #3b2a0c, #1a1205); color: var(--gold); }
-        .m-good { background: linear-gradient(180deg, #153f20, #051a0a); color: var(--success); }
-
-        /* === УВЕДОМЛЕНИЯ === */
-        #global-notif {
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
-            padding: 18px 35px; border-radius: 100px; font-weight: 900; font-family: 'Outfit';
-            z-index: 9999; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center; font-size: 16px; letter-spacing: 0.5px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
-        }
-
-        /* === МОДАЛЬНОЕ ОКНО ПОДПИСОК === */
-        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 30px; width: 100%; max-width: 360px; padding: 35px 25px; text-align: center; }
-        .tg-channel-btn { display: block; background: #2AABEE; color: #fff; text-decoration: none; padding: 18px; border-radius: 16px; margin-bottom: 12px; font-weight: 800; font-size: 15px; }
-
-    </style>
+<style>
+:root{
+--bg:#050505;
+--card:#0d0d0f;
+--accent:#0088cc;
+--gold:#f7a809;
+--text:#fff;
+--border:#1f1f22;
+--red:#e74c3c;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
+body{background:var(--bg);color:var(--text)}
+.container{padding:20px}
+.card{background:var(--card);padding:20px;border-radius:16px;border:1px solid var(--border);margin-bottom:20px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#111;color:#fff;margin-bottom:10px}
+button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+button:disabled{background:#333}
+.balance{font-size:20px;margin-bottom:10px}
+</style>
 </head>
 <body>
 
-    <div id="global-notif"></div>
+<div class="container">
 
-    <div id="bonus-modal" class="modal-bg">
-        <div class="modal-content">
-            <div style="font-size: 55px; margin-bottom: 15px;">🎁</div>
-            <h2 style="font-family: 'Outfit'; margin-bottom: 10px;">ПРИВЕТСТВЕННЫЙ БОНУС</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px; line-height: 1.5;">Подпишись на проекты наших спонсоров, чтобы получить первые деньги на баланс!</p>
-            
-            <a href="https://t.me/your_project_link_1" target="_blank" class="tg-channel-btn" onclick="appState.subsClicked++">🟢 НАШ ПРОЕКТ 1</a>
-            <a href="https://t.me/your_project_link_2" target="_blank" class="tg-channel-btn" onclick="appState.subsClicked++">🟡 НАШ ПРОЕКТ 2</a>
-            
-            <button class="action-btn" style="margin-top: 15px;" onclick="checkBonus()">ПРОВЕРИТЬ ПОДПИСКУ</button>
-            <button onclick="document.getElementById('bonus-modal').style.display='none'" style="background:none; border:none; color:var(--text-muted); margin-top:20px; font-weight:800; font-size: 12px; cursor:pointer;">ЗАКРЫТЬ</button>
-        </div>
-    </div>
+<div class="card">
+<div class="balance">Баланс: <span id="bal">0.00</span> TON</div>
+</div>
 
-    <header class="app-header">
-        <div class="logo-block">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-            <span>CIRCLE GIFT</span>
-        </div>
-        <div class="balance-widget">
-            <span id="ui-balance">0.00</span>
-            <span style="color: var(--primary); font-size: 12px;">CG</span>
-        </div>
-    </header>
+<div class="card">
+<h3>UPGRADE</h3>
+<input type="number" id="up-bet" min="0.01" step="0.01" value="1.00">
+<button onclick="playUpgrade()">Играть x2 (95%)</button>
+</div>
 
-    <main class="main-content">
-        
-        <div id="tab-arena" class="screen active">
-            <div class="panel">
-                <div class="arena-bank">ОБЩИЙ БАНК: <span id="ui-bank" style="color: var(--gold); font-size: 18px;">0.00</span></div>
-                
-                <div class="wheel-wrapper">
-                    <div class="wheel-indicator"></div>
-                    <canvas id="arena-canvas" width="600" height="600"></canvas>
-                </div>
+<div class="card">
+<h3>PLINKO (упрощённый)</h3>
+<input type="number" id="plinko-bet" min="0.01" step="0.01" value="1.00">
+<button onclick="playPlinko()">Играть</button>
+</div>
 
-                <div id="arena-status" style="font-weight: 900; font-family: 'Outfit'; font-size: 20px; color: var(--text-main); margin-bottom: 20px;">ДЕЛАЙТЕ СТАВКИ</div>
-                
-                <div class="input-box">
-                    <span style="color: var(--text-muted); font-weight: 800;">СТАВКА:</span>
-                    <input type="number" id="arena-bet" value="50.00" step="10">
-                </div>
-                <button class="action-btn" id="btn-join-arena" onclick="joinArena()">ВСТУПИТЬ В ИГРУ</button>
-            </div>
-            
-            <div style="font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 15px; padding-left: 10px;">ИГРОКИ В РАУНДЕ:</div>
-            <div id="arena-players-list">
-                </div>
-        </div>
+<div class="card">
+<button style="background:var(--red)" onclick="resetData()">Сбросить</button>
+</div>
 
-        <div id="tab-solo" class="screen">
-            <div id="solo-menu">
-                <h2 style="font-family: 'Outfit'; margin-bottom: 20px; padding-left: 10px;">ОДИНОЧНЫЕ ИГРЫ</h2>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-                    <div class="panel" style="padding: 30px 20px; text-align: center; cursor: pointer;" onclick="openSoloGame('plinko')">
-                        <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
-                        <h3 style="font-family: 'Outfit'; font-size: 24px; color: var(--primary);">PLINKO PRO</h3>
-                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Сбрось подарок и испытай удачу</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="game-plinko" style="display: none;">
-                <button onclick="closeSoloGame()" style="background:none; border:none; color:var(--text-muted); font-weight:800; margin-bottom:20px; font-size: 14px; cursor: pointer;">◀ НАЗАД В МЕНЮ</button>
-                
-                <div class="panel" style="padding: 15px;">
-                    <div style="text-align: center; margin-bottom: 15px; font-size: 12px; color: var(--danger); font-weight: 800;">ВНИМАНИЕ: ВЫСОКИЙ РИСК ПОТЕРИ</div>
-                    
-                    <div class="plinko-board" id="p-board">
-                        <div class="plinko-multipliers">
-                            <div class="p-mult-box m-good">x5.0</div>
-                            <div class="p-mult-box m-mid">x1.2</div>
-                            <div class="p-mult-box m-bad">x0.1</div>
-                            <div class="p-mult-box m-bad">x0.5</div>
-                            <div class="p-mult-box m-mid">x1.2</div>
-                            <div class="p-mult-box m-good">x3.0</div>
-                        </div>
-                    </div>
-
-                    <div class="input-box">
-                        <input type="number" id="plinko-bet" value="25.00">
-                    </div>
-                    <button class="action-btn" id="btn-drop-plinko" onclick="playPlinko()">БРОСИТЬ ПОДАРОК</button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <nav class="bottom-nav">
-        <div class="nav-btn active" onclick="switchTab('arena', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span>АРЕНА</span>
-        </div>
-        <div class="nav-btn" onclick="switchTab('solo', this)">
-            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5h3V9h4v3h3l-5 5z"/></svg>
-            <span>SOLO ИГРЫ</span>
-        </div>
-    </nav>
+</div>
 
 <script>
-    /* ========================================================
-       ОСНОВНОЕ ЯДРО ПРИЛОЖЕНИЯ И НАДЕЖНОЕ СОХРАНЕНИЕ
-       ======================================================== */
-    const STORAGE_KEY = 'circlegift_balance_v1';
-    
-    let appState = {
-        // Если баланса нет, даем 500 для старта, чтобы было с чем играть
-        balance: parseFloat(localStorage.getItem(STORAGE_KEY)) || 500.00,
-        subsClicked: 0,
-        bonusClaimed: localStorage.getItem('circlegift_bonus') === 'true',
-        
-        // Arena State
-        arena: {
-            players: [],
-            isSpinning: false,
-            timer: 15,
-            interval: null,
-            colors: ["#6366f1", "#fbbf24", "#ef4444", "#10b981", "#8b5cf6", "#ec4899", "#f97316"],
-            // Огромная база ботов для реалистичности
-            botNames: ["CryptoKing", "Whale_99", "DegenBoy", "CircleLover", "RichKid", "Anon_777", "InvestGuru", "GamblePro", "LuckyStrike", "ToTheMoon"]
-        },
-        
-        // Solo State
-        solo: { isPlaying: false }
-    };
 
-    // Надежная функция обновления баланса
-    function updateBalance(amount) {
-        appState.balance += amount;
-        // Защита от NaN
-        if(isNaN(appState.balance)) appState.balance = 0;
-        
-        localStorage.setItem(STORAGE_KEY, appState.balance.toFixed(2));
-        document.getElementById('ui-balance').innerText = appState.balance.toFixed(2);
-    }
+const $ = id => document.getElementById(id);
 
-    // Инициализация при загрузке
-    window.onload = () => {
-        document.getElementById('ui-balance').innerText = appState.balance.toFixed(2);
-        if (!appState.bonusClaimed) {
-            document.getElementById('bonus-modal').style.display = 'flex';
-        }
-        drawArenaWheel();
-    };
+let state = {
+bal: parseFloat(localStorage.getItem('bal')) || 10.00
+};
 
-    // Навигация
-    function switchTab(tabId, el) {
-        if(appState.arena.isSpinning || appState.solo.isPlaying) {
-            showNotification("Дождитесь окончания игры!", "#ef4444");
-            return;
-        }
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        el.classList.add('active');
-    }
+function save(){
+localStorage.setItem('bal', state.bal);
+}
 
-    /* ========================================================
-       ДВИЖОК АРЕНЫ (КОЛЕСО ФОРТУНЫ С БОТАМИ)
-       ======================================================== */
-    const canvas = document.getElementById('arena-canvas');
-    const ctx = canvas.getContext('2d');
+function update(){
+$('bal').innerText = state.bal.toFixed(2);
+save();
+}
 
-    function drawArenaWheel() {
-        ctx.clearRect(0, 0, 600, 600);
-        let totalPool = appState.arena.players.reduce((sum, p) => sum + p.bet, 0);
-        
-        // Пустое колесо, если нет ставок
-        if (totalPool === 0) {
-            ctx.beginPath();
-            ctx.arc(300, 300, 290, 0, Math.PI * 2);
-            ctx.fillStyle = "#111116";
-            ctx.fill();
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#1f2937";
-            ctx.stroke();
-            return;
-        }
+function getBet(id){
+const val = parseFloat($(id).value);
+if(isNaN(val) || val <= 0) return null;
+return val;
+}
 
-        let currentAngle = 0;
-        appState.arena.players.forEach((player) => {
-            let sliceAngle = (player.bet / totalPool) * Math.PI * 2;
-            ctx.beginPath();
-            ctx.moveTo(300, 300);
-            ctx.arc(300, 300, 290, currentAngle, currentAngle + sliceAngle);
-            ctx.fillStyle = player.color;
-            ctx.fill();
-            currentAngle += sliceAngle;
-        });
-    }
+function playUpgrade(){
+const bet = getBet('up-bet');
+if(!bet || state.bal < bet) return;
 
-    function renderArenaPlayers() {
-        const list = document.getElementById('arena-players-list');
-        list.innerHTML = appState.arena.players.map(p => `
-            <div class="player-row">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="width:14px; height:14px; border-radius:4px; background:${p.color};"></div>
-                    <span style="font-weight:700; color:${p.isUser ? '#fff' : '#aaa'}">${p.name}</span>
-                </div>
-                <div style="font-family:'Outfit'; font-weight:900;">${p.bet.toFixed(2)} CG</div>
-            </div>
-        `).join('');
-        
-        let total = appState.arena.players.reduce((s,p) => s + p.bet, 0);
-        document.getElementById('ui-bank').innerText = total.toFixed(2);
-    }
+state.bal -= bet;
 
-    function joinArena() {
-        if (appState.arena.isSpinning) return;
-        
-        let bet = parseFloat(document.getElementById('arena-bet').value);
-        if (isNaN(bet) || bet <= 0) return showNotification("Неверная сумма", "#ef4444");
-        if (bet > appState.balance) return showNotification("Недостаточно баланса!", "#ef4444");
+if(Math.random() <= 0.95){
+state.bal += bet * 2;
+}
 
-        // Списываем деньги
-        updateBalance(-bet);
-        
-        appState.arena.players.push({
-            name: "ВЫ",
-            bet: bet,
-            color: appState.arena.colors[0],
-            isUser: true
-        });
+update();
+}
 
-        document.getElementById('btn-join-arena').disabled = true;
-        renderArenaPlayers();
-        drawArenaWheel();
-        startArenaTimer();
-    }
+function playPlinko(){
+const bet = getBet('plinko-bet');
+if(!bet || state.bal < bet) return;
 
-    function startArenaTimer() {
-        if (appState.arena.interval) return;
-        
-        appState.arena.timer = 12;
-        document.getElementById('arena-status').innerText = `СТАРТ ЧЕРЕЗ: ${appState.arena.timer}с`;
-        document.getElementById('arena-status').style.color = "var(--primary)";
+state.bal -= bet;
 
-        appState.arena.interval = setInterval(() => {
-            appState.arena.timer--;
-            document.getElementById('arena-status').innerText = `СТАРТ ЧЕРЕЗ: ${appState.arena.timer}с`;
-            
-            // Логика добавления ботов
-            if (appState.arena.timer > 2 && appState.arena.players.length < 6 && Math.random() > 0.4) {
-                addBotToArena();
-            }
+const rand = Math.random();
 
-            if (appState.arena.timer <= 0) {
-                clearInterval(appState.arena.interval);
-                appState.arena.interval = null;
-                spinArenaWheel();
-            }
-        }, 1000);
-    }
+let mult = 0.2;
+if(rand > 0.4) mult = 1.5;
+if(rand > 0.8) mult = 5;
 
-    function addBotToArena() {
-        let botName = appState.arena.botNames[Math.floor(Math.random() * appState.arena.botNames.length)];
-        // Боты ставят от 10 до 150
-        let botBet = Math.floor(Math.random() * 140) + 10;
-        let cIdx = appState.arena.players.length % appState.arena.colors.length;
-        
-        appState.arena.players.push({ name: botName, bet: botBet, color: appState.arena.colors[cIdx], isUser: false });
-        renderArenaPlayers();
-        drawArenaWheel();
-    }
+state.bal += bet * mult;
 
-    function spinArenaWheel() {
-        appState.arena.isSpinning = true;
-        document.getElementById('arena-status').innerText = "ВРАЩЕНИЕ...";
-        document.getElementById('arena-status').style.color = "var(--gold)";
+update();
+}
 
-        // Рандомный градус остановки
-        let randomStopDeg = Math.random() * 360;
-        let extraSpins = 360 * 6; // 6 полных оборотов для эффекта
-        let totalRotation = extraSpins + randomStopDeg;
+function resetData(){
+localStorage.removeItem('bal');
+state.bal = 10;
+update();
+}
 
-        canvas.style.transform = `rotate(${totalRotation}deg)`;
-
-        setTimeout(() => {
-            calculateArenaWinner(360 - (randomStopDeg % 360));
-        }, 5100);
-    }
-
-    function calculateArenaWinner(winningDegree) {
-        let totalPool = appState.arena.players.reduce((s,p) => s + p.bet, 0);
-        let winPointer = (winningDegree / 360) * totalPool;
-        
-        let currentSum = 0;
-        let winner = appState.arena.players[0];
-
-        for (let i = 0; i < appState.arena.players.length; i++) {
-            let p = appState.arena.players[i];
-            if (winPointer >= currentSum && winPointer <= currentSum + p.bet) {
-                winner = p;
-                break;
-            }
-            currentSum += p.bet;
-        }
-
-        // Если выиграл игрок - начисляем банк за вычетом 10% комиссии казино
-        if (winner.isUser) {
-            let winAmount = totalPool * 0.90; 
-            updateBalance(winAmount);
-            showNotification(`ВЫ ЗАБРАЛИ БАНК: +${winAmount.toFixed(2)} CG!`, "var(--success)");
-            document.getElementById('arena-status').innerText = "ВЫ ПОБЕДИЛИ!";
-            document.getElementById('arena-status').style.color = "var(--success)";
-        } else {
-            // Если бот - игрок просто потерял ставку (казино в плюсе)
-            showNotification(`ПОБЕДИЛ ${winner.name}`, "var(--danger)");
-            document.getElementById('arena-status').innerText = "ВЫ ПРОИГРАЛИ";
-            document.getElementById('arena-status').style.color = "var(--danger)";
-        }
-
-        setTimeout(resetArena, 3500);
-    }
-
-    function resetArena() {
-        appState.arena.players = [];
-        appState.arena.isSpinning = false;
-        
-        // Сброс визуала без анимации
-        canvas.style.transition = "none";
-        canvas.style.transform = "rotate(0deg)";
-        
-        // Возвращаем анимацию для следующего спина
-        setTimeout(() => {
-            canvas.style.transition = "transform 5s cubic-bezier(0.2, 0, 0, 1)";
-        }, 50);
-
-        document.getElementById('btn-join-arena').disabled = false;
-        document.getElementById('arena-status').innerText = "ДЕЛАЙТЕ СТАВКИ";
-        document.getElementById('arena-status').style.color = "var(--text-main)";
-        
-        renderArenaPlayers();
-        drawArenaWheel();
-    }
-
-
-    /* ========================================================
-       ДВИЖОК PLINKO (ЖЕСТКАЯ МАТЕМАТИКА ДЛЯ КАЗИНО)
-       ======================================================== */
-    function openSoloGame(game) {
-        document.getElementById('solo-menu').style.display = 'none';
-        document.getElementById('game-' + game).style.display = 'block';
-        if(game === 'plinko') buildPlinkoBoard();
-    }
-
-    function closeSoloGame() {
-        if(appState.solo.isPlaying) return showNotification("Дождитесь окончания!", "#ef4444");
-        document.getElementById('game-plinko').style.display = 'none';
-        document.getElementById('solo-menu').style.display = 'block';
-    }
-
-    function buildPlinkoBoard() {
-        const board = document.getElementById('p-board');
-        // Очищаем старые колышки
-        board.querySelectorAll('.plinko-peg').forEach(e => e.remove());
-        
-        // Генерируем колышки (8 рядов)
-        for(let r = 1; r <= 8; r++) {
-            let cols = r + 2;
-            for(let c = 0; c < cols; c++) {
-                const peg = document.createElement('div');
-                peg.className = 'plinko-peg';
-                peg.style.top = (r * 35) + 'px'; // отступ сверху
-                // Центрируем пирамиду
-                peg.style.left = (50 + (c - (cols-1)/2) * 12) + '%'; 
-                board.appendChild(peg);
-            }
-        }
-    }
-
-    function playPlinko() {
-        if (appState.solo.isPlaying) return;
-        
-        let bet = parseFloat(document.getElementById('plinko-bet').value);
-        if (isNaN(bet) || bet <= 0) return showNotification("Неверная ставка", "#ef4444");
-        if (bet > appState.balance) return showNotification("Мало баланса", "#ef4444");
-
-        // Списываем ставку СРАЗУ
-        updateBalance(-bet);
-        appState.solo.isPlaying = true;
-        document.getElementById('btn-drop-plinko').disabled = true;
-
-        const board = document.getElementById('p-board');
-        const ball = document.createElement('div');
-        ball.className = 'plinko-ball';
-        ball.innerText = '🎁';
-        board.appendChild(ball);
-
-        // Логика падения (Склонение в центр к плохим множителям)
-        let posX = 50; 
-        let posY = 10;
-        let currentRow = 1;
-
-        const dropAnim = setInterval(() => {
-            posY += 5;
-            ball.style.top = posY + 'px';
-            ball.style.left = posX + '%';
-
-            // Столкновение с колышком
-            if (posY >= currentRow * 35 && currentRow <= 8) {
-                // ШАНСЫ КАЗИНО: Искусственно тянем шарик к центру (posX = 50)
-                if (posX < 40) {
-                    posX += (Math.random() > 0.3 ? 4 : -4); // Вернуть к центру
-                } else if (posX > 60) {
-                    posX += (Math.random() > 0.3 ? -4 : 4); // Вернуть к центру
-                } else {
-                    posX += (Math.random() > 0.5 ? 4 : -4); // Рандом в центре
-                }
-                currentRow++;
-            }
-
-            // Достижение дна
-            if (posY >= 320) {
-                clearInterval(dropAnim);
-                appState.solo.isPlaying = false;
-                document.getElementById('btn-drop-plinko').disabled = false;
-                
-                // Определение выигрыша по позиции X (6 слотов)
-                // Сектора: x5.0 | x1.2 | x0.1 | x0.5 | x1.2 | x3.0
-                let winMult = 0;
-                if (posX < 25) winMult = 5.0;         // Очень лево (редко)
-                else if (posX < 40) winMult = 1.2;    // Лево
-                else if (posX < 50) winMult = 0.1;    // ЦЕНТР (ЖЕСТКИЙ МИНУС)
-                else if (posX < 60) winMult = 0.5;    // ЦЕНТР (МИНУС)
-                else if (posX < 75) winMult = 1.2;    // Право
-                else winMult = 3.0;                   // Очень право (редко)
-
-                let winAmount = bet * winMult;
-                updateBalance(winAmount);
-
-                if (winMult < 1) {
-                    showNotification(`ПРОИГРЫШ! Множитель: x${winMult}`, "var(--danger)");
-                } else {
-                    showNotification(`ВЫИГРЫШ! Множитель: x${winMult} (+${winAmount.toFixed(2)})`, "var(--success)");
-                }
-
-                setTimeout(() => ball.remove(), 500);
-            }
-        }, 25);
-    }
-
-    /* ========================================================
-       УТИЛИТЫ И БОНУСЫ
-       ======================================================== */
-    function checkBonus() {
-        if (appState.bonusClaimed) {
-            showNotification("Бонус уже был получен ранее!", "var(--danger)");
-            return;
-        }
-        if (appState.subsClicked >= 2) {
-            updateBalance(150.00); // Даем 150 CG за подписку
-            appState.bonusClaimed = true;
-            localStorage.setItem('circlegift_bonus', 'true');
-            document.getElementById('bonus-modal').style.display = 'none';
-            showNotification("УСПЕХ! Зачислено 150.00 CG", "var(--success)");
-        } else {
-            showNotification("Сначала подпишитесь на оба канала!", "var(--danger)");
-        }
-    }
-
-    function showNotification(text, bgColor) {
-        const notif = document.getElementById('global-notif');
-        notif.innerText = text;
-        notif.style.background = bgColor;
-        notif.style.top = "30px";
-        setTimeout(() => {
-            notif.style.top = "-100px";
-        }, 3000);
-    }
+update();
 
 </script>
 </body>
