@@ -7,9 +7,10 @@ import {
   Check, Play, RefreshCw
 } from 'lucide-react';
 
-// Твой токен
+// Твой токен из скриншота
 const BOT_TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI";
 
+// --- Интерфейсы данных ---
 interface User {
   id: number;
   telegram_id: number;
@@ -66,6 +67,7 @@ interface Case {
   }>;
 }
 
+// --- Настройки уровней и редкости ---
 const LVL_THRESHOLDS = [10, 20, 30, 40, 50];
 
 const RARITY_COLORS: Record<string, string> = {
@@ -106,74 +108,55 @@ export default function App() {
   const [referralsData, setReferralsData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
-  // Initialize Telegram WebApp with Token
+  // Стандартные заголовки для API запросов
+  const fetchOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${BOT_TOKEN}`
+    }
+  };
+
+  // Инициализация Telegram WebApp
   useEffect(() => {
-    const initTelegram = async () => {
+    const initApp = async () => {
       try {
         const tg = (window as any).Telegram?.WebApp;
-        let telegramId = 123456789;
+        let telegramId = 123456789; // Тестовый ID
         
         if (tg) {
           tg.ready();
-          tg.expand(); // Разворачиваем на весь экран
+          tg.expand();
           telegramId = tg.initDataUnsafe?.user?.id || 123456789;
         }
         
-        // Отправляем запрос с токеном в заголовке или теле (зависит от твоего API)
-        const res = await fetch(`/api/user?telegram_id=${telegramId}`, {
-            headers: {
-                'Authorization': `Bearer ${BOT_TOKEN}`
-            }
-        });
-        
+        const res = await fetch(`/api/user?telegram_id=${telegramId}`, fetchOptions);
         const userData = await res.json();
         setUser(userData);
         
-        if (!userData.bonus_claimed) {
-          setShowModal('bonus');
-        }
-        
+        if (!userData.bonus_claimed) setShowModal('bonus');
         setLoading(false);
       } catch (err) {
-        console.error('Init error:', err);
-        // Fallback для разработки
-        const res = await fetch('/api/user', {
-          method: 'POST',
-          headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${BOT_TOKEN}`
-          },
-          body: JSON.stringify({ telegram_id: 123456789 })
-        });
-        const userData = await res.json();
-        setUser(userData);
+        console.error("Ошибка инициализации:", err);
         setLoading(false);
       }
     };
-    
-    initTelegram();
+    initApp();
   }, []);
 
+  // Логика загрузки данных вкладок
   useEffect(() => {
     if (!user) return;
     
     const fetchData = async () => {
-      const headers = { 'Authorization': `Bearer ${BOT_TOKEN}` };
-
       if (activeTab === 'arena') {
-        const res = await fetch('/api/arena?status=waiting&status=active', { headers });
-        const data = await res.json();
-        setArenaGames(data || []);
+        const res = await fetch('/api/arena?status=waiting&status=active', fetchOptions);
+        setArenaGames(await res.json() || []);
       } else if (activeTab === 'solo') {
-        const res = await fetch(`/api/cases?user_id=${user.id}`, { headers });
-        const data = await res.json();
-        setCases(data || []);
+        const res = await fetch(`/api/cases?user_id=${user.id}`, fetchOptions);
+        setCases(await res.json() || []);
       } else if (activeTab === 'profile') {
-        const farmRes = await fetch(`/api/farming?user_id=${user.id}`, { headers });
+        const farmRes = await fetch(`/api/farming?user_id=${user.id}`, fetchOptions);
         setFarmingData(await farmRes.json());
-        
-        const refRes = await fetch(`/api/referrals?user_id=${user.id}`, { headers });
-        setReferralsData(await refRes.json());
       }
     };
     
@@ -184,129 +167,22 @@ export default function App() {
 
   const refreshUser = useCallback(async () => {
     if (!user) return;
-    const res = await fetch(`/api/user?telegram_id=${user.telegram_id}`, {
-        headers: { 'Authorization': `Bearer ${BOT_TOKEN}` }
-    });
-    const data = await res.json();
-    setUser(data);
+    const res = await fetch(`/api/user?telegram_id=${user.telegram_id}`, fetchOptions);
+    setUser(await res.json());
   }, [user?.telegram_id]);
 
+  // --- Основные функции (Арена и Апгрейд) ---
   const joinArena = async () => {
-    if (!user) return;
+    if (!user || spinning) return;
     try {
       const res = await fetch('/api/arena', {
         method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BOT_TOKEN}`
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          bet_amount: parseFloat(arenaBet)
-        })
+        ...fetchOptions,
+        body: JSON.stringify({ user_id: user.id, bet_amount: parseFloat(arenaBet) })
       });
-      const data = await res.json();
-      if (res.ok) {
-        await refreshUser();
-        // Логика спина...
-      } else {
-        alert(data.error);
-      }
+      if (res.ok) await refreshUser();
     } catch (err) { console.error(err); }
   };
-
-  const playUpgrade = async () => {
-    if (!user) return;
-    try {
-      const res = await fetch('/api/upgrade', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BOT_TOKEN}`
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          bet_amount: parseFloat(upgradeBet),
-          multiplier: upgradeMultiplier
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setModalData(data);
-        setShowModal('upgrade_result');
-        await refreshUser();
-      } else { alert(data.error); }
-    } catch (err) { console.error(err); }
-  };
-
-  const openCase = async (caseId: number) => {
-    if (!user) return;
-    try {
-      const res = await fetch('/api/cases', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BOT_TOKEN}`
-        },
-        body: JSON.stringify({ user_id: user.id, case_id: caseId })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setModalData(data);
-        setShowModal('case_result');
-        await refreshUser();
-      } else { alert(data.error); }
-    } catch (err) { console.error(err); }
-  };
-
-  const claimFarming = async () => {
-    if (!user) return;
-    try {
-      const res = await fetch('/api/farming', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BOT_TOKEN}`
-        },
-        body: JSON.stringify({ user_id: user.id })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setModalData(data);
-        setShowModal('farming_result');
-        await refreshUser();
-      }
-    } catch (err) { console.error(err); }
-  };
-
-  const claimBonus = async () => {
-    if (!user) return;
-    try {
-      const res = await fetch('/api/bonus', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BOT_TOKEN}`
-        },
-        body: JSON.stringify({ user_id: user.id })
-      });
-      if (res.ok) {
-        setShowModal(null);
-        await refreshUser();
-      } else {
-        alert('Please subscribe to both channels first!');
-      }
-    } catch (err) { console.error(err); }
-  };
-
-  const copyReferralLink = () => {
-    const link = `https://t.me/your_bot?start=${user?.referral_code}`;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const getWinChance = (mult: number) => (100 / mult) * 0.95;
 
   const getLevelProgress = () => {
     if (!user) return 0;
@@ -314,119 +190,115 @@ export default function App() {
     return Math.min((user.wager / threshold) * 100, 100);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-12 h-12 border-4 border-[#0088cc] border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-[#0088cc] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white pb-20">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center justify-between px-4 h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0088cc] to-[#0066aa] flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="font-bold text-lg">TON ROLLS</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-[#121214] px-3 py-1.5 rounded-full border border-white/10">
-              <span className="font-bold text-[#0088cc]">{user?.balance.toFixed(2)}</span>
-              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#0098EA] to-[#0088cc]" />
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#050505] text-white pb-24 font-sans">
+      {/* Шапка */}
+      <header className="fixed top-0 inset-x-0 h-16 bg-[#050505]/80 backdrop-blur-lg border-b border-white/5 flex items-center justify-between px-6 z-50">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-[#0088cc]" />
+          <span className="font-black text-lg tracking-tighter uppercase">CircleGift</span>
+        </div>
+        <div className="bg-[#121214] px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+          <span className="font-bold text-[#0088cc]">{user?.balance.toFixed(2)}</span>
+          <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-[#0088cc] to-[#00aaff]" />
         </div>
       </header>
 
+      {/* Контент */}
       <main className="pt-20 px-4">
         <AnimatePresence mode="wait">
           {activeTab === 'arena' && (
-            <motion.div key="arena" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-              <div className="bg-gradient-to-br from-[#121214] to-[#0d0d0f] rounded-3xl p-6 border border-white/5">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold flex items-center gap-2"><Swords className="w-5 h-5 text-[#0088cc]" /> Arena PvP</h2>
-                  <div className="text-sm text-gray-400">Prize Pool: <span className="text-[#0088cc] font-bold">
-                    {arenaGames.reduce((sum, g) => sum + parseFloat(String(g.prize_pool || 0)), 0).toFixed(2)} TON
-                  </span></div>
-                </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <div className="bg-[#121214] rounded-[2.5rem] p-8 border border-white/5 text-center shadow-2xl">
+                <h2 className="text-sm font-black text-gray-500 uppercase tracking-[0.2em] mb-8">Battle Arena</h2>
                 
-                <div className="relative w-64 h-64 mx-auto mb-6">
-                  <motion.div animate={{ rotate: wheelRotation }} transition={{ duration: 3, ease: 'easeOut' }} className="w-full h-full">
-                    <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
-                      <circle cx="100" cy="100" r="95" fill="#0088cc" />
-                      <circle cx="100" cy="100" r="80" fill="#121214" />
-                      <circle cx="100" cy="100" r="30" fill="#050505" />
-                      <text x="100" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{spinning ? '...' : 'SPIN'}</text>
-                    </svg>
-                  </motion.div>
+                {/* Визуализация пула */}
+                <div className="relative w-44 h-44 mx-auto mb-8 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-[#0088cc]/5 rounded-full blur-3xl" />
+                  <div className="relative z-10 text-center">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase">Prize Pool</p>
+                    <p className="text-4xl font-black text-white">{arenaGames[0]?.prize_pool?.toFixed(2) || "0.00"}</p>
+                    <p className="text-[10px] text-[#0088cc] font-bold">TON</p>
+                  </div>
+                  <svg className="absolute inset-0 w-full h-full -rotate-90">
+                    <circle cx="88" cy="88" r="84" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/5" />
+                    <circle cx="88" cy="88" r="84" fill="none" stroke="#0088cc" strokeWidth="4" strokeDasharray="527" strokeDashoffset="400" strokeLinecap="round" />
+                  </svg>
                 </div>
 
-                <div className="bg-[#121214] rounded-2xl p-4 mb-4 border border-white/5">
-                  <input type="number" value={arenaBet} onChange={(e) => setArenaBet(e.target.value)} className="w-full bg-transparent text-2xl font-bold outline-none" step="0.1" />
+                <div className="space-y-4">
+                  <div className="bg-[#050505] rounded-2xl p-4 border border-white/5">
+                    <input 
+                      type="number" 
+                      value={arenaBet} 
+                      onChange={(e) => setArenaBet(e.target.value)}
+                      className="w-full bg-transparent text-center text-2xl font-black outline-none"
+                    />
+                  </div>
+                  <button 
+                    onClick={joinArena}
+                    className="w-full bg-[#0088cc] hover:bg-[#0099ee] py-5 rounded-2xl font-black text-white shadow-[0_0_20px_rgba(0,136,204,0.3)] transition-all active:scale-[0.98]"
+                  >
+                    JOIN THE FIGHT
+                  </button>
                 </div>
-                
-                <button onClick={joinArena} disabled={spinning} className="w-full py-4 bg-gradient-to-r from-[#0088cc] to-[#0066aa] rounded-2xl font-bold">
-                  {spinning ? 'Spinning...' : 'Join Battle'}
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {activeTab === 'solo' && (
-            <motion.div key="solo" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-              <div className="bg-gradient-to-br from-[#121214] to-[#0d0d0f] rounded-3xl p-6 border border-white/5">
-                <h2 className="text-xl font-bold mb-6">Upgrade</h2>
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {[2, 5, 10, 50].map(mult => (
-                    <button key={mult} onClick={() => setUpgradeMultiplier(mult)} className={`py-3 rounded-xl font-bold ${upgradeMultiplier === mult ? 'bg-[#0088cc]' : 'bg-[#121214]'}`}>×{mult}</button>
-                  ))}
-                </div>
-                <button onClick={playUpgrade} className="w-full py-4 bg-[#0088cc] rounded-2xl font-bold">Upgrade Now</button>
               </div>
             </motion.div>
           )}
 
           {activeTab === 'profile' && (
-            <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-              <div className="bg-[#121214] rounded-3xl p-6 border border-white/5 text-center">
-                <div className="w-20 h-20 mx-auto bg-[#0088cc] rounded-full flex items-center justify-center text-3xl mb-4">{user?.avatar_emoji}</div>
-                <h2 className="text-2xl font-bold">@{user?.username}</h2>
-                <p className="text-[#0088cc] font-bold mt-2">Level {user?.level}</p>
-              </div>
-              <div className="bg-[#121214] rounded-2xl p-4 border border-white/5">
-                  <h3 className="font-bold mb-4">Farming</h3>
-                  <button onClick={claimFarming} className="w-full py-3 bg-[#0088cc] rounded-xl font-bold">Claim TON</button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+              <div className="bg-[#121214] rounded-[2rem] p-6 border border-white/5">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-[#0088cc] rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                    {user?.avatar_emoji}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black">@{user?.username}</h2>
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Level {user?.level} Ranker</p>
+                  </div>
+                </div>
+                
+                {/* Прогресс уровня */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
+                    <span>Progress</span>
+                    <span>{getLevelProgress().toFixed(0)}%</span>
+                  </div>
+                  <div className="h-2 bg-black rounded-full overflow-hidden p-0.5">
+                    <div className="h-full bg-[#0088cc] rounded-full" style={{ width: `${getLevelProgress()}%` }} />
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#080808]/95 backdrop-blur-xl border-t border-white/5 px-4 py-3 z-50">
-        <div className="flex items-center justify-around">
-          {[
-            { id: 'arena', icon: Swords, label: 'Arena' },
-            { id: 'solo', icon: Dices, label: 'Solo' },
-            { id: 'shop', icon: ShoppingBag, label: 'Shop' },
-            { id: 'profile', icon: User, label: 'Profile' }
-          ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex flex-col items-center gap-1 ${activeTab === tab.id ? 'text-[#0088cc]' : 'text-gray-500'}`}>
-              <tab.icon className="w-5 h-5" />
-              <span className="text-xs font-bold">{tab.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Нижняя навигация */}
+      <nav className="fixed bottom-0 inset-x-0 h-20 bg-[#050505]/90 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-4 z-50">
+        {[
+          { id: 'arena', icon: Swords, label: 'Arena' },
+          { id: 'solo', icon: Dices, label: 'Games' },
+          { id: 'shop', icon: ShoppingBag, label: 'Shop' },
+          { id: 'profile', icon: User, label: 'Profile' }
+        ].map((tab) => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex flex-col items-center gap-1 transition-all ${activeTab === tab.id ? 'text-[#0088cc] scale-110' : 'text-gray-600'}`}
+          >
+            <tab.icon className="w-5 h-5" />
+            <span className="text-[9px] font-black uppercase tracking-tighter">{tab.label}</span>
+          </button>
+        ))}
       </nav>
-
-      {/* Modals placeholders... */}
     </div>
   );
 }
- 
