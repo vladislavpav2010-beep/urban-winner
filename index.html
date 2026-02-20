@@ -1,443 +1,432 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON ROLLS ELITE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050505;
-            --card: #0d0d0f;
-            --accent: #0088cc;
-            --gold: #f7a809;
-            --text: #ffffff;
-            --text-m: #707075;
-            --border: #1f1f22;
-            --green: #2ecb71;
-            --red: #e74c3c;
-        }
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Swords, Dices, ShoppingBag, User, Gift, 
+  TrendingUp, Clock, Users, Trophy, Zap,
+  Crown, Sparkles, Copy,
+  Check, Play, RefreshCw
+} from 'lucide-react';
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; height: 100vh; }
+// Твой токен
+const BOT_TOKEN = "7715603882:AAEeHI6FgAgoLI_BFFEtlDHUwIECdH62AYI";
 
-        /* HEADER */
-        .header {
-            height: 65px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; background: rgba(5,5,5,0.8); backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100;
-        }
-        .logo { font-family: 'Outfit'; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
-        .logo svg { width: 24px; height: 24px; }
+interface User {
+  id: number;
+  telegram_id: number;
+  username: string;
+  first_name: string;
+  avatar_emoji: string;
+  balance: number;
+  wager: number;
+  level: number;
+  total_wins: number;
+  total_games: number;
+  referral_code: string;
+  farming_start: string;
+  farming_claimed: number;
+  bonus_claimed: boolean;
+}
+
+interface ArenaGame {
+  id: number;
+  bet_amount: number;
+  status: string;
+  max_players: number;
+  prize_pool: number;
+  arena_participants: Array<{
+    id: number;
+    user_id: number;
+    bet_amount: number;
+    color: string;
+    users: {
+      id: number;
+      username: string;
+      first_name: string;
+      avatar_emoji: string;
+    };
+  }>;
+}
+
+interface Case {
+  id: number;
+  name: string;
+  level_required: number;
+  price: number;
+  is_locked: boolean;
+  is_opened: boolean;
+  case_gifts: Array<{
+    drop_chance: number;
+    gifts: {
+      id: number;
+      name: string;
+      description: string;
+      rarity: string;
+      value: number;
+    };
+  }>;
+}
+
+const LVL_THRESHOLDS = [10, 20, 30, 40, 50];
+
+const RARITY_COLORS: Record<string, string> = {
+  common: 'from-gray-500 to-gray-600',
+  uncommon: 'from-green-500 to-green-600',
+  rare: 'from-blue-500 to-blue-600',
+  epic: 'from-purple-500 to-purple-600',
+  legendary: 'from-yellow-500 to-orange-500',
+  mythic: 'from-pink-500 to-red-500'
+};
+
+const RARITY_GLOW: Record<string, string> = {
+  common: 'shadow-gray-500/30',
+  uncommon: 'shadow-green-500/30',
+  rare: 'shadow-blue-500/30',
+  epic: 'shadow-purple-500/30',
+  legendary: 'shadow-yellow-500/30',
+  mythic: 'shadow-pink-500/30'
+};
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [activeTab, setActiveTab] = useState('arena');
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState<string | null>(null);
+  const [modalData, setModalData] = useState<any>(null);
+  
+  const [arenaGames, setArenaGames] = useState<ArenaGame[]>([]);
+  const [arenaBet, setArenaBet] = useState('1.0');
+  const [spinning, setSpinning] = useState(false);
+  const [wheelRotation, setWheelRotation] = useState(0);
+  
+  const [upgradeBet, setUpgradeBet] = useState('1.0');
+  const [upgradeMultiplier, setUpgradeMultiplier] = useState(2);
+  
+  const [cases, setCases] = useState<Case[]>([]);
+  const [farmingData, setFarmingData] = useState<any>(null);
+  const [referralsData, setReferralsData] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Initialize Telegram WebApp with Token
+  useEffect(() => {
+    const initTelegram = async () => {
+      try {
+        const tg = (window as any).Telegram?.WebApp;
+        let telegramId = 123456789;
         
-        .header-rigth { display: flex; align-items: center; gap: 12px; }
-        .icon-btn { width: 38px; height: 38px; background: var(--card); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer;}
-
-        /* BALANCE */
-        .balance-pill { background: #121214; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 800; font-family: 'Outfit'; }
-        .balance-pill svg { width: 16px; height: 16px; }
-
-        /* NAVIGATION */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #080808; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding-bottom: 15px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-m); font-size: 10px; font-weight: 700; text-transform: uppercase; width: 25%; cursor: pointer;}
-        .nav-item.active { color: var(--accent); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-
-        /* SCREENS */
-        .content { padding-top: 65px; padding-bottom: 80px; height: 100vh; overflow-y: auto; }
-        .screen { display: none; padding: 15px; animation: slideUp 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* MODALS */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; width: 100%; max-width: 340px; padding: 25px; text-align: center; }
-        .modal-card h2 { font-family: 'Outfit'; margin-bottom: 10px; }
-        .modal-card p { font-size: 14px; color: var(--text-m); margin-bottom: 20px; }
-        .tg-btn { display: block; background: #2481cc; color: #fff; text-decoration: none; padding: 14px; border-radius: 12px; margin-bottom: 10px; font-weight: 700; }
-
-        /* UI ELEMENTS */
-        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: #fff; border-radius: 16px; font-weight: 900; font-family: 'Outfit'; text-transform: uppercase; border: none; cursor: pointer; }
-        .main-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
-        .cancel-btn { background: transparent; color: var(--text-m); border: 1px solid var(--border); padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-        .bet-input-wrap { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .bet-input-wrap svg { width: 24px; height: 24px; }
-        .bet-input-wrap input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 800; width: 100%; outline: none; }
-
-        /* SOLO MENU */
-        .solo-menu-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .solo-mode-card { background: #121214; border: 1px solid var(--border); border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .solo-mode-card:active { transform: scale(0.97); border-color: var(--accent); }
-        .solo-mode-card h3 { font-family: 'Outfit'; font-size: 24px; color: var(--accent); margin-bottom: 5px; }
-        .solo-mode-card p { font-size: 12px; color: var(--text-m); }
-        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-
-        /* ARENA PVP */
-        .arena-card { background: var(--card); border-radius: 24px; padding: 20px; text-align: center; border: 1px solid var(--border); margin-bottom: 15px; }
-        .bank-info { font-size: 12px; color: var(--text-m); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
-        .bank-info b { font-size: 20px; color: var(--gold); font-family: 'Outfit'; }
-        .wheel-box { position: relative; width: 280px; height: 280px; margin: 0 auto 20px; }
-        canvas#wheel { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 0 15px rgba(0,0,0,0.5)); }
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #fff; z-index: 5; }
-        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #050505; border-radius: 50%; border: 4px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; font-family: 'Outfit'; }
-
-        /* CASE ITEMS */
-        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .case-card-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; text-align: center; position: relative; }
-        .case-card-item.locked { opacity: 0.5; filter: grayscale(1); }
-        .case-badge { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 3px 6px; border-radius: 6px; }
-
-        /* UPGRADE */
-        .upgrade-box { text-align: center; }
-        .up-circle-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 20px; }
-        .up-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .up-bg { fill: none; stroke: #1a1a1e; stroke-width: 12; }
-        .up-progress { fill: none; stroke: var(--accent); stroke-width: 12; stroke-dasharray: 282.7; stroke-dashoffset: 140; stroke-linecap: round; transition: 0.3s; filter: drop-shadow(0 0 8px var(--accent)); }
-        .up-data { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-        .up-perc { font-size: 42px; font-weight: 900; font-family: 'Outfit'; }
-        .up-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .up-btn { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: var(--text-m); font-weight: 800; cursor: pointer;}
-        .up-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-        /* PROGRESS BARS */
-        .lvl-container { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: left;}
-        .lvl-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 8px; }
-        .lvl-bar { background: #1a1a1e; height: 8px; border-radius: 4px; overflow: hidden; }
-        .lvl-fill { background: var(--accent); width: 0%; height: 100%; transition: 0.4s; }
-    </style>
-</head>
-<body>
-
-    <svg id="ton-logo-template" style="display: none;" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="256" cy="256" r="256" fill="#0098EA"/>
-        <path d="M113.81 184.223L243.621 391.705C248.983 400.279 263.017 400.279 268.379 391.705L398.19 184.223C404.93 173.444 397.202 159 384.49 159H127.51C114.798 159 107.07 173.444 113.81 184.223Z" fill="white"/>
-    </svg>
-
-    <div id="sub-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h2>БОНУС 0.40 TON 🎁</h2>
-            <p>Подпишись на два наших канала, чтобы получить приветственный баланс!</p>
-            <a href="https://t.me/durov" target="_blank" class="tg-link tg-btn" onclick="state.subClicks++">Твой Канал 1 📢</a>
-            <a href="https://t.me/telegram" target="_blank" class="tg-link tg-btn" onclick="state.subClicks++">Твой Канал 2 💬</a>
-            <button class="main-btn" onclick="claimBonus()">ПРОВЕРИТЬ</button>
-            <button class="cancel-btn" onclick="closeBonus()">ЗАКРЫТЬ</button>
-        </div>
-    </div>
-
-    <div class="header">
-        <div class="logo">
-            <svg><use href="#ton-logo-template"></use></svg>
-            <span>ROLLS</span>
-        </div>
-        <div class="header-rigth">
-            <div class="balance-pill">
-                <span id="bal-val">0.00</span>
-                <svg><use href="#ton-logo-template"></use></svg>
-            </div>
-            <div class="icon-btn" onclick="alert('Чат в разработке')">
-                <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            </div>
-        </div>
-    </div>
-
-    <div class="content">
-        <div id="view-pvp" class="screen active">
-            <div class="arena-card">
-                <div class="bank-info">БАНК ИГРЫ: <b id="pvp-total">0.00 TON</b></div>
-                <div class="wheel-box">
-                    <div class="wheel-pointer"></div>
-                    <canvas id="wheel" width="600" height="600"></canvas>
-                    <div class="wheel-center" id="pvp-timer">20</div>
-                </div>
-                <div class="bet-input-wrap">
-                    <svg><use href="#ton-logo-template"></use></svg>
-                    <input type="number" id="pvp-input" value="10.00">
-                </div>
-                <button class="main-btn" onclick="joinPVP()">Вступить в битву</button>
-            </div>
-            <div id="pvp-list" style="margin-top: 15px;"></div>
-        </div>
-
-        <div id="view-solo" class="screen">
-            <div id="solo-menu-block">
-                <h2 style="font-family: 'Outfit'; text-align: center;">SOLO РЕЖИМ</h2>
-                <div class="solo-menu-grid">
-                    <div class="solo-mode-card" onclick="openSoloMode('upgrade')">
-                        <h3>UPGRADE</h3>
-                        <p>Умножай свой баланс с шансом на успех</p>
-                    </div>
-                    <div class="solo-mode-card" onclick="openSoloMode('cases')">
-                        <h3>КЕЙСЫ</h3>
-                        <p>Открывай кейсы за уровни и получай TON</p>
-                    </div>
-                </div>
-            </div>
-            <div id="solo-upgrade-block" style="display: none;">
-                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
-                <div class="upgrade-box">
-                    <h2 style="font-family: 'Outfit'; margin-bottom: 20px;">UPGRADE</h2>
-                    <div class="up-circle-wrap">
-                        <svg class="up-svg" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" class="up-bg"/>
-                            <circle id="up-progress" cx="50" cy="50" r="45" class="up-progress"/>
-                        </svg>
-                        <div class="up-data"><div class="up-perc" id="up-chance">50%</div></div>
-                    </div>
-                    <div class="up-grid">
-                        <button class="up-btn active" onclick="setMult(2, this)">x2</button>
-                        <button class="up-btn" onclick="setMult(5, this)">x5</button>
-                        <button class="up-btn" onclick="setMult(10, this)">x10</button>
-                        <button class="up-btn" onclick="setMult(50, this)">x50</button>
-                    </div>
-                    <div class="bet-input-wrap">
-                        <input type="number" id="up-input" value="10.00" oninput="recalcUp()">
-                    </div>
-                    <button class="main-btn" onclick="playUpgrade()">Апгрейд</button>
-                </div>
-            </div>
-            <div id="solo-cases-block" style="display: none;">
-                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
-                <h2 style="font-family: 'Outfit'; text-align: center; margin-bottom: 20px;">УРОВНЕВЫЕ КЕЙСЫ</h2>
-                <div class="case-grid" id="case-container"></div>
-            </div>
-        </div>
-
-        <div id="view-shop" class="screen">
-            <h2 style="text-align: center; margin-top: 50px; font-family: 'Outfit';">МАГАЗИН</h2>
-            <p style="text-align: center; color: var(--text-m);">Скины в разработке</p>
-        </div>
-
-        <div id="view-profile" class="screen">
-            <div style="text-align: center; padding: 20px;">
-                <img src="https://ui-avatars.com/api/?name=Player&background=0088cc&color=fff" style="width: 80px; border-radius: 20px; border: 2px solid var(--accent);">
-                <h3 style="margin-top: 10px;">@Player_TON</h3>
-                <div class="lvl-container" style="margin-top: 20px;">
-                    <div class="lvl-header">
-                        <span>УРОВЕНЬ <span id="cur-lvl" style="color:var(--accent)">1</span></span>
-                        <span id="lvl-next-text">10 TON</span>
-                    </div>
-                    <div class="lvl-bar"><div id="lvl-fill" class="lvl-fill"></div></div>
-                    <div style="font-size: 10px; color: var(--text-m); margin-top: 8px;">Оборот: <span id="total-wager">0.00</span> / <span id="next-target">10</span> TON</div>
-                </div>
-                <button onclick="resetData()" style="margin-top: 15px; padding: 10px; border-radius: 8px; background: var(--red); color: white; border: none; width: 100%; cursor: pointer;">Сбросить аккаунт (для теста)</button>
-            </div>
-        </div>
-    </div>
-
-    <nav class="nav">
-        <div class="nav-item active" onclick="tab('pvp', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg><span>Арена</span>
-        </div>
-        <div class="nav-item" onclick="tab('solo', this)">
-            <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg><span>Solo</span>
-        </div>
-        <div class="nav-item" onclick="tab('shop', this)">
-            <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Магазин</span>
-        </div>
-        <div class="nav-item" onclick="tab('profile', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Профиль</span>
-        </div>
-    </nav>
-
-<script>
-    // STATE SYSTEM
-    let state = {
-        bal: parseFloat(localStorage.getItem('ton_bal')) || 0.0,
-        subClicks: 0,
-        wager: parseFloat(localStorage.getItem('ton_wager')) || 0.0,
-        lvl: parseInt(localStorage.getItem('ton_lvl')) || 1,
-        openedCases: JSON.parse(localStorage.getItem('ton_cases')) || [],
-        bonusClaimed: localStorage.getItem('ton_bonus') === 'true',
-        pvp: { players: [], timer: 20, spinning: false },
-        solo: { mult: 2 }
-    };
-
-    const LVL_THRESHOLDS = [10, 20, 30, 40, 50];
-    const CASE_LOOT = [0.001, 0.02, 0.1, 0.3, 0.5, 0.75, 1.0];
-
-    function saveState() {
-        localStorage.setItem('ton_bal', state.bal);
-        localStorage.setItem('ton_wager', state.wager);
-        localStorage.setItem('ton_lvl', state.lvl);
-        localStorage.setItem('ton_cases', JSON.stringify(state.openedCases));
-        localStorage.setItem('ton_bonus', state.bonusClaimed);
-        updateUI();
-    }
-
-    function resetData() {
-        localStorage.clear();
-        location.reload();
-    }
-
-    // INIT
-    window.onload = () => {
-        if (!state.bonusClaimed) {
-            setTimeout(() => {
-                document.getElementById('sub-modal').style.display = 'flex';
-            }, 1000);
-        } else if(state.bal === 0 && state.wager === 0) { 
-            state.bal = 10; saveState(); 
+        if (tg) {
+          tg.ready();
+          tg.expand(); // Разворачиваем на весь экран
+          telegramId = tg.initDataUnsafe?.user?.id || 123456789;
         }
-        updateUI();
-        drawWheel();
-        recalcUp();
-        renderCases();
-    };
-
-    // BONUS LOGIC
-    function closeBonus() { document.getElementById('sub-modal').style.display = 'none'; }
-    function claimBonus() {
-        if(state.subClicks >= 2) {
-            state.bal += 0.40; state.bonusClaimed = true;
-            saveState(); closeBonus();
-            alert("Бонус зачислен!");
-        } else { alert("Перейдите по обеим ссылкам!"); }
-    }
-
-    // NAVIGATION
-    function tab(name, el) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('view-' + name).classList.add('active');
-        el.classList.add('active');
-        if(name === 'solo') backToSoloMenu();
-    }
-
-    function openSoloMode(mode) {
-        document.getElementById('solo-menu-block').style.display = 'none';
-        if (mode === 'upgrade') document.getElementById('solo-upgrade-block').style.display = 'block';
-        else if (mode === 'cases') {
-            document.getElementById('solo-cases-block').style.display = 'block';
-            renderCases(); 
-        }
-    }
-    function backToSoloMenu() {
-        document.getElementById('solo-upgrade-block').style.display = 'none';
-        document.getElementById('solo-cases-block').style.display = 'none';
-        document.getElementById('solo-menu-block').style.display = 'block';
-    }
-
-    function addWager(amt) {
-        state.wager += amt;
-        let nextT = LVL_THRESHOLDS[state.lvl-1] || 50;
-        if(state.wager >= nextT && state.lvl < 5) {
-            state.lvl++; alert("ДОСТИГНУТ УРОВЕНЬ " + state.lvl + "!");
-        }
-        saveState();
-    }
-
-    function updateUI() {
-        document.getElementById('bal-val').innerText = state.bal.toFixed(2);
-        document.getElementById('cur-lvl').innerText = state.lvl;
-        document.getElementById('total-wager').innerText = state.wager.toFixed(2);
-        let target = LVL_THRESHOLDS[state.lvl-1] || 50;
-        document.getElementById('next-target').innerText = target;
-        document.getElementById('lvl-next-text').innerText = target + " TON";
-        let perc = (state.wager / target) * 100;
-        document.getElementById('lvl-fill').style.width = Math.min(perc, 100) + "%";
-    }
-
-    // CASES
-    function renderCases() {
-        const container = document.getElementById('case-container');
-        container.innerHTML = '';
-        for(let i=1; i<=5; i++) {
-            const isLocked = state.lvl < i;
-            const isOpened = state.openedCases.includes(i);
-            const card = document.createElement('div');
-            card.className = `case-card-item ${isLocked ? 'locked' : ''}`;
-            card.innerHTML = `
-                <div class="case-badge">LVL ${i}</div>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="${isLocked ? '#777' : '#f7a809'}" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8v12M8 8V6a4 4 0 0 1 8 0v2"/></svg>
-                <div style="font-weight: 800; font-size: 14px;">КЕЙС ${i}</div>
-                <button class="main-btn" style="padding: 10px; font-size: 12px; margin-top:10px;" onclick="openCase(${i})" ${isLocked || isOpened ? 'disabled' : ''}>${isOpened ? 'ОТКРЫТ' : (isLocked ? 'ЗАКРЫТ' : 'ОТКРЫТЬ')}</button>
-            `;
-            container.appendChild(card);
-        }
-    }
-    function openCase(id) {
-        if(state.openedCases.includes(id)) return;
-        const win = CASE_LOOT[Math.floor(Math.random() * CASE_LOOT.length)];
-        state.bal += win; state.openedCases.push(id);
-        saveState(); alert(`ВЫИГРЫШ: ${win} TON!`); renderCases(); 
-    }
-
-    // PVP ARENA
-    const canvas = document.getElementById('wheel');
-    const ctx = canvas.getContext('2d');
-    const colors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71', '#9b59b6'];
-
-    function drawWheel() {
-        const r = canvas.width / 2; ctx.clearRect(0,0,600,600);
-        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
-        if (total === 0) { ctx.beginPath(); ctx.arc(r,r,r-20,0,Math.PI*2); ctx.fillStyle = '#121214'; ctx.fill(); return; }
-        let start = 0;
-        state.pvp.players.forEach((p) => {
-            const arc = (p.bet / total) * 2 * Math.PI;
-            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r, r, r-10, start, start + arc);
-            ctx.fillStyle = p.color; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = '#050505'; ctx.stroke();
-            start += arc;
+        
+        // Отправляем запрос с токеном в заголовке или теле (зависит от твоего API)
+        const res = await fetch(`/api/user?telegram_id=${telegramId}`, {
+            headers: {
+                'Authorization': `Bearer ${BOT_TOKEN}`
+            }
         });
-    }
+        
+        const userData = await res.json();
+        setUser(userData);
+        
+        if (!userData.bonus_claimed) {
+          setShowModal('bonus');
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Init error:', err);
+        // Fallback для разработки
+        const res = await fetch('/api/user', {
+          method: 'POST',
+          headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${BOT_TOKEN}`
+          },
+          body: JSON.stringify({ telegram_id: 123456789 })
+        });
+        const userData = await res.json();
+        setUser(userData);
+        setLoading(false);
+      }
+    };
+    
+    initTelegram();
+  }, []);
 
-    function joinPVP() {
-        if (state.pvp.spinning) return;
-        const bet = parseFloat(document.getElementById('pvp-input').value);
-        if (isNaN(bet) || bet <= 0 || state.bal < bet) return alert("Ошибка ставки!");
-        state.bal -= bet; addWager(bet); 
-        state.pvp.players.push({ name: "Вы", bet: bet, color: colors[state.pvp.players.length % colors.length], ava: "https://ui-avatars.com/api/?name=ME&background=0088cc&color=fff" });
-        updatePVPList(); drawWheel();
-    }
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchData = async () => {
+      const headers = { 'Authorization': `Bearer ${BOT_TOKEN}` };
 
-    function updatePVPList() {
-        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
-        document.getElementById('pvp-total').innerText = total.toFixed(2) + " TON";
-        document.getElementById('pvp-list').innerHTML = state.pvp.players.map(p => `<div style="display: flex; justify-content: space-between; align-items: center; background: #121214; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 4px solid ${p.color}"><div style="display: flex; align-items: center; gap: 10px;"><img src="${p.ava}" style="width: 32px; border-radius: 8px;"><span style="font-weight: 800;">${p.name}</span></div><div>${p.bet.toFixed(2)} TON</div></div>`).join('');
-    }
+      if (activeTab === 'arena') {
+        const res = await fetch('/api/arena?status=waiting&status=active', { headers });
+        const data = await res.json();
+        setArenaGames(data || []);
+      } else if (activeTab === 'solo') {
+        const res = await fetch(`/api/cases?user_id=${user.id}`, { headers });
+        const data = await res.json();
+        setCases(data || []);
+      } else if (activeTab === 'profile') {
+        const farmRes = await fetch(`/api/farming?user_id=${user.id}`, { headers });
+        setFarmingData(await farmRes.json());
+        
+        const refRes = await fetch(`/api/referrals?user_id=${user.id}`, { headers });
+        setReferralsData(await refRes.json());
+      }
+    };
+    
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, [activeTab, user?.id]);
 
-    setInterval(() => {
-        if (state.pvp.spinning || state.pvp.players.length === 0) return;
-        state.pvp.timer--; document.getElementById('pvp-timer').innerText = state.pvp.timer;
-        if (state.pvp.timer <= 0) spinPVP();
-    }, 1000);
+  const refreshUser = useCallback(async () => {
+    if (!user) return;
+    const res = await fetch(`/api/user?telegram_id=${user.telegram_id}`, {
+        headers: { 'Authorization': `Bearer ${BOT_TOKEN}` }
+    });
+    const data = await res.json();
+    setUser(data);
+  }, [user?.telegram_id]);
 
-    function spinPVP() {
-        state.pvp.spinning = true;
-        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
-        const rand = Math.random() * total;
-        let winner = state.pvp.players[0], acc = 0;
-        for(let p of state.pvp.players) { acc += p.bet; if (rand <= acc) { winner = p; break; } }
-        canvas.style.transition = "transform 5s cubic-bezier(0.1, 0, 0.1, 1)";
-        canvas.style.transform = `rotate(${360 * 5 + Math.random() * 360}deg)`;
-        setTimeout(() => {
-            alert("Победил " + winner.name);
-            if (winner.name === "Вы") { state.bal += total; saveState(); }
-            state.pvp = { players: [], timer: 20, spinning: false };
-            canvas.style.transition = "none"; canvas.style.transform = "rotate(-90deg)";
-            updatePVPList(); drawWheel();
-        }, 5500);
-    }
+  const joinArena = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/arena', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BOT_TOKEN}`
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          bet_amount: parseFloat(arenaBet)
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        await refreshUser();
+        // Логика спина...
+      } else {
+        alert(data.error);
+      }
+    } catch (err) { console.error(err); }
+  };
 
-    // UPGRADE
-    function setMult(m, btn) {
-        state.solo.mult = m; document.querySelectorAll('.up-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); recalcUp();
-    }
-    function recalcUp() {
-        const chance = (100 / state.solo.mult) * 0.95; 
-        document.getElementById('up-chance').innerText = chance.toFixed(0) + "%";
-        document.getElementById('up-progress').style.strokeDashoffset = 282.7 - (282.7 * (chance / 100));
-    }
-    function playUpgrade() {
-        const bet = parseFloat(document.getElementById('up-input').value);
-        if (isNaN(bet) || bet <= 0 || state.bal < bet) return alert("Ошибка ставки!");
-        state.bal -= bet; addWager(bet);
-        const chance = (100 / state.solo.mult) * 0.95;
-        if (Math.random() * 100 <= chance) {
-            const win = bet * state.solo.mult; state.bal += win; saveState();
-            alert(`УСПЕХ! +${win.toFixed(2)} TON`);
-        } else { saveState(); alert("НЕ ПОВЕЗЛО"); }
-    }
-</script>
-</body>
-</html>
+  const playUpgrade = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/upgrade', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BOT_TOKEN}`
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          bet_amount: parseFloat(upgradeBet),
+          multiplier: upgradeMultiplier
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setModalData(data);
+        setShowModal('upgrade_result');
+        await refreshUser();
+      } else { alert(data.error); }
+    } catch (err) { console.error(err); }
+  };
+
+  const openCase = async (caseId: number) => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/cases', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BOT_TOKEN}`
+        },
+        body: JSON.stringify({ user_id: user.id, case_id: caseId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setModalData(data);
+        setShowModal('case_result');
+        await refreshUser();
+      } else { alert(data.error); }
+    } catch (err) { console.error(err); }
+  };
+
+  const claimFarming = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/farming', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BOT_TOKEN}`
+        },
+        body: JSON.stringify({ user_id: user.id })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setModalData(data);
+        setShowModal('farming_result');
+        await refreshUser();
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const claimBonus = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/bonus', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BOT_TOKEN}`
+        },
+        body: JSON.stringify({ user_id: user.id })
+      });
+      if (res.ok) {
+        setShowModal(null);
+        await refreshUser();
+      } else {
+        alert('Please subscribe to both channels first!');
+      }
+    } catch (err) { console.error(err); }
+  };
+
+  const copyReferralLink = () => {
+    const link = `https://t.me/your_bot?start=${user?.referral_code}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const getWinChance = (mult: number) => (100 / mult) * 0.95;
+
+  const getLevelProgress = () => {
+    if (!user) return 0;
+    const threshold = LVL_THRESHOLDS[user.level - 1] || 50;
+    return Math.min((user.wager / threshold) * 100, 100);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="w-12 h-12 border-4 border-[#0088cc] border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#050505] text-white pb-20">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center justify-between px-4 h-16">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0088cc] to-[#0066aa] flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-lg">TON ROLLS</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-[#121214] px-3 py-1.5 rounded-full border border-white/10">
+              <span className="font-bold text-[#0088cc]">{user?.balance.toFixed(2)}</span>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#0098EA] to-[#0088cc]" />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="pt-20 px-4">
+        <AnimatePresence mode="wait">
+          {activeTab === 'arena' && (
+            <motion.div key="arena" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+              <div className="bg-gradient-to-br from-[#121214] to-[#0d0d0f] rounded-3xl p-6 border border-white/5">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold flex items-center gap-2"><Swords className="w-5 h-5 text-[#0088cc]" /> Arena PvP</h2>
+                  <div className="text-sm text-gray-400">Prize Pool: <span className="text-[#0088cc] font-bold">
+                    {arenaGames.reduce((sum, g) => sum + parseFloat(String(g.prize_pool || 0)), 0).toFixed(2)} TON
+                  </span></div>
+                </div>
+                
+                <div className="relative w-64 h-64 mx-auto mb-6">
+                  <motion.div animate={{ rotate: wheelRotation }} transition={{ duration: 3, ease: 'easeOut' }} className="w-full h-full">
+                    <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
+                      <circle cx="100" cy="100" r="95" fill="#0088cc" />
+                      <circle cx="100" cy="100" r="80" fill="#121214" />
+                      <circle cx="100" cy="100" r="30" fill="#050505" />
+                      <text x="100" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{spinning ? '...' : 'SPIN'}</text>
+                    </svg>
+                  </motion.div>
+                </div>
+
+                <div className="bg-[#121214] rounded-2xl p-4 mb-4 border border-white/5">
+                  <input type="number" value={arenaBet} onChange={(e) => setArenaBet(e.target.value)} className="w-full bg-transparent text-2xl font-bold outline-none" step="0.1" />
+                </div>
+                
+                <button onClick={joinArena} disabled={spinning} className="w-full py-4 bg-gradient-to-r from-[#0088cc] to-[#0066aa] rounded-2xl font-bold">
+                  {spinning ? 'Spinning...' : 'Join Battle'}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'solo' && (
+            <motion.div key="solo" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+              <div className="bg-gradient-to-br from-[#121214] to-[#0d0d0f] rounded-3xl p-6 border border-white/5">
+                <h2 className="text-xl font-bold mb-6">Upgrade</h2>
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[2, 5, 10, 50].map(mult => (
+                    <button key={mult} onClick={() => setUpgradeMultiplier(mult)} className={`py-3 rounded-xl font-bold ${upgradeMultiplier === mult ? 'bg-[#0088cc]' : 'bg-[#121214]'}`}>×{mult}</button>
+                  ))}
+                </div>
+                <button onClick={playUpgrade} className="w-full py-4 bg-[#0088cc] rounded-2xl font-bold">Upgrade Now</button>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'profile' && (
+            <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+              <div className="bg-[#121214] rounded-3xl p-6 border border-white/5 text-center">
+                <div className="w-20 h-20 mx-auto bg-[#0088cc] rounded-full flex items-center justify-center text-3xl mb-4">{user?.avatar_emoji}</div>
+                <h2 className="text-2xl font-bold">@{user?.username}</h2>
+                <p className="text-[#0088cc] font-bold mt-2">Level {user?.level}</p>
+              </div>
+              <div className="bg-[#121214] rounded-2xl p-4 border border-white/5">
+                  <h3 className="font-bold mb-4">Farming</h3>
+                  <button onClick={claimFarming} className="w-full py-3 bg-[#0088cc] rounded-xl font-bold">Claim TON</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#080808]/95 backdrop-blur-xl border-t border-white/5 px-4 py-3 z-50">
+        <div className="flex items-center justify-around">
+          {[
+            { id: 'arena', icon: Swords, label: 'Arena' },
+            { id: 'solo', icon: Dices, label: 'Solo' },
+            { id: 'shop', icon: ShoppingBag, label: 'Shop' },
+            { id: 'profile', icon: User, label: 'Profile' }
+          ].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex flex-col items-center gap-1 ${activeTab === tab.id ? 'text-[#0088cc]' : 'text-gray-500'}`}>
+              <tab.icon className="w-5 h-5" />
+              <span className="text-xs font-bold">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Modals placeholders... */}
+    </div>
+  );
+}
+ 
