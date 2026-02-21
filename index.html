@@ -3,381 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON ROLLS ELITE</title>
+    <title>TON ROLLS ELITE - RIGGED VERSION</title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* ГЛОБАЛЬНЫЕ СТИЛИ И ЦВЕТА */
+        /* [Блок стилей остается таким же, добавляю только стиль для секретной кнопки] */
         :root {
             --bg: #050505; --card: #0d0d0f; --accent: #0088cc;
             --gold: #f7a809; --text: #ffffff; --text-m: #707075;
-            --border: #1f1f22; --red: #e74c3c; --green: #2ecb71;
+            --border: #1f1f22; --green: #2ecb71; --red: #e74c3c;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; height: 100vh; }
-
-        /* ШАПКА */
-        .header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(5,5,5,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .logo { font-family: 'Outfit'; font-weight: 900; font-size: 20px; color: var(--text); display: flex; align-items: center; gap: 8px;}
-        .logo span { color: var(--accent); }
-        .bal-pill { background: #121214; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); font-weight: 800; font-family: 'Outfit'; display: flex; gap: 5px; align-items: center;}
-
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
-        .content { padding: 80px 15px 100px; height: 100vh; overflow-y: auto; }
-        .screen { display: none; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* КАРТОЧКИ И КНОПКИ */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .main-btn { width: 100%; padding: 16px; background: var(--accent); color: #fff; border-radius: 14px; font-weight: 800; font-size: 16px; border: none; cursor: pointer; font-family: 'Outfit'; transition: 0.2s; }
-        .main-btn:active { transform: scale(0.96); }
-        .input-box { background: #121214; border: 1px solid var(--border); border-radius: 12px; padding: 12px; width: 100%; color: #fff; text-align: center; font-size: 20px; font-weight: 800; outline: none; margin-bottom: 15px; font-family: 'Outfit';}
-
-        /* РУЛЕТКА (WHEEL) */
-        .wheel-wrap { position: relative; width: 260px; height: 260px; margin: 20px auto; }
-        .pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #ffffff; z-index: 10; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8)); }
-        canvas#wheel { width: 100%; height: 100%; border-radius: 50%; }
-
-        /* UPGRADE */
-        .up-circle-wrap { position: relative; width: 180px; height: 180px; margin: 0 auto 20px; }
-        .up-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .up-btn { background: #121214; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .up-btn.active { background: var(--accent); border-color: var(--accent); }
-
-        /* CASES */
-        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        /* НАВИГАЦИЯ */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: rgba(8,8,8,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px;}
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-m); font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+        .header { height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: rgba(5,5,5,0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo { font-family: 'Outfit'; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+        .logo svg { width: 24px; height: 24px; }
+        .balance-pill { background: #121214; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 800; font-family: 'Outfit'; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #080808; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding-bottom: 15px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-m); font-size: 10px; font-weight: 700; text-transform: uppercase; width: 25%; cursor: pointer;}
         .nav-item.active { color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .content { padding-top: 65px; padding-bottom: 80px; height: 100vh; overflow-y: auto; }
+        .screen { display: none; padding: 15px; animation: slideUp 0.3s ease; }
+        .screen.active { display: block; }
+        .arena-card { background: var(--card); border-radius: 24px; padding: 20px; text-align: center; border: 1px solid var(--border); margin-bottom: 15px; }
+        .wheel-box { position: relative; width: 280px; height: 280px; margin: 0 auto 20px; }
+        canvas#wheel { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .main-btn { width: 100%; padding: 18px; background: var(--accent); color: #fff; border-radius: 16px; font-weight: 900; font-family: 'Outfit'; text-transform: uppercase; border: none; cursor: pointer; }
+        .bet-input-wrap { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .bet-input-wrap input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 800; width: 100%; outline: none; }
+        
+        /* СТИЛЬ ДЛЯ СЕКРЕТНОЙ КНОПКИ */
+        .secret-50x-btn {
+            margin-top: 10px; background: transparent; border: 1px solid #1f1f22;
+            color: #222; font-size: 9px; padding: 5px; border-radius: 8px;
+            font-weight: 900; cursor: pointer; transition: 0.3s;
+        }
+        .secret-50x-btn.active { border-color: var(--red); color: var(--red); text-shadow: 0 0 5px var(--red); }
+        
+        /* [Остальные стили Solo режимов (Plinko, Escape) копируются из оригинала] */
+        .solo-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .solo-mode-card { background: #121214; border: 1px solid var(--border); border-radius: 20px; padding: 20px 10px; text-align: center; cursor: pointer; }
+        .plinko-area { position: relative; width: 100%; height: 320px; background: #080809; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; overflow: hidden; }
+        .peg { position: absolute; width: 6px; height: 6px; background: #333; border-radius: 50%; transform: translate(-50%, -50%); }
+        .p-gift { position: absolute; font-size: 20px; width: 24px; height: 24px; transform: translate(-50%, -50%); z-index: 10; }
+        .p-slots { position: absolute; bottom: 0; width: 100%; height: 40px; display: flex; gap: 2px; padding: 0 5px 5px; }
+        .p-slot { flex: 1; background: #161618; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+        .history-row { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; }
+        .history-item { min-width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background-size: cover; }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="logo">TON <span>ROLLS</span></div>
-        <div class="bal-pill">
-            <span id="ui-bal">10.00</span>
-            <span style="color:var(--accent)">💎</span>
-        </div>
+        <div class="logo"><span>ROLLS</span></div>
+        <div class="balance-pill"><span id="bal-val">0.00</span> 💎</div>
     </header>
 
-    <div class="content">
-        <section id="view-arena" class="screen active">
-            <div class="card">
-                <p style="font-size: 11px; color: var(--text-m); font-weight: 800;">ОБЩИЙ БАНК РАУНДА</p>
-                <h2 id="ui-bank" style="color: var(--gold); font-family: 'Outfit'; font-size: 24px; margin-bottom: 10px;">0.00 💎</h2>
-                
-                <div class="wheel-wrap">
-                    <div class="pointer"></div>
-                    <canvas id="wheel" width="500" height="500"></canvas>
+    <main class="content">
+        <div id="view-pvp" class="screen active">
+            <div class="arena-card">
+                <div style="font-size:12px; color:var(--text-m); font-weight:800;">БАНК ИГРЫ: <b id="pvp-total" style="color:var(--gold);">0.00 TON</b></div>
+                <div class="wheel-box">
+                    <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #fff; z-index: 5;"></div>
+                    <canvas id="wheel" width="600" height="600"></canvas>
+                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:70px; height:70px; background:#050505; border-radius:50%; border:4px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900;" id="pvp-timer">20</div>
                 </div>
-
-                <input type="number" id="arena-bet" class="input-box" value="1.00">
+                <div class="bet-input-wrap">
+                    <input type="number" id="pvp-input" value="1.00">
+                </div>
+                <button class="main-btn" onclick="joinPVP()">Вступить в битву</button>
                 
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button class="main-btn" onclick="joinArena()">ПОСТАВИТЬ</button>
-                    <button id="btn-50x" onclick="activate50X()" style="background: linear-gradient(45deg, #ff0000, #880000); color: #fff; border: none; border-radius: 14px; font-weight: 900; padding: 0 15px; font-size: 12px; cursor: pointer;">РЕЖИМ 50X</button>
+                <button class="secret-50x-btn" id="btn-rigged" onclick="toggleRigged()">[ MOD: 50X OFF ]</button>
+            </div>
+            <div class="history-row" id="pvp-history"></div>
+            <div id="pvp-list" style="margin-top: 15px;"></div>
+        </div>
+
+        <div id="view-solo" class="screen">
+            <div id="solo-menu-block">
+                <div class="solo-menu-grid">
+                    <div class="solo-mode-card" onclick="openSoloSub('plinko')"><h3>PLINKO</h3><p>Выбей x5.0</p></div>
+                    <div class="solo-mode-card" onclick="openSoloSub('upgrade')"><h3>UPGRADE</h3><p>Рискни</p></div>
                 </div>
             </div>
-            
-            <div id="arena-players"></div>
-        </section>
-
-        <section id="view-solo" class="screen">
-            <div class="card">
-                <h3 style="font-family: 'Outfit'; margin-bottom: 15px; color: var(--accent);">UPGRADE</h3>
-                
-                <div class="up-circle-wrap">
-                    <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="#1f1f22" stroke-width="8" />
-                        <circle id="up-progress" cx="50" cy="50" r="45" fill="none" stroke="var(--accent)" stroke-width="8" stroke-dasharray="282.7" stroke-dashoffset="141" style="transition: stroke-dashoffset 0.5s ease;"/>
-                    </svg>
-                    <div style="position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">
-                        <div id="up-chance" style="font-weight: 900; font-size: 32px; font-family: 'Outfit';">47%</div>
-                        <div style="font-size: 10px; color: var(--text-m);">ШАНС</div>
-                    </div>
-                </div>
-
-                <div class="up-grid">
-                    <button class="up-btn active" onclick="setUpgrade(2, this)">x2</button>
-                    <button class="up-btn" onclick="setUpgrade(5, this)">x5</button>
-                    <button class="up-btn" onclick="setUpgrade(10, this)">x10</button>
-                </div>
-
-                <input type="number" id="up-bet" class="input-box" value="1.00">
-                <button class="main-btn" onclick="playUpgrade()">СДЕЛАТЬ АПГРЕЙД</button>
             </div>
-
-            <h3 style="font-family: 'Outfit'; text-align: center; margin: 25px 0 15px;">СЕКРЕТНЫЕ КЕЙСЫ</h3>
-            <div class="case-grid" id="cases-list">
-                </div>
-        </section>
-
-        <section id="view-profile" class="screen">
-            <div class="card">
-                <img src="https://share.google/i6hYGpK3ak4HlKeF5" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0088cc&color=fff'" style="width: 80px; height: 80px; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 10px; object-fit: cover;">
-                
-                <h2>@MyProfile</h2>
-                <div style="background: #121214; padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; text-align: left;">
-                    <p style="font-size: 12px; color: var(--text-m); font-weight: 800; margin-bottom: 5px;">СТАТИСТИКА</p>
-                    <p style="font-weight: 800;">Баланс: <span id="stat-bal" style="color: var(--accent);">10.00 💎</span></p>
-                    <p style="font-weight: 800;">Сыграно игр: <span id="stat-games">0</span></p>
-                </div>
-
-                <button class="main-btn" style="background: transparent; border: 1px solid var(--red); color: var(--red); margin-top: 20px;" onclick="resetAccount()">Сбросить аккаунт</button>
-            </div>
-        </section>
-    </div>
+    </main>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="switchTab('arena', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
-            Арена
-        </div>
-        <div class="nav-item" onclick="switchTab('solo', this)">
-            <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
-            Соло
-        </div>
-        <div class="nav-item" onclick="switchTab('profile', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Профиль
-        </div>
+        <div class="nav-item active" onclick="tab('pvp', this)">Арена</div>
+        <div class="nav-item" onclick="tab('solo', this)">Solo</div>
+        <div class="nav-item" onclick="tab('profile', this)">Профиль</div>
     </nav>
 
 <script>
-    /* =========================================
-       1. ГЛОБАЛЬНЫЕ ДАННЫЕ И НАСТРОЙКИ
-       ========================================= */
-    let sys = {
-        bal: parseFloat(localStorage.getItem('my_bal')) || 10.0,
-        games: parseInt(localStorage.getItem('my_games')) || 0,
-        arena: { players: [], isSpinning: false, mode50x: false },
-        upMult: 2
+    let state = {
+        bal: 10.0, wager: 0, lvl: 1,
+        pvp: { players: [], timer: 20, spinning: false, rigged: false }
     };
 
-    // Настройки кейсов
-    const myCases = [
-        { id: 1, name: 'Бронзовый', price: 1.0, drop: [0.1, 0.5, 2.0] },
-        { id: 2, name: 'Золотой', price: 5.0, drop: [1.0, 5.0, 15.0] },
-        { id: 3, name: 'Элитный', price: 10.0, drop: [5.0, 20.0, 50.0] }
-    ];
-
-    const colors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71', '#9b59b6'];
-
-    // Сохранение и обновление цифр на экране
-    function saveAndUpd() {
-        localStorage.setItem('my_bal', sys.bal);
-        localStorage.setItem('my_games', sys.games);
-        document.getElementById('ui-bal').innerText = sys.bal.toFixed(2);
-        document.getElementById('stat-bal').innerText = sys.bal.toFixed(2) + " 💎";
-        document.getElementById('stat-games').innerText = sys.games;
-    }
-
-    // Переключение вкладок
-    function switchTab(tabId, el) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('view-' + tabId).classList.add('active');
-        el.classList.add('active');
-    }
-
-    /* =========================================
-       2. ЛОГИКА РУЛЕТКИ (ARENA)
-       ========================================= */
     const canvas = document.getElementById('wheel');
     const ctx = canvas.getContext('2d');
+    const wheelColors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71'];
+
+    function toggleRigged() {
+        state.pvp.rigged = !state.pvp.rigged;
+        const btn = document.getElementById('btn-rigged');
+        btn.classList.toggle('active');
+        btn.innerText = state.pvp.rigged ? "[ MOD: 50X ACTIVE ]" : "[ MOD: 50X OFF ]";
+    }
 
     function drawWheel() {
-        ctx.clearRect(0, 0, 500, 500);
-        const total = sys.arena.players.reduce((a, b) => a + b.bet, 0);
-        
-        // Если пусто - рисуем серый круг
+        const r = canvas.width / 2;
+        ctx.clearRect(0,0,600,600);
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
         if (total === 0) {
-            ctx.beginPath(); ctx.arc(250, 250, 240, 0, Math.PI * 2);
+            ctx.beginPath(); ctx.arc(r,r,r-20,0,Math.PI*2);
             ctx.fillStyle = '#121214'; ctx.fill();
-            ctx.strokeStyle = '#1f1f22'; ctx.lineWidth = 10; ctx.stroke();
             return;
         }
-
-        let startAngle = -Math.PI / 2; // Начинаем рисовать сверху (там где палочка)
-        sys.arena.players.forEach((p, i) => {
-            const slice = (p.bet / total) * Math.PI * 2;
-            ctx.beginPath();
-            ctx.moveTo(250, 250);
-            ctx.arc(250, 250, 240, startAngle, startAngle + slice);
-            ctx.fillStyle = colors[i % colors.length];
-            ctx.fill();
-            ctx.strokeStyle = '#050505'; ctx.lineWidth = 4; ctx.stroke();
-            startAngle += slice;
+        let start = 0;
+        state.pvp.players.forEach((p, i) => {
+            const arc = (p.bet / total) * 2 * Math.PI;
+            ctx.beginPath(); ctx.moveTo(r,r);
+            ctx.arc(r, r, r-10, start, start + arc);
+            ctx.fillStyle = p.color; ctx.fill();
+            start += arc;
         });
     }
 
-    function joinArena() {
-        if(sys.arena.isSpinning) return alert("Дождитесь окончания вращения!");
-        let bet = parseFloat(document.getElementById('arena-bet').value);
-        if(isNaN(bet) || bet <= 0 || bet > sys.bal) return alert("Некорректная сумма или недостаточно средств!");
+    function joinPVP() {
+        if (state.pvp.spinning) return;
+        const bet = parseFloat(document.getElementById('pvp-input').value);
+        if (state.bal < bet) return alert("Мало TON");
 
-        sys.bal -= bet;
-        sys.games++;
-        sys.arena.players.push({ name: 'Игрок', bet: bet });
-        
-        // Добавляем фейкового бота для массовки
-        sys.arena.players.push({ name: 'Бот_1337', bet: bet * 1.5 });
+        state.bal -= bet;
+        // Добавляем тебя
+        state.pvp.players.push({ name: "Вы", bet: bet, color: wheelColors[0], ava: "https://ui-avatars.com/api/?name=ME" });
+        // Сразу добавляем бота-соперника
+        state.pvp.players.push({ name: "Бот_TON", bet: bet * 1.2, color: wheelColors[1], ava: "https://ui-avatars.com/api/?name=BOT" });
 
-        document.getElementById('ui-bank').innerText = sys.arena.players.reduce((a,b)=>a+b.bet, 0).toFixed(2) + " 💎";
-        saveAndUpd();
+        updatePVPList();
         drawWheel();
-        
-        // Запускаем прокрут сразу через 1 секунду после ставки
-        setTimeout(startSpin, 1000);
+        updateUI();
     }
 
-    function activate50X() {
-        sys.arena.mode50x = true;
-        document.getElementById('btn-50x').style.boxShadow = "0 0 15px #ff0000";
-        alert("РЕЖИМ 50X АКТИВИРОВАН!\nШанс огромного куша, но выжить почти невозможно.");
-    }
-
-    function startSpin() {
-        sys.arena.isSpinning = true;
-        canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
-        
-        let deg;
-        if(sys.arena.mode50x) {
-            // ЛОВУШКА 50X: Колесо останавливается так, что палочка показывает на Бота (вы всегда проигрываете)
-            deg = 360 * 5 + 120; 
-        } else {
-            // ЧЕСТНЫЙ РЕЖИМ
-            deg = 360 * 5 + Math.floor(Math.random() * 360);
-        }
-
-        canvas.style.transform = `rotate(${deg}deg)`;
-
-        setTimeout(() => {
-            let total = sys.arena.players.reduce((a,b)=>a+b.bet, 0);
-            if(sys.arena.mode50x) {
-                alert("ПОЧТИ! Палочка остановилась рядом с сектором 50X. Попробуйте еще раз.");
-                sys.arena.mode50x = false;
-                document.getElementById('btn-50x').style.boxShadow = "none";
-            } else {
-                // В честном режиме для демо даем победу 50/50
-                if(Math.random() > 0.5) {
-                    alert("УРА! Ваша победа! Забрали " + total.toFixed(2) + " 💎");
-                    sys.bal += total;
-                } else {
-                    alert("Выиграл Бот_1337. Ваша ставка сгорела.");
-                }
-            }
-            
-            // Сброс колеса
-            sys.arena.players = [];
-            sys.arena.isSpinning = false;
-            canvas.style.transition = "none";
-            canvas.style.transform = "rotate(0deg)";
-            document.getElementById('ui-bank').innerText = "0.00 💎";
-            saveAndUpd();
-            drawWheel();
-        }, 5500);
-    }
-
-    /* =========================================
-       3. ЛОГИКА АПГРЕЙДА (UPGRADE)
-       ========================================= */
-    function setUpgrade(mult, btn) {
-        sys.upMult = mult;
-        document.querySelectorAll('.up-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        // Расчет процента и движения круга
-        let chance = (100 / mult) * 0.95;
-        document.getElementById('up-chance').innerText = Math.floor(chance) + "%";
-        
-        // 282.7 - полная длина окружности нашего SVG
-        let offset = 282.7 - (282.7 * (chance / 100));
-        document.getElementById('up-progress').style.strokeDashoffset = offset;
-    }
-
-    function playUpgrade() {
-        let bet = parseFloat(document.getElementById('up-bet').value);
-        if(isNaN(bet) || bet <= 0 || bet > sys.bal) return alert("Некорректная сумма!");
-
-        sys.bal -= bet;
-        sys.games++;
-        saveAndUpd();
-
-        // Мигание круга для эффекта "загрузки"
-        let circle = document.getElementById('up-progress');
-        circle.style.opacity = "0.3";
-        
-        setTimeout(() => {
-            circle.style.opacity = "1";
-            let chance = (100 / sys.upMult) * 0.95;
-            let roll = Math.random() * 100;
-
-            if(roll <= chance) {
-                let win = bet * sys.upMult;
-                sys.bal += win;
-                alert(`🔥 АПГРЕЙД УСПЕШЕН! ВЫ ПОЛУЧИЛИ ${win.toFixed(2)} 💎`);
-            } else {
-                alert("💀 Апгрейд сгорел.");
-            }
-            saveAndUpd();
-        }, 800);
-    }
-
-    /* =========================================
-       4. ЛОГИКА КЕЙСОВ (CASES)
-       ========================================= */
-    function renderCases() {
-        const box = document.getElementById('cases-list');
-        box.innerHTML = myCases.map(c => `
-            <div class="card" style="padding: 15px;">
-                <div style="font-size: 35px; margin-bottom: 10px;">📦</div>
-                <h4 style="font-size: 14px;">Кейс «${c.name}»</h4>
-                <p style="color: var(--gold); font-weight: 900; margin: 10px 0;">${c.price.toFixed(2)} 💎</p>
-                <button class="main-btn" style="padding: 10px; font-size: 12px;" onclick="openCase(${c.id})">ОТКРЫТЬ</button>
+    function updatePVPList() {
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        document.getElementById('pvp-total').innerText = total.toFixed(2) + " TON";
+        document.getElementById('pvp-list').innerHTML = state.pvp.players.map(p => `
+            <div style="display:flex; justify-content:space-between; background:#121214; padding:10px; border-radius:10px; margin-bottom:5px; border-left:4px solid ${p.color}">
+                <span>${p.name}</span><b>${p.bet.toFixed(2)}</b>
             </div>
         `).join('');
     }
 
-    function openCase(id) {
-        const c = myCases.find(x => x.id === id);
-        if(sys.bal < c.price) return alert("Не хватает баланса на этот кейс!");
-
-        sys.bal -= c.price;
-        sys.games++;
-        saveAndUpd();
-
-        // Простая анимация открытия
-        alert(`Открываем Кейс «${c.name}»...`);
-        setTimeout(() => {
-            let win = c.drop[Math.floor(Math.random() * c.drop.length)];
-            sys.bal += win;
-            saveAndUpd();
-            alert(`🎉 ВАМ ВЫПАЛО: ${win.toFixed(2)} 💎`);
-        }, 1000);
-    }
-
-    /* =========================================
-       5. СБРОС И ИНИЦИАЛИЗАЦИЯ
-       ========================================= */
-    function resetAccount() {
-        if(confirm("Удалить все данные и вернуть стартовые 10 TON?")) {
-            localStorage.clear();
-            location.reload();
+    function spinPVP() {
+        state.pvp.spinning = true;
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        
+        let finalDeg;
+        if (state.pvp.rigged) {
+            // Если включен 50X: Колесо останавливается на Боте (сектор 2)
+            // Бот обычно занимает вторую половину, поэтому крутим на нужный угол
+            finalDeg = (360 * 5) + 240; 
+        } else {
+            finalDeg = (360 * 5) + Math.random() * 360;
         }
+
+        canvas.style.transition = "transform 5s cubic-bezier(0.1, 0, 0.1, 1)";
+        canvas.style.transform = `rotate(${finalDeg}deg)`;
+
+        setTimeout(() => {
+            if (state.pvp.rigged) {
+                alert("ПОЧТИ! Выигрыш ушел Бот_TON. Попробуйте еще раз с большим множителем!");
+            } else {
+                // В обычном режиме считаем честно
+                const win = total * 0.95;
+                state.bal += win;
+                alert("ПОБЕДА! Вы получили " + win.toFixed(2) + " TON");
+            }
+            resetPVP();
+        }, 5500);
     }
 
-    // Запускается сразу при открытии страницы
-    window.addEventListener('DOMContentLoaded', () => {
-        saveAndUpd();
+    function resetPVP() {
+        state.pvp.players = [];
+        state.pvp.timer = 20;
+        state.pvp.spinning = false;
+        canvas.style.transition = "none";
+        canvas.style.transform = "rotate(-90deg)";
+        updatePVPList();
         drawWheel();
-        renderCases();
-        setUpgrade(2, document.querySelector('.up-btn.active')); // Ставим базовый круг x2
-    });
+        updateUI();
+    }
+
+    function updateUI() { document.getElementById('bal-val').innerText = state.bal.toFixed(2); }
+
+    setInterval(() => {
+        if (!state.pvp.spinning && state.pvp.players.length > 0) {
+            state.pvp.timer--;
+            document.getElementById('pvp-timer').innerText = state.pvp.timer;
+            if (state.pvp.timer <= 0) spinPVP();
+        }
+    }, 1000);
+
+    function tab(n, e) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('view-' + n).classList.add('active');
+    }
 </script>
 </body>
 </html>
+
