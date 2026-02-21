@@ -95,15 +95,76 @@ canvas#wheel {
         .history-item { min-width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background-size: cover; }
 
         /* UPGRADE & CASES */
-        .up-circle-wrap { position: relative; width: 200px; height: 200px; margin: 0 auto 20px; }
-        .up-progress { fill: none; stroke: var(--accent); stroke-width: 12; stroke-dasharray: 282.7; stroke-dashoffset: 140; stroke-linecap: round; transition: 0.3s; }
-        .up-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .up-btn { background: var(--card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: var(--text-m); font-weight: 800; cursor: pointer; }
-        .up-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .case-card-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; text-align: center; position: relative; }
-        .case-card-item.locked { opacity: 0.5; filter: grayscale(1); }
+// Настройки кейсов: ID, Название, Цена, Мин. уровень, Возможный дроп
+const casesData = [
+    { id: 1, name: 'Begginer', price: 0.5, lvl: 1, drop: [0.1, 0.5, 1.2] },
+    { id: 2, name: 'Common', price: 2.0, lvl: 2, drop: [0.5, 2.0, 5.0] },
+    { id: 3, name: 'Elite', price: 10.0, lvl: 5, drop: [2.0, 10.0, 50.0] }
+];
+
+function renderCases() {
+    const container = document.getElementById('case-container');
+    if (!container) return;
+    
+    // Берем текущий уровень из state (если его нет, ставим 1)
+    const userLvl = state.lvl || 1; 
+    document.getElementById('user-lvl').innerText = userLvl;
+
+    container.innerHTML = casesData.map(c => {
+        const isLocked = userLvl < c.lvl;
+        return `
+            <div class="case-card ${isLocked ? 'locked' : ''}">
+                <div style="font-size: 30px; margin-bottom: 10px;">📦</div>
+                <h3 style="font-size: 14px;">${c.name}</h3>
+                <p style="color: var(--gold); font-weight: 800; margin: 10px 0;">${c.price} TON</p>
+                <button class="main-btn" 
+                    onclick="openCase(${c.id})" 
+                    style="padding: 8px; font-size: 12px; background: ${isLocked ? '#333' : 'var(--accent)'}"
+                    ${isLocked ? 'disabled' : ''}>
+                    ${isLocked ? 'Lvl ' + c.lvl : 'ОТКРЫТЬ'}
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+function openCase(id) {
+    const box = casesData.find(c => c.id === id);
+    
+    if (state.bal < box.price) {
+        return alert("Недостаточно TON для открытия!");
+    }
+
+    // Снимаем деньги
+    state.bal -= box.price;
+    updateUI();
+
+    // Анимация "открытия" (простая через alert, можно заменить на модалку)
+    const win = box.drop[Math.floor(Math.random() * box.drop.length)];
+    
+    alert(`Распаковка кейса ${box.name}...`);
+    
+    setTimeout(() => {
+        alert(`ВАШ ВЫИГРЫШ: ${win} TON!`);
+        state.bal += win;
+        state.wager += box.price; // Добавляем в оборот
         
+        // Проверка на повышение уровня (например, за каждые 10 TON оборота)
+        state.lvl = Math.floor(state.wager / 10) + 1;
+        
+        save();         // Сохраняем в localStorage
+        updateUI();     // Обновляем баланс на экране
+        renderCases();  // Перерисовываем кейсы (вдруг уровень вырос)
+    }, 1000);
+}
+
+// Вызови renderCases() в window.onload, чтобы они появились при старте
+window.onload = () => {
+    updateUI();
+    drawWheel();
+    renderCases(); // <--- Добавь это!
+};
+
         /* PROFILE */
         .lvl-container { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 15px; text-align: left;}
         .lvl-bar { background: #1a1a1e; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px; }
