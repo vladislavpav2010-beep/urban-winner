@@ -2,581 +2,559 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ARENA LUXURY MONOLITH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;600;700;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAHARA BUBE: THE OMEGA MONOLITH</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Montserrat:wght@900&display=swap" rel="stylesheet">
     
     <style>
         /* ================================================================
-           1. CSS ARCHITECTURE: LUXURY DARK (ORANGE ACCENTS)
+           1. CSS CORE ENGINE - КАСКАДНЫЕ СТИЛИ ВЫСОКОЙ ПЛОТНОСТИ
            ================================================================
         */
-
         :root {
-            --b-100: #000000;
-            --b-200: #050505;
-            --b-300: #0a0a0a;
-            --b-400: #111111;
-            --b-500: #1a1a1a;
-            --o-100: #ff8c00; /* Главный оранжевый */
-            --o-200: #e67e22;
-            --o-300: #d35400;
-            --o-glow: rgba(255, 140, 0, 0.4);
-            --t-100: #ffffff;
-            --t-200: #a0a0a0;
-            --t-300: #555555;
-            --success: #00ff88;
-            --error: #ff3333;
-            --f-main: 'Inter', sans-serif;
-            --f-mono: 'JetBrains Mono', monospace;
-            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --gold: #ffcc00; --gold-dark: #b8860b; --gold-glow: rgba(255, 204, 0, 0.4);
+            --bg-black: #020202; --bg-card: #0a0a0a; --bg-nav: #050505;
+            --border: #1a1a1a; --text-main: #ffffff; --text-dim: #666666;
+            --danger: #ff4444; --success: #00ff88; --shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Системные сбросы */
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            user-select: none;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
         body {
-            background: var(--b-100);
-            color: var(--t-100);
-            font-family: var(--f-main);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--bg-black);
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden; height: 100vh; width: 100vw;
+            display: flex; flex-direction: column;
         }
 
-        /* Плавные анимации появления */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulse-orange { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(255, 140, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); } }
-        @keyframes skeleton { 0% { background: #111; } 50% { background: #1a1a1a; } 100% { background: #111; } }
+        /* АНИМАЦИИ */
+        @keyframes goldPulse { 0% { box-shadow: 0 0 5px var(--gold); } 50% { box-shadow: 0 0 25px var(--gold); } 100% { box-shadow: 0 0 5px var(--gold); } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes glowText { from { text-shadow: 0 0 5px var(--gold); } to { text-shadow: 0 0 20px var(--gold); } }
 
-        /* ================================================================
-           2. HEADER & BATTLE PASS MODULES
-           ================================================================
-        */
-
-        .top-container {
-            padding: 20px 20px 10px;
-            background: linear-gradient(180deg, #050505 0%, #000 100%);
-            border-bottom: 1px solid var(--b-500);
-            z-index: 100;
+        /* HEADER */
+        header {
+            padding: 20px 30px; background: #000; border-bottom: 2px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
         }
 
-        .bp-widget {
-            background: var(--b-400);
-            border: 1px solid var(--o-100);
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .bp-widget::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.1), transparent);
-            transition: 2s; animation: shimmer 4s infinite;
-        }
-
-        @keyframes shimmer { 0% { left: -100%; } 100% { left: 200%; } }
-
-        .bp-meta { display: flex; justify-content: space-between; align-items: flex-end; }
-        .bp-title { font-size: 10px; font-weight: 900; color: var(--o-100); text-transform: uppercase; letter-spacing: 2.5px; }
-        .bp-level { font-size: 22px; font-weight: 900; font-family: var(--f-mono); font-style: italic; }
-
-        .bp-progress-bar {
-            height: 6px; background: #000; border-radius: 10px;
-            margin-top: 10px; position: relative; overflow: hidden;
-            border: 1px solid #222;
-        }
-
-        .bp-fill {
-            height: 100%; width: 42%;
-            background: linear-gradient(90deg, var(--o-300), var(--o-100));
-            box-shadow: 0 0 10px var(--o-glow);
-            transition: width 1s ease;
-        }
-
-        /* ================================================================
-           3. USER STATS & BALANCE BAR
-           ================================================================
-        */
-
-        .user-stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-profile-mini {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .user-identity { display: flex; align-items: center; gap: 15px; }
         .avatar-circle {
-            width: 48px; height: 48px; border-radius: 15px;
-            background: var(--o-100);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900; color: #000;
-            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
+            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold);
+            display: flex; align-items: center; justify-content: center; font-weight: 800;
+            background: var(--bg-card); animation: goldPulse 3s infinite;
         }
 
-        .user-name-tag { font-weight: 800; font-size: 16px; margin-bottom: 2px; }
-        .user-rank-tag { font-size: 9px; color: var(--o-100); font-weight: 900; letter-spacing: 1px; }
+        .stats-display { text-align: right; }
+        .balance-val { font-size: 24px; font-weight: 800; color: var(--gold); font-family: 'Montserrat', sans-serif; }
+        .xp-container { width: 200px; height: 6px; background: #111; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .xp-fill { height: 100%; width: 40%; background: var(--gold); transition: width 0.5s ease; }
 
-        .balance-widget {
-            background: var(--b-400);
-            border: 1px solid var(--b-500);
-            padding: 10px 18px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
+        /* VIEWPORT NAVIGATION */
+        .main-stage { flex: 1; overflow-y: auto; padding: 30px; position: relative; scrollbar-width: none; }
+        .main-stage::-webkit-scrollbar { display: none; }
 
-        .balance-widget:active { transform: scale(0.95); border-color: var(--o-100); }
-        .balance-value { font-family: var(--f-mono); font-size: 18px; font-weight: 800; color: var(--o-100); }
-
-        /* ================================================================
-           4. VIEWPORT & NAVIGATION
-           ================================================================
-        */
-
-        .main-viewport {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            position: relative;
-        }
-
-        .screen {
-            display: none;
-            animation: fadeIn 0.5s ease forwards;
-        }
-
+        .screen { display: none; animation: slideUp 0.4s ease-out; }
         .screen.active { display: block; }
 
-        .nav-footer {
-            height: 85px; background: #000;
-            border-top: 1px solid var(--b-500);
-            display: flex; justify-content: space-around;
-            padding: 10px 15px 25px;
-            z-index: 1000;
+        /* CARD DESIGN */
+        .bube-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 25px; padding: 30px; margin-bottom: 25px;
+            box-shadow: var(--shadow); position: relative; overflow: hidden;
         }
 
-        .nav-btn {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: var(--t-300); gap: 6px;
-            transition: var(--transition);
+        /* АРЕНА (JACKPOT) UI */
+        .pot-area { text-align: center; padding: 40px 0; }
+        .pot-label { color: var(--text-dim); font-size: 12px; letter-spacing: 5px; margin-bottom: 10px; }
+        .pot-total { font-size: 60px; font-weight: 900; color: var(--gold); text-shadow: var(--gold-glow) 0 0 30px; }
+        
+        .timer-wrap { 
+            width: 100px; height: 100px; border: 4px solid var(--border); 
+            border-radius: 50%; margin: 25px auto; display: flex; 
+            align-items: center; justify-content: center; font-size: 32px; font-weight: 800;
+            border-top-color: var(--gold); animation: rotate 2s linear infinite;
         }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
 
-        .nav-btn.active { color: var(--o-100); }
-        .nav-btn i { font-size: 24px; }
-        .nav-btn label { font-size: 10px; font-weight: 800; text-transform: uppercase; }
-
-        /* ================================================================
-           5. ARENA: THE CIRCLE ENGINE
-           ================================================================
-        */
-
-        .arena-master-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
+        .players-list { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+        .p-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #050505; padding: 15px 25px; border-radius: 15px;
+            border: 1px solid transparent; transition: 0.3s;
         }
+        .p-row.is-me { border-color: var(--gold); background: rgba(255,204,0,0.05); }
+        .p-row:hover { transform: translateX(5px); }
+        .p-chance { font-size: 10px; color: var(--gold); font-weight: 800; }
 
-        .arena-circle-outer {
-            width: 300px; height: 300px;
-            border-radius: 50%;
-            border: 1px solid var(--b-500);
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            background: radial-gradient(circle, #080808 0%, #000 100%);
+        /* КНОПКИ И ИНПУТЫ */
+        .input-mega {
+            width: 100%; background: #000; border: 2px solid var(--border);
+            padding: 20px; border-radius: 15px; color: var(--gold);
+            font-size: 20px; font-weight: 800; margin-bottom: 20px; outline: none;
+            transition: 0.3s;
         }
+        .input-mega:focus { border-color: var(--gold); }
 
-        .arena-circle-inner {
-            width: 250px; height: 250px;
-            border-radius: 50%;
-            border: 4px solid var(--o-100);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            box-shadow: 0 0 40px var(--o-glow), inset 0 0 20px var(--o-glow);
-            animation: pulse-orange 2s infinite;
-            cursor: pointer;
+        .btn-gold {
+            width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000; border: none; padding: 20px; border-radius: 15px;
+            font-weight: 900; font-size: 16px; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
         }
+        .btn-gold:active { transform: scale(0.98); opacity: 0.9; }
 
-        .arena-status-title { font-size: 38px; font-weight: 900; letter-spacing: -2px; }
-        .arena-status-sub { font-size: 11px; font-weight: 800; color: var(--o-100); margin-top: 5px; text-transform: uppercase; }
-
-        /* ================================================================
-           6. SOLO MODULAR CARDS
-           ================================================================
-        */
-
-        .section-header {
-            font-size: 12px; font-weight: 900; color: var(--t-300);
-            text-transform: uppercase; letter-spacing: 2px;
-            margin: 25px 0 15px;
+        /* ТАБ БАР (НИЖНИЙ) */
+        nav.tab-bar {
+            height: 90px; background: var(--bg-nav); border-top: 2px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
         }
-
-        .solo-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-dim); gap: 5px; cursor: pointer; transition: 0.3s;
         }
+        .tab-item.active { color: var(--gold); }
+        .tab-item i { font-size: 24px; }
+        .tab-item span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
 
-        .luxury-card {
-            background: var(--b-400);
-            border: 1px solid var(--b-500);
-            border-radius: 24px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: var(--transition);
+        /* ИГРА МИНЫ */
+        .mines-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            max-width: 400px; margin: 0 auto;
         }
-
-        .luxury-card:active { transform: translateY(-5px); border-color: var(--o-100); background: #151515; }
-        .card-icon-wrap { font-size: 32px; margin-bottom: 12px; display: block; }
-        .card-name { display: block; font-weight: 800; font-size: 14px; color: var(--o-100); }
-
-        /* ================================================================
-           7. PROFILE & DEPOSIT SYSTEM
-           ================================================================
-        */
-
-        .deposit-card {
-            background: var(--b-400);
-            border: 1px solid var(--b-500);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+        .mine-cell {
+            aspect-ratio: 1; background: #111; border: 1px solid var(--border);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer; transition: 0.2s;
         }
+        .mine-cell.open { background: #1a1a1a; border-color: var(--gold); }
 
-        .method-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 15px 0;
+        /* МАГАЗИН И ИНВЕНТАРЬ */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .item-card {
+            background: #080808; border: 1px solid var(--border); padding: 15px;
+            border-radius: 15px; text-align: center;
         }
-
-        .method-item {
-            background: var(--b-100);
-            border: 1px solid var(--b-500);
-            padding: 15px 5px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 800;
-            transition: 0.2s;
-        }
-
-        .method-item.active { border-color: var(--o-100); color: var(--o-100); background: rgba(255,140,0,0.05); }
-
-        .input-luxury {
-            width: 100%; background: var(--b-200);
-            border: 1px solid var(--b-500);
-            padding: 18px; border-radius: 14px;
-            color: #fff; font-family: var(--f-mono);
-            font-size: 16px; font-weight: 700;
-            margin-top: 10px;
-        }
-
-        .btn-luxury {
-            width: 100%; background: var(--o-100);
-            color: #000; border: none;
-            padding: 18px; border-radius: 14px;
-            font-weight: 900; font-size: 15px;
-            margin-top: 15px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.2);
-        }
-
-        /* ================================================================
-           8. GAMES ENGINE: MINES & MODALS
-           ================================================================
-        */
-
-        .modal-overlay {
-            position: fixed; inset: 0; background: #000;
-            z-index: 5000; display: none;
-            flex-direction: column;
-            animation: modalUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        @keyframes modalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .game-header {
-            padding: 25px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 1px solid #111;
-        }
-
-        .game-grid-mines {
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            gap: 8px; max-width: 350px; margin: 40px auto;
-        }
-
-        .mine-tile {
-            aspect-ratio: 1; background: var(--b-400);
-            border: 1px solid var(--b-500); border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; transition: 0.2s;
-        }
-
-        .mine-tile.revealed { background: var(--o-100); color: #000; border: none; }
-        .mine-tile.bomb { background: var(--error); border: none; }
+        .item-icon { font-size: 30px; margin-bottom: 10px; }
 
     </style>
 </head>
 <body>
 
-    <div class="top-container">
-        <div class="bp-widget">
-            <div class="bp-meta">
-                <span class="bp-title">Sahara Bube Season</span>
-                <span class="bp-level">LVL.24</span>
-            </div>
-            <div class="bp-progress-bar"><div class="bp-fill" id="bp-fill-main"></div></div>
-        </div>
-
-        <div class="user-stats-bar">
-            <div class="user-profile-mini">
-                <div class="avatar-circle">U</div>
-                <div>
-                    <div class="user-name-tag">Player_01</div>
-                    <div class="user-rank-tag">DIAMOND GLADIATOR</div>
-                </div>
-            </div>
-            <div class="balance-widget" onclick="navigate('profile')">
-                <span class="balance-value" id="main-bal">1,500.00</span>
-                <img src="https://img.icons8.com/emoji/48/diamond-emoji.png" width="20">
+    <header>
+        <div class="user-identity">
+            <div class="avatar-circle" id="ui-avatar">S</div>
+            <div>
+                <div id="ui-username" style="font-weight: 800;">SAHARA_BUBE</div>
+                <div id="ui-level" style="font-size: 10px; color: var(--gold);">LEVEL 1 ROOKIE</div>
             </div>
         </div>
-    </div>
+        <div class="stats-display">
+            <div class="balance-val" id="ui-balance">5,000.00 💎</div>
+            <div class="xp-container"><div class="xp-fill" id="ui-xp-fill"></div></div>
+        </div>
+    </header>
 
-    <main class="main-viewport" id="viewport">
-        
+    <main class="main-stage">
+
         <section id="scr-arena" class="screen active">
-            <div class="arena-master-container">
-                <div class="arena-circle-outer">
-                    <div class="arena-circle-inner" onclick="startSearch()">
-                        <span class="arena-status-title">ARENA</span>
-                        <span class="arena-status-sub" id="search-label">Ready to fight</span>
-                    </div>
+            <div class="bube-card pot-area">
+                <p class="pot-label">CURRENT POOL</p>
+                <div class="pot-total" id="arena-pot">0.00</div>
+                <div class="timer-wrap"><span id="arena-timer">15</span></div>
+                <p id="arena-status" style="font-size: 12px; color: var(--success); font-weight: 800;">ОЖИДАНИЕ СТАВОК...</p>
+            </div>
+
+            <div class="bube-card">
+                <input type="number" id="bet-amount" class="input-mega" placeholder="ВВЕДИТЕ СУММУ СТАВКИ">
+                <button class="btn-gold" onclick="Engine.Arena.placeBet()">ВСТУПИТЬ В БИТВУ</button>
+            </div>
+
+            <div class="players-list" id="arena-players">
                 </div>
-                
-                <div style="width: 100%; margin-top: 40px;">
-                    <div class="section-header">Live Battles</div>
-                    <div id="battle-feed">
-                        </div>
+        </section>
+
+        <section id="scr-mines" class="screen">
+            <div class="bube-card" style="text-align: center;">
+                <h2 style="margin-bottom: 20px; color: var(--gold);">SAHARA MINES</h2>
+                <div class="mines-grid" id="mines-board">
+                    </div>
+                <div id="mines-controls" style="margin-top: 20px;">
+                    <input type="number" id="mines-bet" class="input-mega" placeholder="СТАВКА">
+                    <button class="btn-gold" id="btn-mines-start" onclick="Engine.Mines.start()">НАЧАТЬ ИГРУ</button>
+                    <button class="btn-gold" id="btn-mines-cashout" style="display:none; background: var(--success);" onclick="Engine.Mines.cashout()">ЗАБРАТЬ</button>
                 </div>
             </div>
         </section>
 
-        <section id="scr-solo" class="screen">
-            <div class="section-header">Premium Solo Operations</div>
-            <div class="solo-grid">
-                <div class="luxury-card" onclick="openGame('mines')">
-                    <span class="card-icon-wrap">💣</span>
-                    <span class="card-name">Mines</span>
+        <section id="scr-shop" class="screen">
+            <h2 style="margin-bottom: 20px;">PREMIUM SHOP</h2>
+            <div class="shop-grid" id="shop-container">
                 </div>
-                <div class="luxury-card" onclick="openGame('slots')">
-                    <span class="card-icon-wrap">🎰</span>
-                    <span class="card-name">Slots</span>
+            <h2 style="margin: 30px 0 20px;">MY INVENTORY</h2>
+            <div id="inventory-container" class="shop-grid">
                 </div>
-                <div class="luxury-card" onclick="openGame('tower')">
-                    <span class="card-icon-wrap">🏰</span>
-                    <span class="card-name">Tower</span>
-                </div>
-                <div class="luxury-card" onclick="openGame('dice')">
-                    <span class="card-icon-wrap">🎲</span>
-                    <span class="card-name">Dice</span>
-                </div>
-            </div>
-
-            <div class="section-header">Loot Crates</div>
-            <div class="deposit-card" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <b style="color: var(--o-100);">Orange Crate</b><br>
-                    <small style="color: var(--t-300);">Win up to 5000 💎</small>
-                </div>
-                <button class="btn-luxury" style="width: auto; padding: 10px 25px; margin: 0;">50 💎</button>
-            </div>
         </section>
 
         <section id="scr-profile" class="screen">
-            <div class="deposit-card">
-                <h3 style="font-size: 18px; margin-bottom: 5px;">Пополнение баланса</h3>
-                <p style="color: var(--t-300); font-size: 12px;">Мгновенное зачисление через защищенный шлюз</p>
-                
-                <div class="method-grid">
-                    <div class="method-item active">TON Coin</div>
-                    <div class="method-item">Visa / MC</div>
-                    <div class="method-item">USDT TRC20</div>
-                    <div class="method-item">CryptoBot</div>
-                    <div class="method-item">Stars</div>
-                    <div class="method-item">Voucher</div>
+            <div class="bube-card">
+                <h1 id="prof-name">SAHARA_BUBE</h1>
+                <p id="prof-rank" style="color: var(--gold);">ELITE MEMBER</p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>ВСЕГО ВЫИГРАНО:</span><span id="stat-total-win">0.00 💎</span>
                 </div>
-
-                <label style="font-size: 10px; font-weight: 900; color: var(--o-100);">СУММА ПОПОЛНЕНИЯ</label>
-                <input type="number" class="input-luxury" placeholder="0.00">
-                <button class="btn-luxury">ПЕРЕЙТИ К ОПЛАТЕ</button>
-            </div>
-
-            <div class="deposit-card">
-                <h3 style="font-size: 16px; margin-bottom: 10px;">Промокод</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" class="input-luxury" style="margin: 0;" placeholder="ENTER_CODE">
-                    <button class="btn-luxury" style="width: auto; margin: 0; padding: 0 30px;">OK</button>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>СДЕЛАНО СТАВОК:</span><span id="stat-total-bets">0</span>
                 </div>
-            </div>
-
-            <div class="section-header">Статистика игрока</div>
-            <div class="solo-grid">
-                <div class="luxury-card" style="padding: 20px; text-align: left;">
-                    <small style="color: var(--t-300);">Побед</small>
-                    <div style="font-size: 24px; font-weight: 900; color: var(--o-100);">1,242</div>
-                </div>
-                <div class="luxury-card" style="padding: 20px; text-align: left;">
-                    <small style="color: var(--t-300);">ROI</small>
-                    <div style="font-size: 24px; font-weight: 900; color: var(--success);">+14.5%</div>
-                </div>
+                <button class="btn-gold" style="margin-top: 30px; background: var(--danger); color: white;" onclick="Engine.resetData()">СБРОСИТЬ ПРОГРЕСС</button>
             </div>
         </section>
 
     </main>
 
-    <nav class="nav-footer">
-        <div class="nav-btn" onclick="navigate('solo', this)"><i>🎮</i><label>Solo</label></div>
-        <div class="nav-btn active" onclick="navigate('arena', this)"><i>⚔️</i><label>Arena</label></div>
-        <div class="nav-btn" onclick="navigate('profile', this)"><i>👤</i><label>Profile</label></div>
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="Engine.Router.switch('arena', this)"><i>⚔️</i><span>Arena</span></div>
+        <div class="tab-item" onclick="Engine.Router.switch('mines', this)"><i>💣</i><span>Mines</span></div>
+        <div class="tab-item" onclick="Engine.Router.switch('shop', this)"><i>🛒</i><span>Shop</span></div>
+        <div class="tab-item" onclick="Engine.Router.switch('profile', this)"><i>👤</i><span>Profile</span></div>
     </nav>
-
-    <div id="game-modal" class="modal-overlay">
-        <div class="game-header">
-            <h2 id="modal-game-title" style="font-family: var(--f-mono); color: var(--o-100);">MINES_V1.0</h2>
-            <button onclick="closeGame()" style="background: none; border: 1px solid var(--error); color: var(--error); padding: 5px 15px; border-radius: 8px; font-weight: 800;">EXIT</button>
-        </div>
-        <div id="game-content" style="flex: 1; overflow-y: auto; padding: 20px;">
-            </div>
-    </div>
 
     <script>
         /* ================================================================
-           9. CORE LOGIC ENGINE (JAVASCRIPT)
+           2. JS CORE ENGINE - ГЛОБАЛЬНЫЙ ДВИЖЕК СИСТЕМЫ
            ================================================================
         */
 
-        const STATE = {
-            bal: 1500.00,
-            xp: 420,
-            lvl: 24,
-            isSearching: false,
-            currentScreen: 'arena'
+        // КОНФИГУРАЦИЯ И ДАННЫЕ (ДЛЯ ВЕСА КОДА И ЛОГИКИ)
+        const CONFIG = {
+            botNames: ["Sheikh_X", "DubaiPrince", "SandKing", "CryptoNomad", "BubeLord", "OilTycoon", "FalconEye", "DesertRose", "GoldenGamer", "SaharaRat"],
+            shopItems: [
+                {id: 1, name: "Golden Avatar", price: 1000, icon: "👑"},
+                {id: 2, name: "Neon Name", price: 2500, icon: "✨"},
+                {id: 3, name: "VIP Ticket", price: 5000, icon: "🎫"},
+                {id: 4, name: "Secret Case", price: 10000, icon: "📦"},
+                {id: 5, name: "Admin Badge", price: 50000, icon: "🛡️"}
+            ],
+            levels: Array.from({length: 100}, (_, i) => ({
+                lvl: i + 1,
+                xp: (i + 1) * 500,
+                title: i < 10 ? "Rookie" : i < 30 ? "Warrior" : i < 60 ? "General" : "Sahara Legend"
+            }))
         };
 
-        // Навигация
-        function navigate(screenId, btn) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById('scr-' + screenId).classList.add('active');
-            if(btn) btn.classList.add('active');
-            STATE.currentScreen = screenId;
-        }
-
-        // Поиск в Арене
-        function startSearch() {
-            if(STATE.isSearching) return;
-            
-            STATE.isSearching = true;
-            const label = document.getElementById('search-label');
-            const inner = document.querySelector('.arena-circle-inner');
-            
-            label.innerText = "Searching Opponent...";
-            inner.style.borderColor = "#fff";
-            inner.style.boxShadow = "0 0 60px rgba(255,255,255,0.2)";
-
-            setTimeout(() => {
-                label.innerText = "MATCH FOUND!";
-                inner.style.borderColor = "var(--success)";
-                setTimeout(() => {
-                    STATE.isSearching = false;
-                    label.innerText = "Ready to fight";
-                    inner.style.borderColor = "var(--o-100)";
-                    inner.style.boxShadow = "0 0 40px var(--o-glow)";
-                }, 2000);
-            }, 3000);
-        }
-
-        // Обновление баланса
-        function updateUI() {
-            document.getElementById('main-bal').innerText = STATE.bal.toLocaleString(undefined, {minimumFractionDigits: 2});
-            document.getElementById('bp-fill-main').style.width = (STATE.xp / 1000 * 100) + "%";
-        }
-
-        // ОТКРЫТИЕ ИГР
-        function openGame(gameId) {
-            const modal = document.getElementById('game-modal');
-            const content = document.getElementById('game-content');
-            modal.style.display = 'flex';
-            
-            if(gameId === 'mines') {
-                renderMines(content);
-            } else {
-                content.innerHTML = `<div style="text-align:center; margin-top:100px; color:var(--t-300);">Модуль ${gameId} загружается...</div>`;
-            }
-        }
-
-        function closeGame() {
-            document.getElementById('game-modal').style.display = 'none';
-        }
-
-        function renderMines(container) {
-            container.innerHTML = `
-                <div style="background:var(--b-400); padding:20px; border-radius:20px; margin-bottom:20px;">
-                    <label style="font-size:10px; font-weight:900; color:var(--o-100);">STAKE AMOUNT</label>
-                    <input type="number" id="mine-bet" class="input-luxury" value="10.00">
-                    <div style="display:flex; justify-content:space-between; margin-top:15px;">
-                        <button class="btn-luxury" style="margin:0; width:48%; background:#222; color:#fff;">MINES: 3</button>
-                        <button onclick="playMines()" class="btn-luxury" style="margin:0; width:48%;">BET</button>
-                    </div>
-                </div>
-                <div class="game-grid-mines">
-                    ${Array(25).fill().map((_, i) => `<div class="mine-tile" onclick="revealMine(${i}, this)">?</div>`).join('')}
-                </div>
-            `;
-        }
-
-        // Имитация игровых функций
-        function revealMine(idx, el) {
-            el.classList.add('revealed');
-            el.innerText = "💎";
-        }
-
-        // Инициализация
-        window.onload = () => {
-            updateUI();
-            // Генерация фоновых битв для веса кода
-            const feed = document.getElementById('battle-feed');
-            for(let i=0; i<10; i++) {
-                feed.innerHTML += `
-                    <div style="background:var(--b-400); padding:15px; border-radius:15px; margin-bottom:10px; display:flex; justify-content:space-between; border-left:4px solid var(--o-100);">
-                        <span>Battle #44${i}</span>
-                        <b style="color:var(--o-100);">Live</b>
-                    </div>
-                `;
+        // СОСТОЯНИЕ ИГРОКА
+        let STATE = {
+            user: {
+                balance: 5000.0,
+                xp: 0,
+                lvl: 1,
+                username: "SAHARA_BUBE",
+                inventory: [],
+                stats: { wins: 0, bets: 0 }
+            },
+            arena: {
+                pot: 0,
+                players: [],
+                timer: 15,
+                isActive: false
+            },
+            mines: {
+                active: false,
+                bet: 0,
+                bombs: [],
+                revealed: 0,
+                multiplier: 1.2
             }
         };
+
+        const Engine = {
+            // ИНИЦИАЛИЗАЦИЯ
+            init() {
+                this.loadData();
+                this.updateUI();
+                this.Router.init();
+                this.Mines.renderGrid();
+                this.Shop.render();
+            },
+
+            // РОУТИНГ (ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ)
+            Router: {
+                init() {
+                    console.log("Router initialized.");
+                },
+                switch(screenId, el) {
+                    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                    document.getElementById('scr-' + screenId).classList.add('active');
+                    el.classList.add('active');
+                }
+            },
+
+            // ЛОГИКА АРЕНЫ
+            Arena: {
+                placeBet() {
+                    const input = document.getElementById('bet-amount');
+                    const val = parseFloat(input.value);
+
+                    if (isNaN(val) || val <= 0 || val > STATE.user.balance) {
+                        alert("НЕДОСТАТОЧНО СРЕДСТВ ИЛИ НЕВЕРНАЯ СУММА!");
+                        return;
+                    }
+
+                    STATE.user.balance -= val;
+                    STATE.user.stats.bets++;
+                    this.addPlayer(STATE.user.username, val, true);
+                    input.value = '';
+                    Engine.updateUI();
+
+                    if (!STATE.arena.isActive) this.startCycle();
+                },
+
+                addPlayer(name, bet, isMe = false) {
+                    STATE.arena.players.push({ name, bet, isMe, id: Math.random() });
+                    STATE.arena.pot += bet;
+                    this.renderPlayers();
+                },
+
+                renderPlayers() {
+                    const list = document.getElementById('arena-players');
+                    list.innerHTML = '';
+                    document.getElementById('arena-pot').innerText = STATE.arena.pot.toFixed(2);
+
+                    const sorted = [...STATE.arena.players].sort((a,b) => b.bet - a.bet);
+                    sorted.forEach(p => {
+                        const chance = ((p.bet / STATE.arena.pot) * 100).toFixed(2);
+                        list.innerHTML += `
+                            <div class="p-row ${p.isMe ? 'is-me' : ''}">
+                                <div>
+                                    <span style="font-weight:800">${p.name}</span><br>
+                                    <span class="p-chance">CHANCE: ${chance}%</span>
+                                </div>
+                                <div style="color:var(--gold); font-weight:800">${p.bet.toFixed(2)}</div>
+                            </div>
+                        `;
+                    });
+                },
+
+                startCycle() {
+                    STATE.arena.isActive = true;
+                    STATE.arena.timer = 15;
+                    
+                    const interval = setInterval(() => {
+                        STATE.arena.timer--;
+                        document.getElementById('arena-timer').innerText = STATE.arena.timer;
+
+                        // Симуляция ботов
+                        if (STATE.arena.timer > 2 && Math.random() > 0.6) {
+                            const bot = CONFIG.botNames[Math.floor(Math.random() * CONFIG.botNames.length)];
+                            const bet = Math.floor(Math.random() * 2000) + 100;
+                            this.addPlayer(bot, bet);
+                        }
+
+                        if (STATE.arena.timer <= 0) {
+                            clearInterval(interval);
+                            this.resolveWinner();
+                        }
+                    }, 1000);
+                },
+
+                resolveWinner() {
+                    document.getElementById('arena-status').innerText = "ОПРЕДЕЛЕНИЕ ПОБЕДИТЕЛЯ...";
+                    document.getElementById('arena-status').style.color = "var(--gold)";
+
+                    setTimeout(() => {
+                        const rand = Math.random() * STATE.arena.pot;
+                        let cumulative = 0;
+                        let winner = STATE.arena.players[0];
+
+                        for (const p of STATE.arena.players) {
+                            cumulative += p.bet;
+                            if (rand <= cumulative) {
+                                winner = p;
+                                break;
+                            }
+                        }
+
+                        alert(`ПОБЕДИТЕЛЬ: ${winner.name}\nВЫИГРЫШ: ${STATE.arena.pot.toFixed(2)} 💎`);
+
+                        if (winner.isMe) {
+                            const winAmt = STATE.arena.pot * 0.95;
+                            STATE.user.balance += winAmt;
+                            STATE.user.stats.wins += winAmt;
+                            STATE.user.xp += 150;
+                        }
+
+                        // Сброс арены
+                        STATE.arena.pot = 0;
+                        STATE.arena.players = [];
+                        STATE.arena.isActive = false;
+                        document.getElementById('arena-status').innerText = "ОЖИДАНИЕ СТАВОК...";
+                        document.getElementById('arena-status').style.color = "var(--success)";
+                        this.renderPlayers();
+                        Engine.updateUI();
+                        Engine.saveData();
+                    }, 2000);
+                }
+            },
+
+            // ЛОГИКА ИГРЫ МИНЫ
+            Mines: {
+                renderGrid() {
+                    const board = document.getElementById('mines-board');
+                    board.innerHTML = '';
+                    for (let i = 0; i < 25; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'mine-cell';
+                        cell.dataset.index = i;
+                        cell.onclick = () => this.reveal(i, cell);
+                        board.appendChild(cell);
+                    }
+                },
+
+                start() {
+                    const betInput = document.getElementById('mines-bet');
+                    const bet = parseFloat(betInput.value);
+
+                    if (isNaN(bet) || bet <= 0 || bet > STATE.user.balance) {
+                        alert("ОШИБКА СТАВКИ!"); return;
+                    }
+
+                    STATE.user.balance -= bet;
+                    STATE.mines.active = true;
+                    STATE.mines.bet = bet;
+                    STATE.mines.revealed = 0;
+                    STATE.mines.multiplier = 1.2;
+                    
+                    // Генерируем 3 бомбы
+                    STATE.mines.bombs = [];
+                    while(STATE.mines.bombs.length < 3) {
+                        let r = Math.floor(Math.random() * 25);
+                        if (!STATE.mines.bombs.includes(r)) STATE.mines.bombs.push(r);
+                    }
+
+                    document.getElementById('btn-mines-start').style.display = 'none';
+                    document.getElementById('btn-mines-cashout').style.display = 'block';
+                    document.getElementById('btn-mines-cashout').innerText = `ЗАБРАТЬ: ${(bet * 1.2).toFixed(2)}`;
+                    
+                    this.renderGrid();
+                    Engine.updateUI();
+                },
+
+                reveal(idx, el) {
+                    if (!STATE.mines.active || el.classList.contains('open')) return;
+
+                    el.classList.add('open');
+                    if (STATE.mines.bombs.includes(idx)) {
+                        el.innerText = '💣';
+                        el.style.background = 'var(--danger)';
+                        this.gameOver(false);
+                    } else {
+                        el.innerText = '💎';
+                        STATE.mines.revealed++;
+                        STATE.mines.multiplier += 0.4;
+                        document.getElementById('btn-mines-cashout').innerText = `ЗАБРАТЬ: ${(STATE.mines.bet * STATE.mines.multiplier).toFixed(2)}`;
+                    }
+                },
+
+                cashout() {
+                    const win = STATE.mines.bet * STATE.mines.multiplier;
+                    STATE.user.balance += win;
+                    STATE.user.stats.wins += win;
+                    STATE.user.xp += 50;
+                    this.gameOver(true, win);
+                },
+
+                gameOver(isWin, amt = 0) {
+                    STATE.mines.active = false;
+                    if (!isWin) alert("ВЫ ПОДОРВАЛИСЬ!");
+                    else alert(`ВЫИГРЫШ: ${amt.toFixed(2)}`);
+
+                    document.getElementById('btn-mines-start').style.display = 'block';
+                    document.getElementById('btn-mines-cashout').style.display = 'none';
+                    Engine.updateUI();
+                    Engine.saveData();
+                }
+            },
+
+            // МАГАЗИН
+            Shop: {
+                render() {
+                    const cont = document.getElementById('shop-container');
+                    cont.innerHTML = CONFIG.shopItems.map(item => `
+                        <div class="item-card">
+                            <div class="item-icon">${item.icon}</div>
+                            <div style="font-size:12px; font-weight:800;">${item.name}</div>
+                            <div style="color:var(--gold); margin: 10px 0;">${item.price} 💎</div>
+                            <button class="btn-gold" style="padding:10px; font-size:10px;" onclick="Engine.Shop.buy(${item.id})">КУПИТЬ</button>
+                        </div>
+                    `).join('');
+                },
+                buy(id) {
+                    const item = CONFIG.shopItems.find(i => i.id === id);
+                    if (STATE.user.balance >= item.price) {
+                        STATE.user.balance -= item.price;
+                        STATE.user.inventory.push(item);
+                        alert(`КУПЛЕНО: ${item.name}`);
+                        Engine.updateUI();
+                        this.renderInventory();
+                    } else {
+                        alert("НЕДОСТАТОЧНО ГЕМОВ!");
+                    }
+                },
+                renderInventory() {
+                    const cont = document.getElementById('inventory-container');
+                    cont.innerHTML = STATE.user.inventory.map(item => `
+                        <div class="item-card" style="border-color: var(--success)">
+                            <div class="item-icon">${item.icon}</div>
+                            <div style="font-size:10px;">${item.name}</div>
+                        </div>
+                    `).join('');
+                }
+            },
+
+            // СИСТЕМА ОБНОВЛЕНИЯ UI
+            updateUI() {
+                // Баланс и уровень
+                document.getElementById('ui-balance').innerText = STATE.user.balance.toFixed(2) + " 💎";
+                
+                // Расчет уровня
+                let currentLevel = CONFIG.levels.find(l => STATE.user.xp < l.xp) || CONFIG.levels[99];
+                STATE.user.lvl = currentLevel.lvl;
+                
+                document.getElementById('ui-level').innerText = `LEVEL ${STATE.user.lvl} ${currentLevel.title}`;
+                document.getElementById('ui-xp-fill').style.width = (STATE.user.xp % 500) / 5 + "%";
+
+                // Профиль
+                document.getElementById('stat-total-win').innerText = STATE.user.stats.wins.toFixed(2) + " 💎";
+                document.getElementById('stat-total-bets').innerText = STATE.user.stats.bets;
+                
+                this.saveData();
+            },
+
+            // СОХРАНЕНИЕ И ЗАГРУЗКА
+            saveData() {
+                localStorage.setItem('SAHARA_SAVE_V9', JSON.stringify(STATE.user));
+            },
+            loadData() {
+                const data = localStorage.getItem('SAHARA_SAVE_V9');
+                if (data) {
+                    STATE.user = JSON.parse(data);
+                    this.Shop.renderInventory();
+                }
+            },
+            resetData() {
+                if (confirm("ВЫ УВЕРЕНЫ? ВЕСЬ ПРОГРЕСС БУДЕТ УДАЛЕН!")) {
+                    localStorage.removeItem('SAHARA_SAVE_V9');
+                    location.reload();
+                }
+            }
+        };
+
+        // ЗАПУСК СИСТЕМЫ
+        window.onload = () => Engine.init();
 
     </script>
 </body>
