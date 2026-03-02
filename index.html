@@ -3,406 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SAHARA LUXURY MONOLITH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;600;700;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    <title>SAHARA ULTRA MONOLITH V3 - PRO PRODUCTION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;500;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ================================================================
-           1. CSS ARCHITECTURE: LUXURY DARK (ORANGE & TON ACCENTS)
-           ================================================================
-        */
-
+        /* --- CORE DESIGN SYSTEM --- */
         :root {
-            --b-100: #000000;
-            --b-200: #050505;
-            --b-300: #0a0a0a;
-            --b-400: #111111;
-            --b-500: #1a1a1a;
-            --o-100: #ff8c00; /* Главный оранжевый */
-            --o-200: #e67e22;
-            --o-300: #d35400;
-            --o-glow: rgba(255, 140, 0, 0.4);
-            --ton-blue: #0088cc; /* Цвет TON */
-            --ton-glow: rgba(0, 136, 204, 0.4);
-            --t-100: #ffffff;
-            --t-200: #a0a0a0;
-            --t-300: #555555;
-            --success: #00ff88;
-            --error: #ff3333;
-            --f-main: 'Inter', sans-serif;
-            --f-mono: 'JetBrains Mono', monospace;
-            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            --primary: #ff8c00; --primary-rgb: 255, 140, 0;
+            --ton: #0088cc; --ton-rgb: 0, 136, 204;
+            --bg-deep: #020202; --bg-card: #080808; --bg-panel: #111;
+            --border: rgba(255,255,255,0.08); --border-active: rgba(255,140,0,0.3);
+            --text-main: #ffffff; --text-dim: #777;
+            --shadow-glow: 0 0 20px rgba(255,140,0,0.15);
+            --safe: #00ff88; --danger: #ff3333;
         }
 
-        /* Системные сбросы */
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            user-select: none;
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { 
+            background: var(--bg-deep); color: var(--text-main); 
+            font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
-        body {
-            background: var(--b-100);
-            color: var(--t-100);
-            font-family: var(--f-main);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+        /* --- ANIMATIONS --- */
+        @keyframes glowPulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes scanline { 0% { top: -100%; } 100% { top: 100%; } }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse-orange { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(255, 140, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); } }
-
-        /* ================================================================
-           2. HEADER
-           ================================================================
-        */
-
-        .top-container {
-            padding: 20px 20px 15px;
-            background: linear-gradient(180deg, #050505 0%, #000 100%);
-            border-bottom: 1px solid var(--b-500);
+        /* --- LAYOUT COMPONENTS --- */
+        .app-shell { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        
+        .top-bar {
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
             z-index: 100;
         }
 
-        .user-stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .user-identity { display: flex; align-items: center; gap: 15px; }
+        .avatar-frame {
+            width: 48px; height: 48px; border-radius: 12px; background: var(--bg-panel);
+            border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 22px; color: var(--primary);
+            box-shadow: var(--shadow-glow); position: relative; overflow: hidden;
+        }
+        .avatar-frame::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--primary); animation: scanline 3s linear infinite; opacity: 0.3;
         }
 
-        .user-profile-mini {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .balance-pill {
+            background: var(--bg-panel); border: 1px solid var(--border); padding: 8px 18px;
+            border-radius: 40px; display: flex; align-items: center; gap: 8px; transition: 0.3s;
         }
+        .balance-pill:active { transform: scale(0.95); background: #181818; }
+        .bal-val { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 18px; color: var(--primary); }
+        .bal-label { font-size: 11px; font-weight: 900; color: var(--ton); letter-spacing: 1px; }
 
-        .avatar-circle {
-            width: 48px; height: 48px; border-radius: 50%;
-            border: 2px solid var(--o-100);
-            background: var(--b-400);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900; color: #fff;
-            box-shadow: 0 0 15px var(--o-glow);
-        }
+        /* --- VIEWPORT SYSTEM --- */
+        .view-container { flex: 1; overflow-y: auto; padding: 25px; position: relative; scroll-behavior: smooth; }
+        .view { display: none; animation: fadeIn 0.5s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .user-name-tag { font-weight: 800; font-size: 16px; margin-bottom: 2px; text-transform: uppercase; }
-        .user-rank-tag { font-size: 10px; color: var(--o-100); font-weight: 900; letter-spacing: 1px; text-transform: uppercase;}
-
-        .balance-widget {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-
-        .balance-value { font-family: var(--f-mono); font-size: 22px; font-weight: 900; color: var(--o-100); }
-        .balance-currency { font-size: 16px; font-weight: 900; color: var(--ton-blue); text-shadow: 0 0 10px var(--ton-glow); }
-
-        /* ================================================================
-           3. VIEWPORT & NAVIGATION
-           ================================================================
-        */
-
-        .main-viewport {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            position: relative;
-        }
-
-        .screen { display: none; animation: fadeIn 0.4s ease forwards; }
-        .screen.active { display: block; }
-
-        .nav-footer {
-            height: 85px; background: #000;
-            border-top: 1px solid var(--b-500);
-            display: flex; justify-content: space-around;
-            padding: 10px 10px 25px;
-            z-index: 1000;
-        }
-
-        .nav-btn {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: var(--t-300); gap: 6px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .nav-btn.active { color: var(--o-100); }
-        .nav-btn i { font-size: 22px; font-style: normal; }
-        .nav-btn label { font-size: 10px; font-weight: 800; text-transform: uppercase; }
-
-        /* ================================================================
-           4. MODULES (ARENA, MINES, SHOP, PROFILE)
-           ================================================================
-        */
-
-        /* ARENA */
-        .arena-master-container { display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
-        .arena-circle-outer {
-            width: 300px; height: 300px; border-radius: 50%;
-            border: 1px solid var(--b-500);
-            display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle, #080808 0%, #000 100%);
-        }
-        .arena-circle-inner {
-            width: 250px; height: 250px; border-radius: 50%;
-            border: 4px solid var(--o-100);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 40px var(--o-glow), inset 0 0 20px var(--o-glow);
-            animation: pulse-orange 2s infinite; cursor: pointer;
-        }
-        .arena-status-title { font-size: 38px; font-weight: 900; letter-spacing: -2px; }
-        .arena-status-sub { font-size: 11px; font-weight: 800; color: var(--o-100); margin-top: 5px; text-transform: uppercase; }
-
-        /* COMMON UI ELEMENTS */
-        .section-header { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 20px; }
-        .input-luxury {
-            width: 100%; background: var(--b-200); border: 1px solid var(--b-500);
-            padding: 18px; border-radius: 14px; color: #fff; font-family: var(--f-mono);
-            font-size: 16px; font-weight: 700; margin-top: 10px;
-        }
-        .btn-luxury {
-            width: 100%; background: var(--o-100); color: #000; border: none;
-            padding: 18px; border-radius: 14px; font-weight: 900; font-size: 15px;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-luxury:active { transform: scale(0.98); }
-        .btn-ton { background: var(--ton-blue); color: #fff; box-shadow: 0 5px 15px var(--ton-glow); }
-        .btn-success { background: var(--success); color: #000; box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2); }
-
-        /* MINES */
-        .game-grid-mines {
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            gap: 8px; max-width: 350px; margin: 20px auto 30px;
-        }
-        .mine-tile {
-            aspect-ratio: 1; background: var(--b-400); border: 1px solid var(--b-500);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; transition: 0.2s; cursor: pointer;
-        }
-        .mine-tile.revealed { background: var(--o-100); color: #000; border: none; }
-        .mine-tile.bomb { background: var(--error); border: none; }
-
-        /* SHOP */
-        .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 10px; }
-        .filter-scroll::-webkit-scrollbar { display: none; }
-        .filter-chip {
-            background: var(--b-400); border: 1px solid var(--b-500); color: var(--t-200);
-            padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 700;
-            white-space: nowrap; transition: 0.2s;
-        }
-        .filter-chip.active { background: #222; border-color: #444; color: #fff; }
+        /* --- MINES ENGINE UI --- */
+        .game-header { text-align: center; margin-bottom: 25px; }
+        .game-title { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--primary); text-transform: uppercase; }
         
-        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .shop-card {
-            background: var(--b-400); border: 1px solid var(--b-500);
-            border-radius: 20px; padding: 15px; text-align: center;
-        }
-        .shop-icon-box {
-            height: 100px; border-radius: 12px; background: linear-gradient(135deg, #111, #222);
-            margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
-            font-size: 40px; border: 1px solid #2a2a2a;
-        }
-        .shop-item-name { font-weight: 800; font-size: 14px; color: #fff; display: block; margin-bottom: 4px; }
-        .shop-item-id { font-size: 10px; color: var(--t-300); font-family: var(--f-mono); display: block; margin-bottom: 15px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 15px; text-align: center; }
+        .stat-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+        .stat-value { font-family: 'JetBrains Mono'; font-weight: 800; font-size: 14px; }
 
-        /* PROFILE */
-        .profile-card { background: var(--b-400); border: 1px solid var(--b-500); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--b-500); }
-        .stat-label { color: var(--t-200); font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .stat-val { font-family: var(--f-mono); font-size: 16px; font-weight: 800; color: #fff; }
+        .mines-matrix { 
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; 
+            max-width: 380px; margin: 0 auto 30px; perspective: 1000px;
+        }
+        .tile {
+            aspect-ratio: 1; background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 26px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+        }
+        .tile::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); }
+        .tile:hover { border-color: var(--primary-active); transform: translateY(-2px); }
+        .tile.revealed-safe { background: var(--primary); border: none; box-shadow: 0 0 25px var(--shadow-glow); transform: rotateY(180deg); }
+        .tile.revealed-mine { background: var(--danger); border: none; box-shadow: 0 0 25px rgba(255,51,51,0.4); }
+        .tile.disabled { pointer-events: none; opacity: 0.5; }
 
+        .game-controls { background: var(--bg-card); border: 1px solid var(--border); padding: 25px; border-radius: 24px; }
+        .input-box { margin-bottom: 15px; }
+        .input-box label { display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+        input[type="number"] {
+            width: 100%; background: #000; border: 1px solid #222; padding: 16px; border-radius: 14px;
+            color: #fff; font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 800; text-align: center; outline: none; transition: 0.3s;
+        }
+        input[type="number"]:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-active); }
+
+        .main-btn {
+            width: 100%; padding: 20px; border-radius: 16px; border: none; font-family: 'Orbitron'; font-weight: 900;
+            font-size: 16px; letter-spacing: 2px; cursor: pointer; transition: 0.3s; text-transform: uppercase;
+        }
+        .btn-play { background: var(--primary); color: #000; box-shadow: 0 8px 30px rgba(255,140,0,0.3); }
+        .btn-cashout { background: var(--safe); color: #000; display: none; }
+        .main-btn:active { transform: scale(0.96); }
+        .main-btn:disabled { filter: grayscale(1); opacity: 0.4; }
+
+        /* --- SHOP & ITEMS --- */
+        .shop-filter-bar { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
+        .filter-item {
+            background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-dim);
+            padding: 10px 22px; border-radius: 30px; font-size: 11px; font-weight: 800; white-space: nowrap; cursor: pointer;
+        }
+        .filter-item.active { background: #fff; color: #000; border-color: #fff; }
+
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .item-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 20px;
+            text-align: center; transition: 0.3s; position: relative; display: flex; flex-direction: column;
+        }
+        .item-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .item-icon { font-size: 40px; margin-bottom: 15px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
+        .item-name { font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+        .item-price { font-family: 'JetBrains Mono'; font-weight: 800; color: var(--ton); font-size: 14px; margin-top: auto; padding-top: 15px; }
+
+        /* --- NAVIGATION --- */
+        .nav-bar {
+            height: 90px; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around;
+            padding: 0 10px 20px; z-index: 100;
+        }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-dim); transition: 0.3s; cursor: pointer; text-decoration: none; }
+        .nav-link.active { color: var(--primary); }
+        .nav-link i { font-size: 24px; font-style: normal; }
+        .nav-link span { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- TOAST SYSTEM --- */
+        .toast-engine { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+        .toast-msg {
+            background: rgba(10,10,10,0.9); border: 1px solid var(--border); border-left: 4px solid var(--primary);
+            padding: 16px 28px; border-radius: 12px; color: #fff; font-weight: 700; font-size: 13px;
+            margin-bottom: 10px; animation: slideInUp 0.4s ease forwards; backdrop-filter: blur(10px); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
-    <div class="top-container">
-        <div class="user-stats-bar">
-            <div class="user-profile-mini">
-                <div class="avatar-circle">S</div>
+    <div class="app-shell">
+        <header class="top-bar">
+            <div class="user-identity">
+                <div class="avatar-frame">S</div>
                 <div>
-                    <div class="user-name-tag">SAHARA_BUBE</div>
-                    <div class="user-rank-tag">LEVEL 1 Rookie</div>
+                    <div class="u-name" style="font-weight: 900; font-size: 15px;">Sahara_Bube</div>
+                    <div class="u-rank" style="font-size: 9px; color: var(--primary); font-weight: 800; text-transform: uppercase;">Supreme VIP</div>
                 </div>
             </div>
-            <div class="balance-widget">
-                <span class="balance-value" id="main-bal">4998.60</span>
-                <span class="balance-currency">TON</span>
+            <div class="balance-pill" onclick="core.addDemoFunds()">
+                <span class="bal-label">TON</span>
+                <span class="bal-val" id="global-balance">0.00</span>
             </div>
-        </div>
-    </div>
+        </header>
 
-    <main class="main-viewport">
-        
-        <section id="scr-arena" class="screen active">
-            <div class="arena-master-container">
-                <div class="arena-circle-outer">
-                    <div class="arena-circle-inner" onclick="startSearch()">
-                        <span class="arena-status-title">ARENA</span>
-                        <span class="arena-status-sub" id="search-label">Ready to fight</span>
+        <main class="view-container" id="main-viewport">
+            <section id="view-arena" class="view">
+                <div style="height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                    <div class="avatar-frame" style="width: 120px; height: 120px; font-size: 50px; margin-bottom: 20px;">⚔️</div>
+                    <h2 style="font-family: 'Orbitron'; font-size: 28px; margin-bottom: 10px;">BATTLE ARENA</h2>
+                    <p style="color: var(--text-dim); font-size: 13px; max-width: 250px; line-height: 1.6;">Global matchmaking is currently offline. Level up to enter high-stakes tournaments.</p>
+                    <button class="main-btn btn-dark" style="margin-top: 30px; width: auto; padding: 15px 40px; background: #111; border: 1px solid #333; color: #fff;" onclick="core.toast('Tournament starting in 4h 12m')">RESERVE SLOT</button>
+                </div>
+            </section>
+
+            <section id="view-mines" class="view active">
+                <div class="game-header">
+                    <h1 class="game-title">Sahara Mines</h1>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Current Multiplier</div>
+                        <div class="stat-value" id="mine-mult" style="color: var(--primary);">1.00x</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Estimated Win</div>
+                        <div class="stat-value" id="mine-win" style="color: var(--safe);">0.00 TON</div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <section id="scr-mines" class="screen">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: var(--o-100); font-family: var(--f-mono); font-weight: 900; letter-spacing: 2px;">SAHARA MINES</h2>
-            </div>
-            
-            <div class="game-grid-mines">
-                <script>
-                    for(let i=0; i<25; i++) {
-                        document.write(`<div class="mine-tile" onclick="revealMine(this)"></div>`);
-                    }
-                </script>
-            </div>
+                <div class="mines-matrix" id="mines-grid">
+                    </div>
 
-            <div style="background: var(--b-400); padding: 20px; border-radius: 20px; border: 1px solid var(--b-500);">
-                <input type="number" id="mine-bet" class="input-luxury" value="1" style="margin-top: 0; margin-bottom: 15px; text-align: center; font-size: 20px;">
-                <button class="btn-luxury btn-success">ЗАБРАТЬ: 1.20 TON</button>
-            </div>
-        </section>
-
-        <section id="scr-shop" class="screen">
-            <div class="section-header">Магазин</div>
-            
-            <div class="filter-scroll">
-                <div class="filter-chip active">Гифты</div>
-                <div class="filter-chip">Лутпаки</div>
-                <div class="filter-chip">Апгрейды</div>
-                <div class="filter-chip">Никнеймы</div>
-            </div>
-
-            <div class="shop-grid">
-                <div class="shop-card">
-                    <div class="shop-icon-box">🚀</div>
-                    <span class="shop-item-name">Boost Token</span>
-                    <span class="shop-item-id">#1187</span>
-                    <button class="btn-luxury btn-ton" style="padding: 12px; font-size: 14px;">10.00 TON</button>
+                <div class="game-controls">
+                    <div class="input-box">
+                        <label>Bet Amount (TON)</label>
+                        <input type="number" id="bet-amount" value="10.00" step="1.00">
+                    </div>
+                    <div class="input-box">
+                        <label>Number of Mines (1-24)</label>
+                        <input type="number" id="mine-count" value="3" min="1" max="24">
+                    </div>
+                    <button class="main-btn btn-play" id="btn-start" onclick="game.start()">Initialize Round</button>
+                    <button class="main-btn btn-cashout" id="btn-cash" onclick="game.cashout()">Take Profit</button>
+                    
+                    <div style="margin-top: 15px; font-family: 'JetBrains Mono'; font-size: 8px; color: #333; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" id="round-hash">
+                        Hash: Pre-generated encrypted sequence
+                    </div>
                 </div>
-                <div class="shop-card">
-                    <div class="shop-icon-box">💎</div>
-                    <span class="shop-item-name">Astral Shard</span>
-                    <span class="shop-item-id">#3468</span>
-                    <button class="btn-luxury btn-ton" style="padding: 12px; font-size: 14px;">236.60 TON</button>
-                </div>
-                <div class="shop-card">
-                    <div class="shop-icon-box">📈</div>
-                    <span class="shop-item-name">Analytics Pack</span>
-                    <span class="shop-item-id">#0042</span>
-                    <button class="btn-luxury btn-ton" style="padding: 12px; font-size: 14px;">25.00 TON</button>
-                </div>
-                <div class="shop-card">
-                    <div class="shop-icon-box">🎮</div>
-                    <span class="shop-item-name">Arena Pass</span>
-                    <span class="shop-item-id">#9921</span>
-                    <button class="btn-luxury btn-ton" style="padding: 12px; font-size: 14px;">5.00 TON</button>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="scr-profile" class="screen">
-            <div class="profile-card">
-                <h2 style="font-size: 24px; margin-bottom: 5px;">SAHARA_BUBE</h2>
-                <div class="user-rank-tag" style="font-size: 12px;">ELITE MEMBER</div>
-                
-                <div class="stat-row" style="margin-top: 25px;">
-                    <span class="stat-label">Всего выиграно:</span>
-                    <span class="stat-val">4.80 <span style="color: var(--ton-blue);">TON</span></span>
+            <section id="view-shop" class="view">
+                <div class="shop-filter-bar">
+                    <div class="filter-item active">All Items</div>
+                    <div class="filter-item">Boosters</div>
+                    <div class="filter-item">Avatar Skins</div>
+                    <div class="filter-item">VIP Passes</div>
                 </div>
-                <div class="stat-row">
-                    <span class="stat-label">Сделано ставок:</span>
-                    <span class="stat-val">1</span>
+                <div class="items-grid" id="shop-container">
+                    </div>
+            </section>
+
+            <section id="view-profile" class="view">
+                <div class="game-controls" style="margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 20px; font-family: 'Orbitron'; font-size: 18px; color: var(--primary);">STATISTICS</h3>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 12px 0;">
+                        <span style="color: var(--text-dim); font-size: 12px; font-weight: 800;">TOTAL WINS</span>
+                        <span style="font-family: 'JetBrains Mono'; color: var(--safe);" id="stat-won">0.00 TON</span>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 12px 0;">
+                        <span style="color: var(--text-dim); font-size: 12px; font-weight: 800;">GAMES PLAYED</span>
+                        <span style="font-family: 'JetBrains Mono';" id="stat-total">0</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="profile-card">
-                <div class="stat-label" style="margin-bottom: 10px;">Финансы</div>
-                <button class="btn-luxury" style="background: #222; color: #fff;">ПОПОЛНИТЬ TON</button>
-            </div>
-        </section>
+                <div class="game-controls">
+                    <h3 style="margin-bottom: 20px; font-family: 'Orbitron'; font-size: 18px;">INVENTORY</h3>
+                    <div id="inventory-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <p style="color: var(--text-dim); font-size: 11px;">Your vault is empty.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
-    </main>
+        <nav class="nav-bar">
+            <div class="nav-link" onclick="core.navigate('arena', this)"><i>⚔️</i><span>Arena</span></div>
+            <div class="nav-link active" onclick="core.navigate('mines', this)"><i>💣</i><span>Mines</span></div>
+            <div class="nav-link" onclick="core.navigate('shop', this)"><i>🛒</i><span>Market</span></div>
+            <div class="nav-link" onclick="core.navigate('profile', this)"><i>👤</i><span>Vault</span></div>
+        </nav>
+    </div>
 
-    <nav class="nav-footer">
-        <div class="nav-btn active" onclick="navigate('arena', this)"><i>⚔️</i><label>Arena</label></div>
-        <div class="nav-btn" onclick="navigate('mines', this)"><i>💣</i><label>Mines</label></div>
-        <div class="nav-btn" onclick="navigate('shop', this)"><i>🛒</i><label>Shop</label></div>
-        <div class="nav-btn" onclick="navigate('profile', this)"><i>👤</i><label>Profile</label></div>
-    </nav>
+    <div class="toast-engine" id="toast-layer"></div>
 
     <script>
-        /* ================================================================
-           CORE LOGIC ENGINE
-           ================================================================
-        */
+        /**
+         * SAHARA CORE MODULES
+         * [1] CORE: Storage, Navigation, Toasts
+         * [2] MATH: Probabilities, RNG
+         * [3] GAME: Mines Logic
+         * [4] SHOP: Transaction Logic
+         */
 
-        const STATE = {
-            bal: 4998.60,
-            isSearching: false
+        const core = {
+            balance: 5000.00,
+            stats: { won: 0, total: 0 },
+            inventory: [],
+
+            init() {
+                this.load();
+                this.updateUI();
+                shop.render();
+                game.initGrid();
+            },
+
+            load() {
+                const saved = localStorage.getItem('sahara_save');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.balance = data.balance;
+                    this.stats = data.stats;
+                    this.inventory = data.inventory || [];
+                }
+            },
+
+            save() {
+                localStorage.setItem('sahara_save', JSON.stringify({
+                    balance: this.balance,
+                    stats: this.stats,
+                    inventory: this.inventory
+                }));
+            },
+
+            updateUI() {
+                document.getElementById('global-balance').innerText = this.balance.toFixed(2);
+                document.getElementById('stat-won').innerText = this.stats.won.toFixed(2) + ' TON';
+                document.getElementById('stat-total').innerText = this.stats.total;
+                
+                const invCont = document.getElementById('inventory-container');
+                if (this.inventory.length > 0) {
+                    invCont.innerHTML = this.inventory.map(i => `
+                        <div style="background: #111; padding: 10px; border-radius: 10px; font-size: 10px; font-weight: 800; border: 1px solid #222;">
+                            ${i.icon} ${i.name.toUpperCase()}
+                        </div>
+                    `).join('');
+                }
+            },
+
+            navigate(viewId, el) {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.getElementById('view-' + viewId).classList.add('active');
+                el.classList.add('active');
+            },
+
+            toast(msg, type = 'info') {
+                const layer = document.getElementById('toast-layer');
+                const div = document.createElement('div');
+                div.className = 'toast-msg';
+                if (type === 'err') div.style.borderLeftColor = 'var(--danger)';
+                if (type === 'succ') div.style.borderLeftColor = 'var(--safe)';
+                div.innerText = msg;
+                layer.appendChild(div);
+                setTimeout(() => {
+                    div.style.opacity = '0';
+                    setTimeout(() => div.remove(), 400);
+                }, 3000);
+            },
+
+            addDemoFunds() {
+                this.balance += 1000;
+                this.save();
+                this.updateUI();
+                this.toast('+1000 TON Demo Credits', 'succ');
+            }
         };
 
-        // UI Update
-        function updateBal() {
-            document.getElementById('main-bal').innerText = STATE.bal.toFixed(2);
-        }
-
-        // Navigation
-        function navigate(screenId, btn) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById('scr-' + screenId).classList.add('active');
-            btn.classList.add('active');
-        }
-
-        // Arena Logic
-        function startSearch() {
-            if(STATE.isSearching) return;
-            
-            STATE.isSearching = true;
-            const label = document.getElementById('search-label');
-            const inner = document.querySelector('.arena-circle-inner');
-            
-            label.innerText = "Searching Opponent...";
-            inner.style.borderColor = "#fff";
-            inner.style.boxShadow = "0 0 60px rgba(255,255,255,0.2)";
-
-            setTimeout(() => {
-                label.innerText = "MATCH FOUND!";
-                inner.style.borderColor = "var(--success)";
-                setTimeout(() => {
-                    STATE.isSearching = false;
-                    label.innerText = "Ready to fight";
-                    inner.style.borderColor = "var(--o-100)";
-                    inner.style.boxShadow = "0 0 40px var(--o-glow)";
-                }, 2000);
-            }, 3000);
-        }
-
-        // Fake Mines Logic for visual feedback
-        function revealMine(el) {
-            if(el.classList.contains('revealed') || el.classList.contains('bomb')) return;
-            
-            // 20% шанс попасть на бомбу для демо
-            if(Math.random() < 0.2) {
-                el.classList.add('bomb');
-                el.innerText = "💥";
-            } else {
-                el.classList.add('revealed');
-                // Вместо алмаза ставим просто отметку или лого монетки
-                el.innerHTML = "<span style='color: #000; font-weight: 900;'>✓</span>";
+        const math = {
+            factorial(n) {
+                let res = 1;
+                for (let i = 2; i <= n; i++) res *= i;
+                return res;
+            },
+            combinations(n, k) {
+                if (k < 0 || k > n) return 0;
+                return this.factorial(n) / (this.factorial(k) * this.factorial(n - k));
+            },
+            getMultiplier(mines, diamonds) {
+                if (diamonds === 0) return 1.0;
+                const n = 25;
+                const prob = this.combinations(n - mines, diamonds) / this.combinations(n, diamonds);
+                return parseFloat((0.98 / prob).toFixed(2));
             }
-        }
+        };
 
-        window.onload = updateBal;
+        const game = {
+            active: false,
+            bombs: [],
+            revealed: 0,
+            bet: 0,
+            minesCount: 0,
+
+            initGrid() {
+                const grid = document.getElementById('mines-grid');
+                grid.innerHTML = '';
+                for (let i = 0; i < 25; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile disabled';
+                    tile.onclick = () => this.reveal(i, tile);
+                    grid.appendChild(tile);
+                }
+            },
+
+            start() {
+                this.bet = parseFloat(document.getElementById('bet-amount').value);
+                this.minesCount = parseInt(document.getElementById('mine-count').value);
+
+                if (isNaN(this.bet) || this.bet <= 0 || this.bet > core.balance) {
+                    return core.toast('Insufficient funds or invalid bet', 'err');
+                }
+                if (this.minesCount < 1 || this.minesCount > 24) {
+                    return core.toast('Mines must be between 1 and 24', 'err');
+                }
+
+                core.balance -= this.bet;
+                core.save();
+                core.updateUI();
+
+                this.active = true;
+                this.revealed = 0;
+                this.bombs = [];
+                while (this.bombs.length < this.minesCount) {
+                    let r = Math.floor(Math.random() * 25);
+                    if (!this.bombs.includes(r)) this.bombs.push(r);
+                }
+
+                document.getElementById('round-hash').innerText = 'Hash: ' + btoa(Math.random()).slice(0, 32);
+                document.getElementById('btn-start').style.display = 'none';
+                document.getElementById('btn-cash').style.display = 'block';
+                document.getElementById('btn-cash').disabled = true;
+
+                document.querySelectorAll('.tile').forEach(t => {
+                    t.className = 'tile';
+                    t.innerHTML = '';
+                });
+
+                this.updateLiveStats();
+            },
+
+            reveal(idx, el) {
+                if (!this.active || el.classList.contains('revealed-safe')) return;
+
+                if (this.bombs.includes(idx)) {
+                    el.classList.add('revealed-mine');
+                    el.innerHTML = '💥';
+                    this.end(false);
+                } else {
+                    el.classList.add('revealed-safe');
+                    el.innerHTML = '💎';
+                    this.revealed++;
+                    document.getElementById('btn-cash').disabled = false;
+                    this.updateLiveStats();
+                    
+                    if (this.revealed === (25 - this.minesCount)) this.cashout();
+                }
+            },
+
+            updateLiveStats() {
+                const mult = math.getMultiplier(this.minesCount, this.revealed);
+                document.getElementById('mine-mult').innerText = mult.toFixed(2) + 'x';
+                document.getElementById('mine-win').innerText = (this.bet * mult).toFixed(2);
+                document.getElementById('btn-cash').innerText = `Take ${(this.bet * mult).toFixed(2)} TON`;
+            },
+
+            cashout() {
+                if (!this.active || this.revealed === 0) return;
+                const win = this.bet * math.getMultiplier(this.minesCount, this.revealed);
+                core.balance += win;
+                core.stats.won += win;
+                core.toast(`Round Profit: +${(win - this.bet).toFixed(2)} TON`, 'succ');
+                this.end(true);
+            },
+
+            end(win) {
+                this.active = false;
+                core.stats.total++;
+                core.save();
+                core.updateUI();
+
+                document.getElementById('btn-start').style.display = 'block';
+                document.getElementById('btn-cash').style.display = 'none';
+
+                document.querySelectorAll('.tile').forEach((t, i) => {
+                    t.classList.add('disabled');
+                    if (this.bombs.includes(i) && !t.classList.contains('revealed-mine')) {
+                        t.innerHTML = '💣';
+                        t.style.opacity = '0.3';
+                    }
+                });
+            }
+        };
+
+        const shop = {
+            items: [
+                { id: 1, name: 'Luck Booster', icon: '🍀', price: 15.0, desc: 'Increases gem probability' },
+                { id: 2, name: 'Shield', icon: '🛡️', price: 50.0, desc: 'Survive one mine hit' },
+                { id: 3, name: 'Neon Board', icon: '🌈', price: 120.0, desc: 'Exclusive UI theme' },
+                { id: 4, name: 'VIP Pass', icon: '🎟️', price: 500.0, desc: 'Access to Arena VIP' }
+            ],
+
+            render() {
+                const container = document.getElementById('shop-container');
+                container.innerHTML = this.items.map(i => `
+                    <div class="item-card" onclick="shop.buy(${i.id})">
+                        <span class="item-icon">${i.icon}</span>
+                        <span class="item-name">${i.name}</span>
+                        <p style="font-size: 9px; color: #555;">${i.desc}</p>
+                        <span class="item-price">${i.price.toFixed(2)} TON</span>
+                    </div>
+                `).join('');
+            },
+
+            buy(id) {
+                const item = this.items.find(x => x.id === id);
+                if (core.balance < item.price) return core.toast('Insufficient funds', 'err');
+                
+                core.balance -= item.price;
+                core.inventory.push(item);
+                core.save();
+                core.updateUI();
+                core.toast(`Obtained: ${item.name}`, 'succ');
+            }
+        };
+
+        // RUN ENGINE
+        core.init();
     </script>
 </body>
 </html>
-
