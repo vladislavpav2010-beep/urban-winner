@@ -3,494 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CRASH & CASES ULTIMATE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
-    
+    <title>SAHARA TON ULTIMATE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        /* ================================================================
-           1. CORE VARIABLES & THEME (MATCHING THE VIDEO EXACTLY)
-           ================================================================ */
+        /* ========================================
+           БАЗОВАЯ АРХИТЕКТУРА И СТИЛИ
+           ======================================== */
         :root {
-            --bg-main: #11131a; /* Deep dark blue/grey */
-            --bg-panel: #1a1d26;
-            --bg-card: #222631;
-            --accent-blue: #2970ff;
-            --accent-blue-hover: #1e5ce6;
+            --bg-deep: #050608;
+            --bg-panel: #0f1118;
+            --bg-card: #181b25;
+            --ton-blue: #0088cc;
+            --accent-glow: rgba(0, 136, 204, 0.4);
             --text-main: #ffffff;
-            --text-dim: #8a93a6;
-            --success: #00e676;
-            --danger: #ff3b3b;
-            --warning: #ffb300;
-            --purple: #8e24aa;
-            
-            /* History Pill Colors */
-            --pill-blue: #1e88e5;
-            --pill-yellow: #fdd835;
-            --pill-green: #43a047;
-            --pill-purple: #8e24aa;
-            
-            --font-ui: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --text-dim: #707579;
+            --success: #00c853;
+            --danger: #ff5252;
+            --warning: #ffab00;
+            --gradient-blue: linear-gradient(135deg, #0088cc 0%, #0055ff 100%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-main); color: var(--text-main); font-family: var(--font-ui); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: var(--bg-deep); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* Icon Utility */
-        .curr-icon { display: inline-block; width: 14px; height: 14px; background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="%2300d2ff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 9l10 13 10-13L12 2z"/></svg>') no-repeat center; background-size: contain; vertical-align: middle; margin-right: 4px; }
-        .curr-icon.gold { filter: hue-rotate(-150deg) brightness(1.5); }
+        .ton-icon { 
+            display: inline-block; width: 18px; height: 18px; 
+            background: url('https://ton.org/download/ton_symbol.svg') no-repeat center; 
+            background-size: contain; vertical-align: middle; margin-right: 5px;
+        }
 
-        /* ================================================================
-           2. HEADER
-           ================================================================ */
+        /* HEADER */
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
-        .h-left { display: flex; gap: 10px; }
-        .online-pill { background: rgba(0, 230, 118, 0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .online-pill::before { content: ''; display: block; width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
-        .icon-btn { width: 32px; height: 32px; background: var(--bg-panel); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        
-        .bal-pill { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); padding: 4px 4px 4px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
-        .btn-plus { width: 24px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; cursor: pointer; }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: 1px; }
+        .logo span { color: var(--ton-blue); }
+        .bal-pill { 
+            background: var(--bg-panel); padding: 8px 16px; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; 
+            font-weight: 800; font-size: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
 
-        /* ================================================================
-           3. VIEWPORT & NAVIGATION
-           ================================================================ */
-        .viewport { flex: 1; overflow-y: auto; position: relative; padding-bottom: 90px; }
-        .view { display: none; animation: fadeIn 0.3s ease; height: 100%; }
+        /* VIEWPORT */
+        .viewport { height: calc(100vh - 155px); overflow-y: auto; padding: 10px 15px; scroll-behavior: smooth; }
+        .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        ::-webkit-scrollbar { width: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--bg-panel); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; padding-bottom: 10px; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-dim); cursor: pointer; transition: 0.2s; }
-        .nav-item.active { color: var(--accent-blue); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
-
-        /* ================================================================
-           4. CRASH (ROCKET) VIEW
-           ================================================================ */
-        .crash-container { display: flex; flex-direction: column; height: 100%; padding: 0 15px; }
+        /* ========================================
+           CRASH (PAKETKA) МОДУЛЬ
+           ======================================== */
+        .crash-screen { 
+            background: #000; height: 280px; border-radius: 24px; position: relative; 
+            overflow: hidden; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .space-bg { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at center, #111b33 0%, #000 100%); }
+        .stars { position: absolute; width: 100%; height: 100%; }
         
-        /* Space Animation Area */
-        .crash-screen { flex: 1; background: radial-gradient(circle at center, #1a1f35 0%, #0a0c12 100%); border-radius: 24px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.02); }
-        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1; animation: flyStars 3s linear infinite; }
-        .stars::after { content: ""; position: absolute; top: 2000px; width: 100%; height: 100%; background: transparent; }
-        @keyframes flyStars { from { transform: translateY(0); } to { transform: translateY(100%); } }
+        .rocket { position: absolute; bottom: 20%; left: 40%; font-size: 65px; z-index: 10; transition: transform 0.1s linear; }
+        .rocket.crashed { transform: rotate(150deg) scale(0.7); filter: grayscale(1) brightness(0.5); }
         
-        .rocket { font-size: 80px; z-index: 3; filter: drop-shadow(0 10px 20px rgba(255,100,0,0.4)); transition: 0.2s; position: absolute; bottom: 20%; animation: floatRocket 2s ease-in-out infinite; }
-        .rocket.crashed { filter: grayscale(1) brightness(0.5); transform: rotate(180deg) scale(0.8); animation: none; bottom: 10%; }
-        @keyframes floatRocket { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
-
-        .multiplier-display { font-family: var(--font-mono); font-size: 64px; font-weight: 900; z-index: 3; text-shadow: 0 0 30px rgba(255,255,255,0.1); position: absolute; top: 20%; transition: color 0.3s; }
-        .multiplier-display.red { color: var(--danger); text-shadow: 0 0 30px rgba(255,59,59,0.3); }
-
-        .crash-msg { position: absolute; top: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text-dim); opacity: 0; transition: 0.3s; z-index: 5; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .crash-msg.show { opacity: 1; top: 30px; }
-
-        /* History & Controls */
-        .history-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 5px; }
-        .history-row::-webkit-scrollbar { display: none; }
-        .h-pill { padding: 6px 12px; border-radius: 12px; font-family: var(--font-mono); font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
-        .h-blue { background: rgba(30, 136, 229, 0.15); color: var(--pill-blue); }
-        .h-yellow { background: rgba(253, 216, 53, 0.15); color: var(--pill-yellow); }
-        .h-green { background: rgba(67, 160, 71, 0.15); color: var(--pill-green); }
-        .h-purple { background: rgba(142, 36, 170, 0.15); color: var(--pill-purple); }
-        .h-wait { background: var(--accent-blue); color: #fff; border-radius: 16px; }
-
-        .bet-btn { width: 100%; background: var(--accent-blue); color: #fff; padding: 18px; border-radius: 16px; border: none; font-size: 18px; font-weight: 800; cursor: pointer; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(41, 112, 255, 0.2); transition: 0.2s; }
-        .bet-btn:active { transform: scale(0.97); }
-        .bet-btn.cashout { background: var(--warning); color: #000; box-shadow: 0 10px 25px rgba(255, 179, 0, 0.2); }
-        .bet-btn.disabled { background: var(--bg-card); color: var(--text-dim); box-shadow: none; pointer-events: none; }
-
-        .live-bets { background: var(--bg-panel); border-radius: 16px; padding: 15px; border: 1px solid rgba(255,255,255,0.02); height: 200px; overflow-y: auto; }
-        .bet-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .bet-row:last-child { border: none; }
-        .bet-user { display: flex; align-items: center; gap: 10px; }
-        .bet-ava { width: 32px; height: 32px; border-radius: 50%; background: #333; }
-        .bet-name { font-size: 13px; font-weight: 600; color: #e0e0e0; display: block; }
-        .bet-amt { font-size: 11px; color: var(--text-dim); font-weight: 600; display: flex; align-items: center; }
-        .bet-win { font-family: var(--font-mono); font-weight: 800; font-size: 13px; color: var(--success); display: flex; align-items: center; }
-
-        /* ================================================================
-           5. SOLO (CASES & SHOP) VIEW
-           ================================================================ */
-        .solo-container { padding: 0 15px; }
-        .promo-banner { background: linear-gradient(90deg, #182b4a 0%, #11131a 100%); border: 1px solid rgba(41, 112, 255, 0.3); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .promo-banner img { width: 40px; height: 40px; }
+        .mult-display { font-size: 60px; font-weight: 900; font-family: 'JetBrains Mono'; z-index: 15; text-shadow: 0 0 30px rgba(0,0,0,0.8); }
         
-        .live-drops { display: flex; gap: 10px; overflow: hidden; margin-bottom: 20px; padding: 0 5px; }
-        .drop-ico { width: 32px; height: 32px; border-radius: 8px; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid rgba(255,255,255,0.05); }
+        .crash-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.75); z-index: 20; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .timer-circle { width: 80px; height: 80px; border: 4px solid var(--ton-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: var(--ton-blue); box-shadow: 0 0 20px var(--accent-glow); margin-bottom: 10px; }
         
-        .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .tab { font-size: 18px; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: 0.2s; position: relative; }
-        .tab.active { color: #fff; }
-        .tab.active::after { content: ''; position: absolute; bottom: -11px; left: 0; width: 100%; height: 3px; background: #fff; border-radius: 3px; }
+        .hist-line { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; }
+        .hist-item { background: var(--bg-panel); padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 800; color: var(--ton-blue); border: 1px solid rgba(0,136,204,0.2); }
 
-        .cases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .case-card { border-radius: 20px; padding: 15px; position: relative; display: flex; flex-direction: column; align-items: center; text-decoration: none; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
-        .case-card:active { transform: scale(0.96); }
+        .bet-controls { background: var(--bg-panel); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .input-group { background: #000; border-radius: 16px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; }
+        .input-group label { font-size: 11px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+        .input-group input { background: transparent; border: none; color: #fff; font-size: 24px; font-weight: 900; text-align: center; width: 100%; outline: none; }
         
-        /* Gradients mimicking the video */
-        .c-yellow { background: linear-gradient(180deg, rgba(200, 200, 50, 0.2) 0%, var(--bg-panel) 100%); }
-        .c-blue { background: linear-gradient(180deg, rgba(50, 150, 255, 0.2) 0%, var(--bg-panel) 100%); }
-        .c-green { background: linear-gradient(180deg, rgba(50, 200, 100, 0.2) 0%, var(--bg-panel) 100%); }
-        .c-red { background: linear-gradient(180deg, rgba(255, 80, 80, 0.2) 0%, var(--bg-panel) 100%); }
-        .c-pink { background: linear-gradient(180deg, rgba(255, 50, 150, 0.2) 0%, var(--bg-panel) 100%); }
-        .c-purple { background: linear-gradient(180deg, rgba(150, 50, 255, 0.2) 0%, var(--bg-panel) 100%); }
+        .btn-action { 
+            width: 100%; padding: 20px; border-radius: 18px; border: none; 
+            font-size: 18px; font-weight: 900; color: #fff; background: var(--gradient-blue); 
+            cursor: pointer; transition: 0.2s; box-shadow: 0 8px 20px rgba(0, 136, 204, 0.3);
+        }
+        .btn-action.cashout { background: var(--warning); color: #000; box-shadow: 0 8px 20px rgba(255, 171, 0, 0.3); }
+        .btn-action:active { transform: scale(0.96); }
 
-        .case-price { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; }
-        .case-stars { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 4px; color: var(--warning); }
-        .case-img { font-size: 70px; margin: 30px 0 10px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
+        /* ========================================
+           SOLO (КЕЙСЫ И АПГРЕЙДЫ) МОДУЛЬ
+           ======================================== */
+        .tabs-header { display: flex; gap: 25px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .tab-trigger { font-size: 16px; font-weight: 800; color: var(--text-dim); cursor: pointer; position: relative; }
+        .tab-trigger.active { color: #fff; }
+        .tab-trigger.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 3px; background: var(--ton-blue); border-radius: 2px; }
 
-        /* ================================================================
-           6. PROFILE VIEW (RICH STATS AS REQUESTED)
-           ================================================================ */
-        .profile-container { padding: 0 15px; }
-        .p-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 20px; }
-        .p-ava { width: 90px; height: 90px; background: linear-gradient(135deg, #00e676, #00b0ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 15px; border: 4px solid var(--bg-panel); box-shadow: 0 10px 25px rgba(0, 230, 118, 0.2); }
-        .p-name { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
-        .p-lvl { font-size: 14px; color: var(--text-dim); font-weight: 600; margin-bottom: 20px; }
+        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .case-card { 
+            background: linear-gradient(180deg, #1c2333 0%, #11141d 100%); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 24px; padding: 20px; position: relative; text-align: center; overflow: hidden;
+            transition: 0.3s;
+        }
+        .case-card:active { transform: scale(0.95); }
+        .case-tag { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; }
+        .case-icon { font-size: 55px; margin: 25px 0 15px; display: block; filter: drop-shadow(0 10px 15px #000); }
+        .case-name { font-weight: 800; font-size: 14px; margin-bottom: 10px; }
+        .case-buy { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
 
-        .xp-text { font-size: 13px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; display: flex; justify-content: center; gap: 5px; }
-        .btn-group { display: flex; gap: 10px; width: 100%; margin: 20px 0; }
-        .btn-half { flex: 1; padding: 14px; border-radius: 16px; font-weight: 800; font-size: 14px; text-align: center; cursor: pointer; border: none; }
-        .btn-fill { background: var(--accent-blue); color: #fff; }
-        .btn-outline { background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        /* UPGRADE SECTION */
+        .upgrade-box { background: var(--bg-panel); border-radius: 24px; padding: 25px; border: 1px solid var(--ton-blue); text-align: center; }
+        .upgrade-circle { width: 100px; height: 100px; border: 2px dashed var(--ton-blue); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
 
-        .ref-card { background: linear-gradient(135deg, #2b1842 0%, #1a1625 100%); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(142, 36, 170, 0.3); }
-        .ref-card h3 { font-size: 16px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
-        .ref-card p { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 15px; max-width: 70%; line-height: 1.4; }
-        .ref-stats { display: flex; gap: 20px; margin-bottom: 15px; font-size: 12px; font-weight: 700; }
-        .ref-stats span { color: #fff; }
-        .ref-btns { display: flex; gap: 10px; }
-        .ref-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: 700; flex: 1; text-align: center; }
+        /* ========================================
+           PROFILE МОДУЛЬ (25% РЕФЕРАЛКА)
+           ======================================== */
+        .p-card { background: var(--bg-panel); border-radius: 24px; padding: 20px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .p-avatar { width: 70px; height: 70px; background: var(--gradient-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; }
+        .p-info h2 { font-size: 20px; font-weight: 900; }
+        .p-info p { font-size: 13px; color: var(--text-dim); }
 
-        .inv-section h3 { font-size: 14px; color: var(--text-dim); text-transform: uppercase; font-weight: 800; margin-bottom: 15px; text-align: center; }
-        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
-        .inv-item { aspect-ratio: 1; background: var(--bg-panel); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 1px solid rgba(255,255,255,0.05); position: relative; }
-        .inv-item .qty { position: absolute; bottom: 4px; right: 6px; font-size: 10px; font-weight: 900; color: var(--text-dim); }
+        .ref-banner { 
+            background: linear-gradient(135deg, #0d1a33 0%, #08090a 100%); border-radius: 24px; 
+            padding: 25px; border: 1px solid rgba(0, 136, 204, 0.3); position: relative; overflow: hidden;
+        }
+        .ref-banner::before { content: '25%'; position: absolute; right: -10px; top: -10px; font-size: 80px; font-weight: 900; color: rgba(0, 136, 204, 0.1); }
+        .ref-title { font-size: 14px; font-weight: 900; color: var(--ton-blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .ref-text { font-size: 13px; line-height: 1.5; color: #b0b5bd; margin-bottom: 20px; }
+        .ref-link { background: #000; padding: 15px; border-radius: 14px; font-family: 'JetBrains Mono'; font-size: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .copy-btn { color: var(--ton-blue); font-weight: 800; cursor: pointer; }
 
+        .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .inv-cell { aspect-ratio: 1; background: var(--bg-panel); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid rgba(255,255,255,0.03); }
+
+        /* FOOTER NAV */
+        nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: var(--bg-panel); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding-bottom: 20px; z-index: 1000; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-dim); font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+        .nav-link.active { color: var(--ton-blue); }
+        .nav-link i { font-size: 22px; font-style: normal; }
+
+        /* ANIMATIONS */
+        @keyframes rocketShake { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .shake { animation: rocketShake 0.5s ease-in-out infinite; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="h-left">
-            <div class="icon-btn">🇷🇺</div>
-            <div class="icon-btn">🔊</div>
-        </div>
+        <div class="logo">SAHARA <span>PRO</span></div>
         <div class="bal-pill">
-            <i class="curr-icon"></i> <span id="ui-bal">1,450.50</span>
-            <div class="btn-plus">+</div>
+            <i class="ton-icon"></i> <span id="main-balance">100.00</span>
         </div>
     </header>
 
     <main class="viewport">
-        
         <section id="view-crash" class="view active">
-            <div class="crash-container">
-                <div class="history-row" id="crash-history">
-                    <div class="h-pill h-wait">Ожидание</div>
-                    <div class="h-pill h-blue">1.43</div>
-                    <div class="h-pill h-yellow">9.90</div>
-                    <div class="h-pill h-green">3.44</div>
-                    <div class="h-pill h-purple">1.81</div>
-                    <div class="h-pill h-blue">1.19</div>
+            <div class="hist-line" id="crash-hist">
+                <div class="hist-item">x1.24</div>
+                <div class="hist-item">x5.02</div>
+                <div class="hist-item">x1.10</div>
+                <div class="hist-item">x2.45</div>
+                <div class="hist-item">x13.90</div>
+            </div>
+
+            <div class="crash-screen">
+                <div class="space-bg"></div>
+                <div class="crash-overlay" id="crash-waiter">
+                    <div class="timer-circle" id="timer-val">5.0</div>
+                    <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); letter-spacing: 2px;">ОЖИДАНИЕ СТАВОК</div>
                 </div>
+                <div class="mult-display" id="mult-txt">x1.00</div>
+                <div class="rocket shake" id="rocket-obj">🚀</div>
+            </div>
 
-                <div class="crash-screen" id="c-screen">
-                    <div class="crash-msg" id="c-msg">⚠️ crash_low_performance</div>
-                    <div class="stars" id="c-stars"></div>
-                    <div class="multiplier-display" id="c-mult">1.00</div>
-                    <div class="rocket" id="c-rocket">🚀</div>
+            <div class="bet-controls">
+                <div class="input-group">
+                    <label>Сумма ставки TON</label>
+                    <input type="number" value="10" id="bet-input">
                 </div>
-
-                <button class="bet-btn" id="c-btn" onclick="crashEngine.toggleBet()">Сделать ставку</button>
-
-                <div class="live-bets" id="c-live">
-                    <div class="bet-row">
-                        <div class="bet-user">
-                            <div class="bet-ava" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);"></div>
-                            <div>
-                                <span class="bet-name">nonamed</span>
-                                <span class="bet-amt"><i class="curr-icon"></i> 0.64  •  x1.19</span>
-                            </div>
-                        </div>
-                        <div class="bet-win"><i class="curr-icon"></i> 0.76</div>
-                    </div>
-                    </div>
+                <button class="btn-action" id="btn-bet" onclick="crashEngine.action()">СДЕЛАТЬ СТАВКУ</button>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--text-dim);">LIVE СТАВКИ</span>
+                <span style="font-size: 12px; font-weight: 800; color: var(--success);">● 842 Online</span>
             </div>
         </section>
 
         <section id="view-solo" class="view">
-            <div class="solo-container">
-                
-                <div class="promo-banner">
-                    <img src="https://img.icons8.com/color/48/telegram-app--v1.png" alt="tg">
-                    <div>
-                        <div style="font-weight: 800; font-size: 14px; margin-bottom: 2px;">Вам нужно подписаться</div>
-                        <div style="font-size: 11px; color: var(--text-dim); line-height: 1.3;">Новости, раздачи подарков, промокоды на бесплатные кейсы у нас в канале</div>
-                    </div>
-                </div>
+            <div class="tabs-header">
+                <div class="tab-trigger active" onclick="soloNav('cases', this)">КЕЙСЫ</div>
+                <div class="tab-trigger" onclick="soloNav('upgrade', this)">АПГРЕЙД</div>
+            </div>
 
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <span style="color: var(--success); font-weight: 900; font-size: 12px;">● Live</span>
+            <div id="solo-cases" class="solo-content">
+                <div class="case-grid">
+                    <div class="case-card" onclick="openCase(0.2, '📦')">
+                        <div class="case-tag">COMMON</div>
+                        <span class="case-icon">📦</span>
+                        <div class="case-name">START BOX</div>
+                        <div class="case-buy"><i class="ton-icon"></i> 0.20</div>
+                    </div>
+                    <div class="case-card" onclick="openCase(1.0, '💎')">
+                        <div class="case-tag" style="color:var(--ton-blue)">RARE</div>
+                        <span class="case-icon">💎</span>
+                        <div class="case-name">CRYSTAL CASE</div>
+                        <div class="case-buy"><i class="ton-icon"></i> 1.00</div>
+                    </div>
+                    <div class="case-card" onclick="openCase(5.0, '👑')">
+                        <div class="case-tag" style="color:var(--warning)">LEGENDARY</div>
+                        <span class="case-icon">👑</span>
+                        <div class="case-name">ROYAL CASE</div>
+                        <div class="case-buy"><i class="ton-icon"></i> 5.00</div>
+                    </div>
+                    <div class="case-card" onclick="openCase(15.0, '🧧')">
+                        <div class="case-tag" style="color:var(--danger)">MYTHIC</div>
+                        <span class="case-icon">🧧</span>
+                        <div class="case-name">SAHARA ANCIENT</div>
+                        <div class="case-buy"><i class="ton-icon"></i> 15.00</div>
+                    </div>
                 </div>
-                <div class="live-drops">
-                    <div class="drop-ico">👽</div><div class="drop-ico">🍷</div><div class="drop-ico">🍰</div><div class="drop-ico">👑</div><div class="drop-ico">🔮</div>
-                </div>
+            </div>
 
-                <div class="tabs">
-                    <div class="tab active">Платные</div>
-                    <div class="tab">Бесплатные</div>
-                </div>
-
-                <div class="cases-grid">
-                    <div class="case-card c-yellow" onclick="soloEngine.openCase(0.1, '👽')">
-                        <div class="case-price"><i class="curr-icon"></i> 0.1</div>
-                        <div class="case-stars">⭐ 10</div>
-                        <div class="case-img">📦</div>
-                    </div>
-                    <div class="case-card c-blue" onclick="soloEngine.openCase(0.5, '💀')">
-                        <div class="case-price"><i class="curr-icon"></i> 0.5</div>
-                        <div class="case-stars">⭐ 51</div>
-                        <div class="case-img">🧊</div>
-                    </div>
-                    <div class="case-card c-green" onclick="soloEngine.openCase(1.0, '🐸')">
-                        <div class="case-price"><i class="curr-icon"></i> 1</div>
-                        <div class="case-stars">⭐ 102</div>
-                        <div class="case-img">🟩</div>
-                    </div>
-                    <div class="case-card c-red" onclick="soloEngine.openCase(1.5, '🏆')">
-                        <div class="case-price"><i class="curr-icon"></i> 1.5</div>
-                        <div class="case-stars">⭐ 153</div>
-                        <div class="case-img">🧧</div>
-                    </div>
-                    <div class="case-card c-pink" onclick="soloEngine.openCase(2.0, '🐱')">
-                        <div class="case-price"><i class="curr-icon"></i> 2</div>
-                        <div class="case-stars">⭐ 204</div>
-                        <div class="case-img">🛍️</div>
-                    </div>
-                    <div class="case-card c-purple" onclick="soloEngine.openCase(3.0, '💎')">
-                        <div class="case-price"><i class="curr-icon"></i> 3</div>
-                        <div class="case-stars">⭐ 305</div>
-                        <div class="case-img">🧰</div>
-                    </div>
+            <div id="solo-upgrade" class="solo-content" style="display: none;">
+                <div class="upgrade-box">
+                    <div class="upgrade-circle">?</div>
+                    <h3>Апгрейд предметов</h3>
+                    <p style="color: var(--text-dim); font-size: 13px; margin: 10px 0 20px;">Шанс увеличить стоимость вашего предмета до x10!</p>
+                    <button class="btn-action" style="padding: 15px; font-size: 14px;">ВЫБРАТЬ ПРЕДМЕТ</button>
                 </div>
             </div>
         </section>
 
         <section id="view-profile" class="view">
-            <div class="profile-container">
-                <div class="p-header">
-                    <div class="p-ava">C</div>
-                    <div class="p-name">CryptoKing</div>
-                    <div class="p-lvl">34 level</div>
-                    <div class="xp-text"><span>4,850</span> / <span>5,000</span> <i class="curr-icon"></i></div>
+            <div class="p-card">
+                <div class="p-avatar">U</div>
+                <div class="p-info">
+                    <h2 id="p-name">User_Sahara</h2>
+                    <p>ID: 882910 | Level 1</p>
                 </div>
+            </div>
 
-                <div class="btn-group">
-                    <button class="btn-half btn-fill">Пополнить</button>
-                    <button class="btn-half btn-outline">Награды</button>
+            <div class="ref-banner">
+                <div class="ref-title">Партнерская программа</div>
+                <p class="ref-text">Получайте <b>25%</b> от каждого депозита ваших друзей прямо на основной баланс TON.</p>
+                <div class="ref-link">
+                    <span>sahara-bet.pro/ref/882910</span>
+                    <span class="copy-btn">COPY</span>
                 </div>
+            </div>
 
-                <div class="ref-card">
-                    <h3>Рефералы</h3>
-                    <p>Приглашайте друзей и получайте 10% с депозитов ваших друзей!</p>
-                    <div class="ref-stats">
-                        <div>Баланс: <i class="curr-icon" style="width:10px;height:10px;"></i> <span>145.20</span></div>
-                        <div>Рефералов: <span>1,204</span></div>
-                    </div>
-                    <div class="ref-btns">
-                        <button class="ref-btn" style="background:var(--accent-blue);">Пригласить друзей</button>
-                        <button class="ref-btn">Копировать ссылку</button>
-                    </div>
+            <div style="margin-top: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span style="font-size: 13px; font-weight: 800; color: var(--text-dim);">ИНВЕНТАРЬ</span>
+                    <span style="font-size: 13px; font-weight: 800; color: var(--ton-blue);">ВСЕГО 0</span>
                 </div>
-
-                <div class="inv-section">
-                    <h3>Инвентарь (14)</h3>
-                    <div class="inv-grid">
-                        <div class="inv-item">👽<span class="qty">x2</span></div>
-                        <div class="inv-item">💎<span class="qty">x1</span></div>
-                        <div class="inv-item">👑<span class="qty">x5</span></div>
-                        <div class="inv-item">💀<span class="qty">x1</span></div>
-                        <div class="inv-item" style="border-color: #ffd700; box-shadow: inset 0 0 10px rgba(255,215,0,0.2);">🏆<span class="qty">x1</span></div>
-                        <div class="inv-item">🍷<span class="qty">x3</span></div>
-                        <div class="inv-item">🐸<span class="qty">x1</span></div>
-                    </div>
+                <div class="inventory-grid" id="inv-grid">
+                    <div class="inv-cell"></div><div class="inv-cell"></div><div class="inv-cell"></div><div class="inv-cell"></div>
+                    <div class="inv-cell"></div><div class="inv-cell"></div><div class="inv-cell"></div><div class="inv-cell"></div>
                 </div>
             </div>
         </section>
     </main>
 
     <nav>
-        <div class="nav-item active" onclick="navTo('crash', this)">
-            <svg viewBox="0 0 24 24"><path d="M13.13 22.19L11.5 18.36C10.07 15.03 8.96 13.91 5.64 12.5L1.81 10.87C.05 10.12.02 9.06 1.76 8.28L21.46 1.05C23.11.45 23.55 1.88 22.95 3.54L15.72 23.24C14.93 24.97 13.88 24.95 13.13 22.19z"/></svg>
-        </div>
-        <div class="nav-item" onclick="navTo('solo', this)">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
-        </div>
-        <div class="nav-item" onclick="navTo('profile', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        </div>
+        <div class="nav-link active" onclick="navTo('crash', this)"><i>🚀</i><span>Crash</span></div>
+        <div class="nav-link" onclick="navTo('solo', this)"><i>🎒</i><span>Solo</span></div>
+        <div class="nav-link" onclick="navTo('profile', this)"><i>👤</i><span>Profile</span></div>
     </nav>
 
     <script>
-        // ================================================================
-        // APP LOGIC
-        // ================================================================
+        /* ========================================
+           CORE ENGINE
+           ======================================== */
+        let state = {
+            bal: 100.00,
+            inventory: [],
+            stats: { games: 0, wins: 0 }
+        };
 
-        // Background Stars CSS Generator
-        function createStars() {
-            let stars = '';
-            for(let i=0; i<50; i++) {
-                let x = Math.floor(Math.random() * 100);
-                let y = Math.floor(Math.random() * 2000);
-                let size = Math.random() * 2;
-                stars += `${x}vw ${y}px 0 ${size}px #fff, `;
-            }
-            document.getElementById('c-stars').style.boxShadow = stars.slice(0, -2);
+        function save() {
+            localStorage.setItem('sahara_save_v2', JSON.stringify(state));
+            document.getElementById('main-balance').innerText = state.bal.toFixed(2);
         }
-        createStars();
+
+        function load() {
+            const data = localStorage.getItem('sahara_save_v2');
+            if(data) state = JSON.parse(data);
+            save();
+        }
 
         // Navigation
         function navTo(id, el) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             document.getElementById('view-' + id).classList.add('active');
             el.classList.add('active');
         }
 
-        // ================================================================
-        // CRASH ENGINE
-        // ================================================================
+        function soloNav(tab, el) {
+            document.querySelectorAll('.solo-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+            document.getElementById('solo-' + tab).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        /* ========================================
+           CRASH (ROCKET) LOGIC
+           ======================================== */
         const crashEngine = {
-            state: 'waiting', // waiting, flying, crashed
+            phase: 'waiting', // waiting, flying, crashed
+            timer: 5.0,
             mult: 1.00,
             crashPoint: 0,
-            timer: null,
-            betAmount: 10,
-            userBet: false,
+            userBet: 0,
+            loop: null,
 
-            uiMult: document.getElementById('c-mult'),
-            uiRocket: document.getElementById('c-rocket'),
-            uiMsg: document.getElementById('c-msg'),
-            uiBtn: document.getElementById('c-btn'),
-
-            start() {
-                this.state = 'flying';
-                this.mult = 1.00;
-                this.crashPoint = (Math.random() * 3 + 1.1).toFixed(2); // Random crash between 1.1 and 4.1
-                
-                this.uiRocket.classList.remove('crashed');
-                this.uiMult.classList.remove('red');
-                this.uiMsg.classList.remove('show');
-                
-                if(this.userBet) {
-                    this.uiBtn.innerText = 'Забрать';
-                    this.uiBtn.className = 'bet-btn cashout';
-                } else {
-                    this.uiBtn.innerText = 'Ожидание...';
-                    this.uiBtn.className = 'bet-btn disabled';
-                }
-
-                this.tick();
-                this.generateLiveBets();
+            ui: {
+                txt: document.getElementById('mult-txt'),
+                rocket: document.getElementById('rocket-obj'),
+                overlay: document.getElementById('crash-waiter'),
+                timer: document.getElementById('timer-val'),
+                btn: document.getElementById('btn-bet'),
+                hist: document.getElementById('crash-hist')
             },
 
-            tick() {
-                if(this.state !== 'flying') return;
-                
-                // Exponential growth formula simulation
-                this.mult += 0.005 * this.mult;
-                this.uiMult.innerText = this.mult.toFixed(2);
+            init() {
+                this.prepare();
+            },
 
-                if(this.mult >= this.crashPoint) {
-                    this.crash();
-                } else {
-                    this.timer = requestAnimationFrame(() => this.tick());
+            prepare() {
+                this.phase = 'waiting';
+                this.timer = 5.0;
+                this.mult = 1.00;
+                this.ui.overlay.style.display = 'flex';
+                this.ui.txt.style.display = 'none';
+                this.ui.rocket.className = 'rocket shake';
+                this.ui.rocket.style.bottom = '20%';
+                this.ui.rocket.style.left = '40%';
+                this.ui.txt.style.color = '#fff';
+
+                const countdown = setInterval(() => {
+                    this.timer -= 0.1;
+                    this.ui.timer.innerText = this.timer.toFixed(1);
+                    if(this.timer <= 0) {
+                        clearInterval(countdown);
+                        this.start();
+                    }
+                }, 100);
+            },
+
+            start() {
+                this.phase = 'flying';
+                this.ui.overlay.style.display = 'none';
+                this.ui.txt.style.display = 'block';
+                this.crashPoint = this.generateCrashPoint();
+                
+                if(this.userBet > 0) {
+                    this.ui.btn.innerText = 'CASHOUT';
+                    this.ui.btn.className = 'btn-action cashout';
                 }
+
+                this.loop = setInterval(() => {
+                    // Growth formula
+                    this.mult += 0.01 * (this.mult * 0.5);
+                    this.ui.txt.innerText = 'x' + this.mult.toFixed(2);
+
+                    // Rocket physics
+                    let offset = (this.mult - 1) * 25;
+                    this.ui.rocket.style.bottom = (20 + offset) + '%';
+                    this.ui.rocket.style.left = (40 + offset/1.5) + '%';
+
+                    if(this.mult >= this.crashPoint) {
+                        this.crash();
+                    }
+                }, 80);
             },
 
             crash() {
-                this.state = 'crashed';
-                cancelAnimationFrame(this.timer);
+                clearInterval(this.loop);
+                this.phase = 'crashed';
+                this.ui.txt.style.color = var('--danger');
+                this.ui.rocket.className = 'rocket crashed';
                 
-                this.uiRocket.classList.add('crashed');
-                this.uiMult.classList.add('red');
-                this.uiMsg.classList.add('show');
-                
-                this.uiBtn.innerText = 'Сделать ставку';
-                this.uiBtn.className = 'bet-btn';
-                this.userBet = false;
+                // History
+                const h = document.createElement('div');
+                h.className = 'hist-item';
+                h.innerText = 'x' + this.mult.toFixed(2);
+                this.ui.hist.prepend(h);
 
-                // Add to history
-                const hist = document.getElementById('crash-history');
-                const p = document.createElement('div');
-                let colorClass = this.mult < 2 ? 'h-blue' : (this.mult < 5 ? 'h-green' : 'h-yellow');
-                p.className = `h-pill ${colorClass}`;
-                p.innerText = this.mult.toFixed(2);
-                hist.insertBefore(p, hist.children[1]); // insert after "Ожидание"
-                if(hist.children.length > 10) hist.removeChild(hist.lastChild);
+                this.userBet = 0;
+                this.ui.btn.innerText = 'СДЕЛАТЬ СТАВКУ';
+                this.ui.btn.className = 'btn-action';
 
-                setTimeout(() => this.start(), 4000); // restart after 4 sec
+                setTimeout(() => this.prepare(), 3000);
             },
 
-            toggleBet() {
-                if(this.state === 'waiting' || this.state === 'crashed') {
-                    this.userBet = true;
-                    this.uiBtn.innerText = 'Ставка принята (Ожидание)';
-                    this.uiBtn.className = 'bet-btn disabled';
-                } else if(this.state === 'flying' && this.userBet) {
-                    // Cashout logic
-                    this.userBet = false;
-                    this.uiBtn.innerText = `Выведено: ${(this.betAmount * this.mult).toFixed(2)}`;
-                    this.uiBtn.className = 'bet-btn disabled';
-                }
+            generateCrashPoint() {
+                let r = Math.random();
+                if(r < 0.1) return 1.01; // Instant crash 10%
+                if(r < 0.8) return (1 + Math.random() * 2).toFixed(2); // x1-x3 70%
+                return (3 + Math.random() * 10).toFixed(2); // Big wins 20%
             },
 
-            generateLiveBets() {
-                const names = ['nonamed', 'Kosmos', 'скупов', 'божественный', 'Margiela', 'Vlad', 'CryptoBro'];
-                const list = document.getElementById('c-live');
-                list.innerHTML = '';
-                
-                for(let i=0; i<6; i++) {
-                    const name = names[Math.floor(Math.random() * names.length)];
-                    const bet = (Math.random() * 2 + 0.1).toFixed(2);
-                    const mult = (Math.random() * 1.5 + 1.01).toFixed(2);
-                    const win = (bet * mult).toFixed(2);
-                    const hue = Math.floor(Math.random() * 360);
-                    
-                    list.innerHTML += `
-                        <div class="bet-row">
-                            <div class="bet-user">
-                                <div class="bet-ava" style="background: hsl(${hue}, 70%, 60%);"></div>
-                                <div>
-                                    <span class="bet-name">${name}</span>
-                                    <span class="bet-amt"><i class="curr-icon"></i> ${bet}  •  x${mult}</span>
-                                </div>
-                            </div>
-                            <div class="bet-win"><i class="curr-icon"></i> ${win}</div>
-                        </div>
-                    `;
+            action() {
+                const val = parseFloat(document.getElementById('bet-input').value);
+                if(this.phase === 'waiting' && this.userBet === 0) {
+                    if(state.bal < val) return alert('Недостаточно TON');
+                    state.bal -= val;
+                    this.userBet = val;
+                    this.ui.btn.innerText = 'ОЖИДАНИЕ...';
+                    this.ui.btn.style.opacity = '0.7';
+                    save();
+                } else if(this.phase === 'flying' && this.userBet > 0) {
+                    const win = this.userBet * this.mult;
+                    state.bal += win;
+                    alert('ВЫИГРЫШ: ' + win.toFixed(2) + ' TON');
+                    this.userBet = 0;
+                    this.ui.btn.innerText = 'СДЕЛАТЬ СТАВКУ';
+                    this.ui.btn.className = 'btn-action';
+                    this.ui.btn.style.opacity = '1';
+                    save();
                 }
             }
         };
 
-        // Start engine
-        setTimeout(() => crashEngine.start(), 1000);
-
-        // ================================================================
-        // SOLO ENGINE (CASES)
-        // ================================================================
-        const soloEngine = {
-            openCase(price, item) {
-                // Simulate opening
-                alert(`Вы открыли кейс за ${price} и получили предмет: ${item}! Он добавлен в ваш инвентарь.`);
-                // Here you would deduct balance and add to profile inventory.
-            }
+        /* ========================================
+           SOLO / CASE ENGINE
+           ======================================== */
+        function openCase(price, icon) {
+            if(state.bal < price) return alert('Недостаточно TON');
+            state.bal -= price;
+            save();
+            
+            // Simple opening animation mock
+            alert('Открытие кейса...');
+            setTimeout(() => {
+                alert('Вы получили: ' + icon);
+                state.inventory.push(icon);
+                updateInventoryUI();
+            }, 500);
         }
+
+        function updateInventoryUI() {
+            const cells = document.querySelectorAll('.inv-cell');
+            state.inventory.forEach((item, i) => {
+                if(cells[i]) cells[i].innerText = item;
+            });
+        }
+
+        window.onload = () => {
+            load();
+            crashEngine.init();
+        };
 
     </script>
 </body>
 </html>
+
