@@ -94,30 +94,150 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CRASH GAME DESIGN */
-        .crash-area {
-            background: #000;
-            height: 250px;
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .stars { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #0d1a2b 0%, #000 100%); }
-        .rocket { position: absolute; bottom: 20%; left: 40%; font-size: 60px; z-index: 10; transition: transform 0.1s; }
-        .multiplier { font-family: 'JetBrains Mono', monospace; font-size: 60px; font-weight: 900; z-index: 20; text-shadow: 0 0 20px #000; }
-        .multiplier.crashed { color: var(--danger); }
+        const crashSystem = {
+    state: 'waiting', // waiting, flying, crashed
+    multiplier: 1.00,
+    crashAt: 0,
+    timerValue: 5.0,
+    currentBet: 0,
+    engineLoop: null,
+
+    // Элементы UI для быстрого доступа
+    els: {
+        mult: document.getElementById('mult-display'),
+        rocket: document.getElementById('rocket-node'),
+        wait: document.getElementById('wait-screen'),
+        timer: document.getElementById('wait-timer'),
+        btn: document.getElementById('crash-main-btn'),
+        hist: document.getElementById('hist-list'),
+        input: document.getElementById('user-bet-input')
+    },
+
+    init() {
+        this.prepareRound();
+    },
+
+    // Фаза подготовки (отсчет 5 секунд)
+    prepareRound() {
+        this.state = 'waiting';
+        this.timerValue = 5.0;
+        this.multiplier = 1.00;
         
-        .timer-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 30; display: none;
-            flex-direction: column; align-items: center; justify-content: center;
+        // Сбрасываем UI
+        this.els.wait.style.display = 'flex';
+        this.els.mult.style.display = 'none';
+        this.els.mult.classList.remove('crashed');
+        this.els.rocket.className = 'rocket-vessel rocket-shake';
+        this.els.rocket.style.transform = `translate(0, 0) rotate(0deg)`;
+        
+        const countdown = setInterval(() => {
+            this.timerValue -= 0.1;
+            this.els.timer.innerText = this.timerValue.toFixed(1);
+            
+            if (this.timerValue <= 0) {
+                clearInterval(countdown);
+                this.startFlight();
+            }
+        }, 100);
+    },
+
+    // Фаза полета
+    startFlight() {
+        this.state = 'flying';
+        this.els.wait.style.display = 'none';
+        this.els.mult.style.display = 'block';
+        this.els.rocket.classList.remove('rocket-shake');
+
+        // Генерация случайного момента взрыва
+        this.crashAt = this.generateCrashPoint();
+
+        // Если игрок сделал ставку, меняем кнопку на Вывод
+        if (this.currentBet > 0) {
+            this.els.btn.innerText = 'ЗАБРАТЬ ВЫИГРЫШ';
+            this.els.btn.style.background = 'var(--warning)';
+            this.els.btn.style.color = '#000';
         }
-        .timer-num { font-size: 48px; font-weight: 900; color: var(--accent); }
+
+        this.engineLoop = setInterval(() => {
+            // Математика роста икса (чем выше, тем быстрее)
+            const growth = 0.01 * Math.pow(this.multiplier, 0.6);
+            this.multiplier += growth;
+            
+            this.els.mult.innerText = 'x' + this.multiplier.toFixed(2);
+
+            // Визуальное движение ракеты
+            let pos = (this.multiplier - 1) * 35;
+            this.els.rocket.style.transform = `translate(${pos}px, -${pos * 1.2}px)`;
+
+            // Проверка на краш
+            if (this.multiplier >= this.crashAt) {
+                this.finishRound();
+            }
+        }, 60);
+    },
+
+    // Взрыв (Краш)
+    finishRound() {
+        clearInterval(this.engineLoop);
+        this.state = 'crashed';
+        this.els.mult.classList.add('crashed');
+        this.els.rocket.style.transform += ' rotate(160deg) scale(0.8)';
+        
+        // Обновляем историю
+        const badge = document.createElement('div');
+        badge.className = 'hist-badge';
+        badge.innerText = 'x' + this.multiplier.toFixed(2);
+        this.els.hist.prepend(badge);
+        if(this.els.hist.children.length > 10) this.els.hist.lastChild.remove();
+
+        // Сброс ставки игрока
+        this.currentBet = 0;
+        this.els.btn.innerText = 'СДЕЛАТЬ СТАВКУ';
+        this.els.btn.style.background = 'var(--grad-main)';
+        this.els.btn.style.color = '#fff';
+        this.els.btn.style.opacity = '1';
+
+        // Через 3 секунды новый раунд
+        setTimeout(() => this.prepareRound(), 3000);
+    },
+
+    // Логика кнопки
+    onActionClick() {
+        const amount = parseFloat(this.els.input.value);
+
+        if (this.state === 'waiting' && this.currentBet === 0) {
+            // СДЕЛАТЬ СТАВКУ
+            if (state.bal < amount) return alert('Недостаточно TON');
+            state.bal -= amount;
+            this.currentBet = amount;
+            this.els.btn.innerText = 'СТАВКА ПРИНЯТА';
+            this.els.btn.style.opacity = '0.6';
+            save(); // Если у тебя есть функция сохранения баланса
+        } else if (this.state === 'flying' && this.currentBet > 0) {
+            // ЗАБРАТЬ ВЫИГРЫШ (CASHOUT)
+            const win = this.currentBet * this.multiplier;
+            state.bal += win;
+            this.currentBet = 0;
+            alert(`ВЫИГРЫШ: ${win.toFixed(2)} TON!`);
+            this.els.btn.innerText = 'ОЖИДАНИЕ...';
+            this.els.btn.style.background = 'var(--bg-item)';
+            this.els.btn.style.color = '#fff';
+            save();
+        }
+    },
+
+    // Математика честного краша
+    generateCrashPoint() {
+        const r = Math.random();
+        if (r < 0.05) return 1.00; // Мгновенный краш (5% шанс)
+        return (1 + Math.random() * 4).toFixed(2); 
+    }
+};
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    crashSystem.init();
+});
 
         /* BUTTONS */
         .btn-main {
