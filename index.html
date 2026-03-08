@@ -346,7 +346,32 @@
                 this.bots[0].status = 'win';
                 this.bots[0].target = this.mult.toFixed(2);
                 this.renderBets();
-            }
+            }/* Дизайн истории и выигрыша */
+.crash-history-line {
+    display: flex; gap: 6px; overflow-x: auto; 
+    padding: 10px 0; scrollbar-width: none;
+}
+.crash-history-line::-webkit-scrollbar { display: none; }
+.h-item {
+    padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 900;
+    background: var(--bg-item); border: 1px solid rgba(255,255,255,0.05);
+}
+.h-low { color: #ff3366; border-color: rgba(255,51,102,0.2); }
+.h-mid { color: #00d2ff; border-color: rgba(0,210,255,0.2); }
+.h-high { color: #00ff88; border-color: rgba(0,255,136,0.2); }
+
+/* Счетчик текущего выигрыша */
+.live-win-counter {
+    position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+    text-align: center; z-index: 15; pointer-events: none;
+}
+.win-amount {
+    font-size: 18px; font-weight: 800; color: #00ff88;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    text-shadow: 0 0 15px rgba(0,255,136,0.4);
+}
+.ton-mini { width: 14px; height: 14px; background: url('https://ton.org/download/ton_symbol.svg') no-repeat center/contain; }
+
         }
     };
 
