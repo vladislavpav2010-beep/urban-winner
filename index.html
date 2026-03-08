@@ -1,217 +1,233 @@
 <style>
-    .crash-root {
-        padding: 15px;
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Лента истории */
-    .c-history {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 12px;
-        scrollbar-width: none;
-    }
-    .c-history::-webkit-scrollbar { display: none; }
-    .h-badge {
-        background: #0b0d0f;
-        padding: 6px 14px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 800;
-        color: #00d2ff;
-        border: 1px solid rgba(0, 210, 255, 0.2);
-        white-space: nowrap;
-        animation: slideIn 0.3s ease-out;
-    }
-    @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } }
-
-    /* Игровое поле */
-    .c-frame {
-        height: 300px;
-        background: #000;
-        border-radius: 24px;
+    /* Стили для Pro-Ракетки */
+    .crash-pro-wrap { padding: 15px; font-family: 'Inter', sans-serif; }
+    
+    /* Экран игры */
+    .cp-screen {
+        height: 320px;
+        background: #030405;
+        border-radius: 20px;
         position: relative;
         overflow: hidden;
         border: 1px solid rgba(255,255,255,0.05);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: inset 0 0 40px rgba(0, 210, 255, 0.1);
+        margin-bottom: 15px;
+        box-shadow: inset 0 0 50px rgba(0, 210, 255, 0.05);
     }
-
-    /* Космический фон (сетка) */
-    .c-grid {
-        position: absolute;
-        width: 200%;
-        height: 200%;
+    
+    /* Сетка на фоне */
+    .cp-grid {
+        position: absolute; width: 100%; height: 100%;
         background-image: 
-            linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
-        background-size: 40px 40px;
-        transform: perspective(500px) rotateX(60deg) translateY(0);
-        z-index: 1;
+            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 30px 30px;
+        background-position: bottom left;
     }
 
-    .c-mult {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 64px;
-        font-weight: 900;
-        color: #fff;
-        z-index: 10;
-        text-shadow: 0 0 30px rgba(0,0,0,0.8);
+    /* SVG для отрисовки графика полета */
+    .cp-graph-svg {
+        position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; z-index: 5;
     }
-    .c-mult.boom { color: #ff3366; text-shadow: 0 0 30px rgba(255, 51, 102, 0.4); }
+    .cp-line {
+        fill: none; stroke: var(--accent, #00d2ff); stroke-width: 4;
+        filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.6));
+        transition: stroke 0.2s;
+    }
+    .cp-line.boom { stroke: #ff3366; filter: drop-shadow(0 0 8px rgba(255, 51, 102, 0.6)); }
 
-    .c-rocket {
-        position: absolute;
-        bottom: 20%;
-        left: 20%;
-        font-size: 60px;
-        z-index: 5;
-        filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.5));
+    /* Множитель и Ракета */
+    .cp-mult {
+        position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+        font-family: 'JetBrains Mono', monospace; font-size: 56px; font-weight: 900;
+        color: #fff; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+    .cp-mult.boom { color: #ff3366; }
+    
+    .cp-rocket {
+        position: absolute; bottom: 0; left: 0;
+        font-size: 40px; z-index: 10;
+        transform: translate(-50%, 50%); /* Центрирование точки привязки */
+        filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.4));
     }
 
     /* Оверлей ожидания */
-    .c-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(8px);
-        z-index: 20;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+    .cp-overlay {
+        position: absolute; inset: 0; background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(5px); z-index: 20; display: none;
+        flex-direction: column; align-items: center; justify-content: center;
     }
-    .c-timer {
-        width: 90px;
-        height: 90px;
-        border: 4px solid #00d2ff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 34px;
-        font-weight: 900;
-        color: #00d2ff;
-        box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
-        margin-bottom: 15px;
-    }
+    .cp-timer { font-size: 48px; font-weight: 900; color: #00d2ff; }
 
-    /* Управление */
-    .c-panel {
-        background: #0b0d0f;
-        margin-top: 15px;
-        padding: 20px;
-        border-radius: 24px;
-        border: 1px solid rgba(255,255,255,0.05);
+    /* Панель ставки */
+    .cp-controls {
+        background: #0b0d0f; padding: 15px; border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;
     }
-    .c-input-group {
-        background: #030405;
-        padding: 15px;
-        border-radius: 16px;
-        margin-bottom: 15px;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.05);
+    .cp-input-box {
+        background: #000; border-radius: 12px; padding: 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px;
     }
-    .c-input-group label { font-size: 11px; color: #707579; font-weight: 800; text-transform: uppercase; }
-    .c-input-group input {
+    .cp-input-box input {
         background: transparent; border: none; color: #fff;
-        font-size: 26px; font-weight: 900; width: 100%; text-align: center; outline: none;
+        font-size: 20px; font-weight: 800; width: 100%; outline: none;
+    }
+    .ton-icon {
+        width: 20px; height: 20px; margin-left: 10px;
+        background: url('https://ton.org/download/ton_symbol.svg') no-repeat center/contain;
     }
 
-    .c-btn {
-        width: 100%;
-        padding: 20px;
-        border-radius: 18px;
-        border: none;
-        background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
-        color: #fff;
-        font-size: 18px;
-        font-weight: 900;
-        cursor: pointer;
-        box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
-        transition: 0.2s;
+    /* Таблица Live Ставок */
+    .cp-live-bets {
+        background: #0b0d0f; border-radius: 20px; padding: 15px;
+        border: 1px solid rgba(255,255,255,0.05);
     }
-    .c-btn.cashout { background: #ffcc00; color: #000; box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3); }
-    .c-btn:active { transform: scale(0.97); }
-
-    /* Анимация тряски */
-    @keyframes shake {
-        0%, 100% { transform: translate(0,0); }
-        25% { transform: translate(-2px, 2px); }
-        75% { transform: translate(2px, -2px); }
+    .cp-bets-header {
+        display: flex; justify-content: space-between; font-size: 11px;
+        color: #707579; font-weight: 800; text-transform: uppercase;
+        margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .anim-shake { animation: shake 0.15s infinite; }
+    .cp-bet-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 8px 0; font-size: 13px; font-weight: 700;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+    .cp-bet-row:last-child { border-bottom: none; }
+    .status-wait { color: #fff; }
+    .status-win { color: #00ff88; }
+    .status-boom { color: #ff3366; }
 </style>
 
-<div class="crash-root">
-    <div class="c-history" id="c-hist-list">
-        <div class="h-badge">x1.44</div>
-        <div class="h-badge">x2.10</div>
-        <div class="h-badge">x10.55</div>
-    </div>
-
-    <div class="c-frame">
-        <div class="c-grid" id="c-grid-move"></div>
+<div class="crash-pro-wrap">
+    <div class="cp-screen" id="cp-screen">
+        <div class="cp-grid"></div>
         
-        <div class="c-overlay" id="c-ovl">
-            <div class="c-timer" id="c-timer-txt">5.0</div>
-            <div style="font-size: 11px; font-weight: 900; color: #707579; letter-spacing: 2px;">CIRLLEGIFT LOADING...</div>
+        <svg class="cp-graph-svg">
+            <path id="cp-line" class="cp-line" d="M 0 320 Q 0 320 0 320"></path>
+        </svg>
+
+        <div class="cp-overlay" id="cp-wait-layer">
+            <div style="font-size: 12px; color: #707579; font-weight: 800; letter-spacing: 2px;">NEXT ROUND IN</div>
+            <div class="cp-timer" id="cp-timer-val">5.0s</div>
         </div>
 
-        <div class="c-mult" id="c-mult-display">x1.00</div>
-        <div class="c-rocket anim-shake" id="c-rocket-node">🚀</div>
+        <div class="cp-mult" id="cp-mult-val">x1.00</div>
+        <div class="cp-rocket" id="cp-rocket">🚀</div>
     </div>
 
-    <div class="c-panel">
-        <div class="c-input-group">
-            <label>Сумма ставки TON</label>
-            <input type="number" id="c-bet-input" value="10">
+    <div class="cp-controls">
+        <div class="cp-input-box">
+            <div style="display: flex; flex-direction: column; width: 100%;">
+                <span style="font-size: 10px; color: #707579; font-weight: 800;">СТАВКА</span>
+                <input type="number" id="cp-bet-inp" value="10.00">
+            </div>
+            <div class="ton-icon"></div>
         </div>
-        <button class="c-btn" id="c-main-btn" onclick="crashApp.onAction()">СДЕЛАТЬ СТАВКУ</button>
+        <button class="action-btn-main" id="cp-main-btn" onclick="proCrash.action()" style="width: 100%;">
+            СТАВИТЬ TON
+        </button>
+    </div>
+
+    <div class="cp-live-bets">
+        <div class="cp-bets-header">
+            <span style="width: 40%;">Пользователь</span>
+            <span style="width: 30%; text-align: center;">Ставка</span>
+            <span style="width: 30%; text-align: right;">Вывод</span>
+        </div>
+        <div id="cp-bets-list">
+            </div>
     </div>
 </div>
 
 <script>
-    const crashApp = {
-        phase: 'wait', // wait, fly, boom
-        mult: 1.00,
-        target: 0,
-        bet: 0,
+    const proCrash = {
+        state: 'wait', // wait, fly, boom
         timer: 5.0,
+        mult: 1.00,
+        crashAt: 0,
+        userBet: 0,
         loop: null,
+        bots: [], // Массив фейковых игроков
 
-        ui: {
-            ovl: document.getElementById('c-ovl'),
-            tmr: document.getElementById('c-timer-txt'),
-            mlt: document.getElementById('c-mult-display'),
-            rkt: document.getElementById('c-rocket-node'),
-            grd: document.getElementById('c-grid-move'),
-            btn: document.getElementById('c-main-btn'),
-            hst: document.getElementById('c-hist-list'),
-            inp: document.getElementById('c-bet-input')
+        // Настройки холста
+        canvasWidth: 0,
+        canvasHeight: 320,
+        currentX: 0,
+        currentY: 320,
+
+        els: {
+            screen: document.getElementById('cp-screen'),
+            mult: document.getElementById('cp-mult-val'),
+            rocket: document.getElementById('cp-rocket'),
+            wait: document.getElementById('cp-wait-layer'),
+            tmr: document.getElementById('cp-timer-val'),
+            line: document.getElementById('cp-line'),
+            btn: document.getElementById('cp-main-btn'),
+            inp: document.getElementById('cp-bet-inp'),
+            betsList: document.getElementById('cp-bets-list')
         },
 
         init() {
+            this.canvasWidth = this.els.screen.offsetWidth;
             this.startWait();
         },
 
+        // Генерация ботов для таблицы
+        generateBots() {
+            const names = ['CryptoKing', 'TON_Whale', 'Degen99', 'Alex_B', 'LuckyStrike', 'ElonM'];
+            this.bots = [];
+            this.els.betsList.innerHTML = '';
+            
+            let numBots = 4 + Math.floor(Math.random() * 3);
+            for(let i=0; i<numBots; i++) {
+                let bet = (Math.random() * 50 + 1).toFixed(2);
+                let targetOut = (1.1 + Math.random() * 4).toFixed(2); // На каком иксе бот заберет
+                this.bots.push({ name: names[i], bet: bet, target: parseFloat(targetOut), status: 'wait' });
+            }
+            this.renderBets();
+        },
+
+        renderBets() {
+            let html = '';
+            this.bots.forEach(b => {
+                let statusClass = b.status === 'wait' ? 'status-wait' : (b.status === 'win' ? 'status-win' : 'status-boom');
+                let outText = b.status === 'wait' ? 'Летит...' : (b.status === 'win' ? `x${b.target}` : 'Сгорел');
+                
+                html += `
+                <div class="cp-bet-row ${statusClass}">
+                    <span style="width: 40%;">${b.name}</span>
+                    <span style="width: 30%; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        ${b.bet} <div class="ton-icon" style="width:12px; height:12px; margin:0;"></div>
+                    </span>
+                    <span style="width: 30%; text-align: right;">${outText}</span>
+                </div>`;
+            });
+            this.els.betsList.innerHTML = html;
+        },
+
         startWait() {
-            this.phase = 'wait';
+            this.state = 'wait';
             this.timer = 5.0;
             this.mult = 1.00;
-            this.ui.ovl.style.display = 'flex';
-            this.ui.mlt.style.display = 'none';
-            this.ui.mlt.classList.remove('boom');
-            this.ui.rkt.className = 'c-rocket anim-shake';
-            this.ui.rkt.style.transform = 'translate(0,0) rotate(0deg)';
-            this.ui.grd.style.transform = 'perspective(500px) rotateX(60deg) translateY(0)';
+            this.currentX = 0;
+            this.currentY = this.canvasHeight;
+            
+            this.els.wait.style.display = 'flex';
+            this.els.mult.style.display = 'none';
+            this.els.mult.classList.remove('boom');
+            this.els.line.classList.remove('boom');
+            
+            // Сброс ракеты и линии
+            this.els.rocket.style.left = '0px';
+            this.els.rocket.style.bottom = '0px';
+            this.els.rocket.style.transform = 'translate(-50%, 50%) rotate(45deg)';
+            this.els.line.setAttribute('d', `M 0 ${this.canvasHeight} Q 0 ${this.canvasHeight} 0 ${this.canvasHeight}`);
+
+            this.generateBots();
 
             const cd = setInterval(() => {
                 this.timer -= 0.1;
-                this.ui.tmr.innerText = this.timer.toFixed(1);
+                this.els.tmr.innerText = this.timer.toFixed(1) + 's';
                 if(this.timer <= 0) {
                     clearInterval(cd);
                     this.startFly();
@@ -220,74 +236,121 @@
         },
 
         startFly() {
-            this.phase = 'fly';
-            this.ui.ovl.style.display = 'none';
-            this.ui.mlt.style.display = 'block';
-            this.ui.rkt.classList.remove('anim-shake');
-            
-            // Генерация точки краша
-            const r = Math.random();
-            this.target = r < 0.1 ? 1.00 : (1 + Math.random() * 4).toFixed(2);
+            this.state = 'fly';
+            this.els.wait.style.display = 'none';
+            this.els.mult.style.display = 'block';
+            this.crashAt = (1.05 + Math.random() * 5).toFixed(2); // Точка взрыва
 
-            if(this.bet > 0) {
-                this.ui.btn.innerText = 'ЗАБРАТЬ';
-                this.ui.btn.classList.add('cashout');
+            if(this.userBet > 0) {
+                this.els.btn.innerText = 'ЗАБРАТЬ TON';
+                this.els.btn.style.background = '#00ff88';
+                this.els.btn.style.color = '#000';
             }
 
             this.loop = setInterval(() => {
-                this.mult += 0.01 * (this.mult * 0.4);
-                this.ui.mlt.innerText = 'x' + this.mult.toFixed(2);
+                this.mult += 0.01 * (this.mult * 0.5);
+                this.els.mult.innerText = 'x' + this.mult.toFixed(2);
 
-                // Движение сетки (эффект скорости)
-                let gridPos = (this.mult - 1) * 200;
-                this.ui.grd.style.transform = `perspective(500px) rotateX(60deg) translateY(${gridPos % 40}px)`;
+                // Вычисление позиции для графика
+                // Движемся вправо и вверх
+                let progress = (this.mult - 1) / 4; // Условно, x5 это край экрана
+                if(progress > 1) progress = 1;
 
-                // Движение ракеты
-                let rocketPos = (this.mult - 1) * 40;
-                this.ui.rkt.style.transform = `translate(${rocketPos}px, -${rocketPos}px)`;
+                this.currentX = progress * (this.canvasWidth - 40);
+                this.currentY = this.canvasHeight - (progress * (this.canvasHeight - 40));
 
-                if(this.mult >= this.target) this.doBoom();
-            }, 60);
+                // Обновление линии (Quadratic Bezier Curve)
+                // Контрольная точка снизу-справа от центра дает красивый изгиб
+                let controlX = this.currentX; 
+                let controlY = this.canvasHeight;
+                this.els.line.setAttribute('d', `M 0 ${this.canvasHeight} Q ${controlX} ${controlY} ${this.currentX} ${this.currentY}`);
+
+                // Обновление ракеты
+                this.els.rocket.style.left = this.currentX + 'px';
+                this.els.rocket.style.bottom = (this.canvasHeight - this.currentY) + 'px';
+                
+                // Наклон ракеты по кривой
+                let angle = 45 - (progress * 30);
+                this.els.rocket.style.transform = `translate(-50%, 50%) rotate(${angle}deg)`;
+
+                // Проверка ботов (забирают ли они выигрыш)
+                let needRender = false;
+                this.bots.forEach(b => {
+                    if(b.status === 'wait' && this.mult >= b.target) {
+                        b.status = 'win';
+                        needRender = true;
+                    }
+                });
+                if(needRender) this.renderBets();
+
+                // Взрыв
+                if(this.mult >= this.crashAt) this.doBoom();
+
+            }, 50);
         },
 
         doBoom() {
             clearInterval(this.loop);
-            this.phase = 'boom';
-            this.ui.mlt.classList.add('boom');
-            this.ui.rkt.style.transform += ' rotate(160deg) scale(0.7)';
+            this.state = 'boom';
+            this.els.mult.classList.add('boom');
+            this.els.line.classList.add('boom');
+            this.els.rocket.style.transform += ' scale(0.5)';
+            this.els.rocket.innerText = '💥'; // Ракета меняется на взрыв
+
+            // Боты, которые не успели — сгорают
+            this.bots.forEach(b => {
+                if(b.status === 'wait') b.status = 'boom';
+            });
+            this.renderBets();
+
+            this.userBet = 0;
+            this.els.btn.innerText = 'СТАВИТЬ TON';
+            this.els.btn.style.background = 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)';
+            this.els.btn.style.color = '#fff';
             
-            // Запись в историю
-            const b = document.createElement('div');
-            b.className = 'h-badge';
-            b.innerText = 'x' + this.mult.toFixed(2);
-            this.ui.hst.prepend(b);
-            if(this.ui.hst.children.length > 8) this.ui.hst.lastChild.remove();
-
-            this.bet = 0;
-            this.ui.btn.innerText = 'СДЕЛАТЬ СТАВКУ';
-            this.ui.btn.classList.remove('cashout');
-            this.ui.btn.style.opacity = '1';
-
-            setTimeout(() => this.startWait(), 3000);
+            setTimeout(() => {
+                this.els.rocket.innerText = '🚀'; // Возвращаем ракету
+                this.startWait();
+            }, 3000);
         },
 
-        onAction() {
-            const val = parseFloat(this.ui.inp.value);
-            if(this.phase === 'wait' && this.bet === 0) {
-                this.bet = val;
-                this.ui.btn.innerText = 'СТАВКА ПРИНЯТА';
-                this.ui.btn.style.opacity = '0.5';
-            } else if(this.phase === 'fly' && this.bet > 0) {
-                const win = (this.bet * this.mult).toFixed(2);
-                alert('ВЫИГРЫШ: ' + win + ' TON');
-                this.bet = 0;
-                this.ui.btn.innerText = 'ОЖИДАНИЕ...';
-                this.ui.btn.classList.remove('cashout');
+        action() {
+            const val = parseFloat(this.els.inp.value);
+            if(this.state === 'wait' && this.userBet === 0) {
+                // Если у тебя баланс в переменной state.bal, раскомментируй проверку:
+                // if(state.bal < val) return alert('Недостаточно средств');
+                // state.bal -= val; 
+                // updateUI();
+                
+                this.userBet = val;
+                this.els.btn.innerText = 'ОЖИДАНИЕ...';
+                this.els.btn.style.opacity = '0.5';
+                
+                // Добавляем тебя в таблицу ставок
+                this.bots.unshift({ name: 'YOU', bet: val.toFixed(2), target: 0, status: 'wait' });
+                this.renderBets();
+
+            } else if(this.state === 'fly' && this.userBet > 0) {
+                const win = this.userBet * this.mult;
+                alert(`ВЫИГРЫШ: ${win.toFixed(2)} TON!`);
+                
+                // state.bal += win; // Зачисление
+                // updateUI();
+                
+                this.userBet = 0;
+                this.els.btn.innerText = 'ОЖИДАНИЕ СЛЕД. РАУНДА';
+                this.els.btn.style.background = '#14171a';
+                this.els.btn.style.color = '#fff';
+
+                // Обновляем тебя в таблице
+                this.bots[0].status = 'win';
+                this.bots[0].target = this.mult.toFixed(2);
+                this.renderBets();
             }
         }
     };
 
-    // Авто-запуск при загрузке
-    crashApp.init();
+    // Запускаем движок при загрузке
+    setTimeout(() => proCrash.init(), 100);
 </script>
 
