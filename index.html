@@ -37,9 +37,9 @@
         .balance-pill { background: #121214; padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 800; font-family: 'Outfit'; }
         .balance-pill svg { width: 16px; height: 16px; }
 
-        /* NAVIGATION */
+        /* NAVIGATION (5 items now) */
         .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #080808; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding-bottom: 15px; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-m); font-size: 10px; font-weight: 700; text-transform: uppercase; width: 25%; cursor: pointer;}
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-m); font-size: 10px; font-weight: 700; text-transform: uppercase; width: 20%; cursor: pointer;}
         .nav-item.active { color: var(--accent); }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
@@ -62,15 +62,7 @@
         .bet-input-wrap { background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .bet-input-wrap input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 800; width: 100%; outline: none; }
 
-        /* SOLO MENU */
-        .solo-menu-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .solo-mode-card { background: #121214; border: 1px solid var(--border); border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .solo-mode-card:active { transform: scale(0.97); border-color: var(--accent); }
-        .solo-mode-card h3 { font-family: 'Outfit'; font-size: 24px; color: var(--accent); margin-bottom: 5px; }
-        .solo-mode-card p { font-size: 12px; color: var(--text-m); }
-        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-weight: bold; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-
-        /* --- НОВЫЙ РЕЖИМ BATTLE (ВМЕСТО UPGRADE) --- */
+        /* --- BATTLE MODE (MAIN SCREEN) --- */
         .battle-history { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
         .hist-dot { width: 14px; height: 14px; border-radius: 50%; opacity: 0.5; }
         .hist-dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); opacity: 1;}
@@ -92,7 +84,8 @@
         .battle-input-wrap { flex: 1; background: #121214; border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; align-items: center; }
         .battle-input-wrap input { background: transparent; border: none; color: #fff; font-size: 18px; font-weight: 800; width: 100%; outline: none; text-align: center;}
         .battle-quick-btns { display: flex; gap: 5px; }
-        .bq-btn { background: #1a1a1e; border: 1px solid var(--border); color: #fff; padding: 0 15px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .bq-btn { background: #1a1a1e; border: 1px solid var(--border); color: #fff; padding: 0 15px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.1s;}
+        .bq-btn:active { background: #333; }
 
         .battle-actions { display: flex; gap: 10px; margin-bottom: 20px; }
         .btn-bet-g { flex: 1; background: rgba(46, 203, 113, 0.1); border: 2px solid var(--green); color: var(--green); padding: 15px; border-radius: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: 'Outfit'; transition: 0.2s; }
@@ -107,7 +100,7 @@
         .bl-item.b { border-left: 3px solid var(--blue); }
         .bl-item span { color: var(--text-m); font-weight: 600; }
 
-        /* ARENA PVP */
+        /* --- ARENA PVP (OLD WHEEL) --- */
         .arena-card { background: var(--card); border-radius: 24px; padding: 20px; text-align: center; border: 1px solid var(--border); margin-bottom: 15px; }
         .bank-info { font-size: 12px; color: var(--text-m); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; }
         .bank-info b { font-size: 20px; color: var(--gold); font-family: 'Outfit'; }
@@ -116,20 +109,27 @@
         .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #fff; z-index: 5; }
         .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: #050505; border-radius: 50%; border: 4px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; font-family: 'Outfit'; }
 
-        /* CASE ITEMS */
-        .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .case-card-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; text-align: center; position: relative; }
-        .case-card-item.locked { opacity: 0.5; filter: grayscale(1); }
-        .case-badge { position: absolute; top: 10px; right: 10px; background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 3px 6px; border-radius: 6px; }
+        /* --- LEADERBOARD --- */
+        .leader-card { background: #121214; border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+        .leader-rank { font-size: 20px; font-weight: 900; font-family: 'Outfit'; color: var(--text-m); width: 25px; text-align: center;}
+        .leader-rank.top-1 { color: #f1c40f; }
+        .leader-rank.top-2 { color: #bdc3c7; }
+        .leader-rank.top-3 { color: #cd7f32; }
+        .leader-ava { width: 40px; height: 40px; border-radius: 12px; background: var(--border); }
+        .leader-info { flex: 1; }
+        .leader-name { font-weight: 800; font-size: 14px; }
+        .leader-bal { font-family: 'Outfit'; color: var(--accent); font-weight: 700; font-size: 14px; margin-top: 2px; }
 
-        /* --- НОВЫЙ ДИЗАЙН ПРОФИЛЯ --- */
+        /* --- PROFILE --- */
         .profile-bal-badge { position: absolute; top: 15px; right: 15px; background: #1a1a1e; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-family: 'Outfit'; font-size: 14px; }
         .avatar-sq { width: 100px; height: 100px; background: #0088cc; border-radius: 24px; margin: 40px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-family: 'Outfit'; font-weight: 700; color: white; }
         .lvl-card-new { background: #121214; border-radius: 24px; padding: 20px; margin-top: 25px; text-align: left; }
         .lvl-row-new { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 10px; }
         .bar-new-bg { background: #1f1f22; height: 10px; border-radius: 10px; overflow: hidden; }
         .bar-new-fill { background: #0088cc; height: 100%; width: 0%; transition: 0.5s; box-shadow: 0 0 10px rgba(0, 136, 204, 0.4); }
-        .reset-btn-new { background: #e74c3c; color: white; border: none; padding: 16px; border-radius: 18px; width: 100%; font-weight: 800; margin-top: 30px; cursor: pointer; font-size: 15px; }
+        
+        .btn-test-bal { background: var(--green); color: #000; border: none; padding: 16px; border-radius: 18px; width: 100%; font-weight: 900; margin-top: 30px; cursor: pointer; font-size: 15px; }
+        .reset-btn-new { background: #e74c3c; color: white; border: none; padding: 16px; border-radius: 18px; width: 100%; font-weight: 800; margin-top: 10px; cursor: pointer; font-size: 15px; }
 
     </style>
 </head>
@@ -159,7 +159,51 @@
     </div>
 
     <div class="content">
-        <div id="view-pvp" class="screen active">
+        
+        <div id="view-battle" class="screen active">
+            <h2 style="text-align: center; font-family: 'Outfit'; margin-bottom: 20px;">BATTLE</h2>
+            
+            <div class="battle-history" id="bat-history">
+                </div>
+
+            <div class="battle-timer-box glow-blue" id="bat-ring">
+                <div class="battle-time" id="bat-time">15</div>
+            </div>
+
+            <div class="battle-stats">
+                <div class="stat-g">X<span id="bat-mul-g">2.00</span></div>
+                <div class="stat-b">X<span id="bat-mul-b">2.00</span></div>
+            </div>
+
+            <div class="battle-pct-bar">
+                <div class="pct-g" id="bat-bar-g" style="width: 50%;">50%</div>
+                <div class="pct-b" id="bat-bar-b" style="width: 50%;">50%</div>
+            </div>
+
+            <div class="battle-bet-controls">
+                <div class="battle-input-wrap">
+                    <input type="number" id="bat-input" value="1.00" step="0.1">
+                </div>
+                <div class="battle-quick-btns">
+                    <button class="bq-btn" onclick="quickBet(0.5)">1/2</button>
+                    <button class="bq-btn" onclick="quickBet(2)">X2</button>
+                    <button class="bq-btn" onclick="quickBet('max')">MAX</button>
+                </div>
+            </div>
+
+            <div class="battle-actions">
+                <button class="btn-bet-g" onclick="placeBattleBet('green')">Зеленые</button>
+                <button class="btn-bet-b" onclick="placeBattleBet('blue')">Синие</button>
+            </div>
+
+            <div class="battle-lists">
+                <div class="bl-col" id="list-g"></div>
+                <div class="bl-col" id="list-b"></div>
+            </div>
+        </div>
+
+        <div id="view-pvp" class="screen">
+            <h2 style="text-align: center; font-family: 'Outfit'; margin-bottom: 20px;">РУЛЕТКА</h2>
             <div class="arena-card">
                 <div class="bank-info">БАНК ИГРЫ: <b id="pvp-total">0.00 TON</b></div>
                 <div class="wheel-box">
@@ -173,60 +217,48 @@
             <div id="pvp-list"></div>
         </div>
 
-        <div id="view-solo" class="screen">
-            <div id="solo-menu-block">
-                <h2 style="font-family: 'Outfit'; text-align: center;">SOLO РЕЖИМ</h2>
-                <div class="solo-menu-grid">
-                    <div class="solo-mode-card" onclick="openSoloMode('battle')"><h3>BATTLE</h3><p>Угадай цвет и сорви куш</p></div>
-                    <div class="solo-mode-card" onclick="openSoloMode('cases')"><h3>КЕЙСЫ</h3><p>Открывай за уровни</p></div>
-                </div>
-            </div>
+        <div id="view-leaderboard" class="screen">
+            <h2 style="text-align: center; font-family: 'Outfit'; margin-bottom: 20px;">ТОП ИГРОКОВ</h2>
             
-            <div id="solo-battle-block" style="display: none;">
-                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
-                
-                <div class="battle-history" id="bat-history">
-                    </div>
-
-                <div class="battle-timer-box glow-blue" id="bat-ring">
-                    <div class="battle-time" id="bat-time">15</div>
-                </div>
-
-                <div class="battle-stats">
-                    <div class="stat-g">X<span id="bat-mul-g">2.00</span></div>
-                    <div class="stat-b">X<span id="bat-mul-b">2.00</span></div>
-                </div>
-
-                <div class="battle-pct-bar">
-                    <div class="pct-g" id="bat-bar-g" style="width: 50%;">50%</div>
-                    <div class="pct-b" id="bat-bar-b" style="width: 50%;">50%</div>
-                </div>
-
-                <div class="battle-bet-controls">
-                    <div class="battle-input-wrap">
-                        <input type="number" id="bat-input" value="1.00" step="0.1">
-                    </div>
-                    <div class="battle-quick-btns">
-                        <button class="bq-btn" onclick="quickBet(0.5)">1/2</button>
-                        <button class="bq-btn" onclick="quickBet(2)">X2</button>
-                        <button class="bq-btn" onclick="quickBet('max')">MAX</button>
-                    </div>
-                </div>
-
-                <div class="battle-actions">
-                    <button class="btn-bet-g" onclick="placeBattleBet('green')">Поставить</button>
-                    <button class="btn-bet-b" onclick="placeBattleBet('blue')">Поставить</button>
-                </div>
-
-                <div class="battle-lists">
-                    <div class="bl-col" id="list-g"></div>
-                    <div class="bl-col" id="list-b"></div>
+            <div class="leader-card">
+                <div class="leader-rank top-1">1</div>
+                <img src="https://ui-avatars.com/api/?name=W&background=f7a809&color=fff" class="leader-ava">
+                <div class="leader-info">
+                    <div class="leader-name">Whale_King</div>
+                    <div class="leader-bal">24 502.50 TON</div>
                 </div>
             </div>
-
-            <div id="solo-cases-block" style="display: none;">
-                <button class="back-btn" onclick="backToSoloMenu()">◀ Назад</button>
-                <div class="case-grid" id="case-container"></div>
+            <div class="leader-card">
+                <div class="leader-rank top-2">2</div>
+                <img src="https://ui-avatars.com/api/?name=C&background=bdc3c7&color=fff" class="leader-ava">
+                <div class="leader-info">
+                    <div class="leader-name">CryptoBro</div>
+                    <div class="leader-bal">18 200.00 TON</div>
+                </div>
+            </div>
+            <div class="leader-card">
+                <div class="leader-rank top-3">3</div>
+                <img src="https://ui-avatars.com/api/?name=S&background=cd7f32&color=fff" class="leader-ava">
+                <div class="leader-info">
+                    <div class="leader-name">Snoopypop</div>
+                    <div class="leader-bal">9 450.20 TON</div>
+                </div>
+            </div>
+            <div class="leader-card">
+                <div class="leader-rank">4</div>
+                <img src="https://ui-avatars.com/api/?name=A&background=random&color=fff" class="leader-ava">
+                <div class="leader-info">
+                    <div class="leader-name">Alex_Ton</div>
+                    <div class="leader-bal">4 120.00 TON</div>
+                </div>
+            </div>
+            <div class="leader-card">
+                <div class="leader-rank">5</div>
+                <img src="https://ui-avatars.com/api/?name=M&background=random&color=fff" class="leader-ava">
+                <div class="leader-info">
+                    <div class="leader-name">MisterX</div>
+                    <div class="leader-bal">3 800.75 TON</div>
+                </div>
             </div>
         </div>
 
@@ -250,13 +282,16 @@
                     Оборот: <span id="wager-val">0.00</span> / <span id="target-val">10</span> TON
                 </div>
             </div>
-            <button class="reset-btn-new" onclick="resetData()">Сбросить аккаунт (для теста)</button>
+            
+            <button class="btn-test-bal" onclick="addTestBalance()">+ 50 TON (Для теста)</button>
+            <button class="reset-btn-new" onclick="resetData()">Сбросить аккаунт</button>
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="tab('pvp', this)"><svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg><span>Арена</span></div>
-        <div class="nav-item" onclick="tab('solo', this)"><svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg><span>Solo</span></div>
+        <div class="nav-item active" onclick="tab('battle', this)"><svg viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg><span>Битва</span></div>
+        <div class="nav-item" onclick="tab('pvp', this)"><svg viewBox="0 0 24 24"><path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm0-18c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8zm-1 3h2v4h-2zm0 6h2v2h-2z"/></svg><span>Арена</span></div>
+        <div class="nav-item" onclick="tab('leaderboard', this)"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h2v5zm4 4h-2v-3h2v3zm0-5h-2v-2h2v2zm-8 5H6v-6h2v6z"/></svg><span>Топ</span></div>
         <div class="nav-item" onclick="tab('shop', this)"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span>Магазин</span></div>
         <div class="nav-item" onclick="tab('profile', this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Профиль</span></div>
     </nav>
@@ -268,24 +303,28 @@
         subClicks: 0,
         wager: parseFloat(localStorage.getItem('ton_wager')) || 0.0,
         lvl: parseInt(localStorage.getItem('ton_lvl')) || 1,
-        openedCases: JSON.parse(localStorage.getItem('ton_cases')) || [],
         bonusClaimed: localStorage.getItem('ton_bonus') === 'true',
         pvp: { players: [], timer: 20, spinning: false }
     };
 
     const LVL_THRESHOLDS = [10, 20, 30, 40, 50];
-    const CASE_LOOT = [0.001, 0.02, 0.1, 0.3, 0.5, 0.75, 1.0];
 
     function saveState() {
         localStorage.setItem('ton_bal', state.bal);
         localStorage.setItem('ton_wager', state.wager);
         localStorage.setItem('ton_lvl', state.lvl);
-        localStorage.setItem('ton_cases', JSON.stringify(state.openedCases));
         localStorage.setItem('ton_bonus', state.bonusClaimed);
         updateUI();
     }
 
     function resetData() { localStorage.clear(); location.reload(); }
+    
+    // ТЕСТОВЫЙ БАЛАНС
+    function addTestBalance() {
+        state.bal += 50;
+        saveState();
+        alert("✅ Начислено 50 TON для тестов!");
+    }
 
     function updateUI() {
         document.getElementById('bal-val').innerText = state.bal.toFixed(2);
@@ -305,13 +344,11 @@
         document.getElementById('view-' + name).classList.add('active');
         el.classList.add('active');
         document.getElementById('main-header').style.display = (name === 'profile') ? 'none' : 'flex';
-        if(name === 'solo') backToSoloMenu();
     }
 
     window.onload = () => {
         if (!state.bonusClaimed) setTimeout(() => document.getElementById('sub-modal').style.display = 'flex', 1000);
-        else if(state.bal === 0 && state.wager === 0) { state.bal = 10; saveState(); }
-        updateUI(); drawWheel(); renderCases(); initBattle();
+        updateUI(); drawWheel(); initBattle(); initPVPArenaBots();
     };
 
     function closeBonus() { document.getElementById('sub-modal').style.display = 'none'; }
@@ -327,59 +364,10 @@
         saveState();
     }
 
-    function openSoloMode(mode) {
-        document.getElementById('solo-menu-block').style.display = 'none';
-        document.getElementById('solo-' + mode + '-block').style.display = 'block';
-    }
-    function backToSoloMenu() {
-        document.getElementById('solo-battle-block').style.display = 'none';
-        document.getElementById('solo-cases-block').style.display = 'none';
-        document.getElementById('solo-menu-block').style.display = 'block';
-    }
-
-    // CASES
-    function renderCases() {
-        const container = document.getElementById('case-container'); container.innerHTML = '';
-        for(let i=1; i<=5; i++) {
-            const isLocked = state.lvl < i; const isOpened = state.openedCases.includes(i);
-            const card = document.createElement('div'); card.className = `case-card-item ${isLocked ? 'locked' : ''}`;
-            card.innerHTML = `<div class="case-badge">LVL ${i}</div><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="${isLocked ? '#777' : '#f7a809'}" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8v12M8 8V6a4 4 0 0 1 8 0v2"/></svg><div style="font-weight:800;font-size:14px;margin:5px 0;">КЕЙС ${i}</div><button class="main-btn" style="padding:10px;font-size:12px;" onclick="openCase(${i})" ${isLocked || isOpened ? 'disabled' : ''}>${isOpened ? 'ОТКРЫТ' : 'ОТКРЫТЬ'}</button>`;
-            container.appendChild(card);
-        }
-    }
-    function openCase(id) {
-        const win = CASE_LOOT[Math.floor(Math.random() * CASE_LOOT.length)];
-        state.bal += win; state.openedCases.push(id); saveState(); alert(`ВЫИГРЫШ: ${win} TON!`); renderCases();
-    }
-
-    // PVP ARENA
-    const canvas = document.getElementById('wheel'); const ctx = canvas.getContext('2d');
-    const colors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71', '#9b59b6'];
-    function drawWheel() {
-        const r = 300; ctx.clearRect(0,0,600,600);
-        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
-        if (total === 0) { ctx.beginPath(); ctx.arc(r,r,280,0,Math.PI*2); ctx.fillStyle = '#121214'; ctx.fill(); return; }
-        let start = 0;
-        state.pvp.players.forEach(p => {
-            const arc = (p.bet / total) * 2 * Math.PI;
-            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,290,start,start+arc); ctx.fillStyle = p.color; ctx.fill(); start += arc;
-        });
-    }
-    function joinPVP() {
-        const bet = parseFloat(document.getElementById('pvp-input').value);
-        if (state.bal < bet) return alert("Мало TON");
-        state.bal -= bet; addWager(bet); 
-        state.pvp.players.push({name:"Вы", bet:bet, color:colors[state.pvp.players.length%5], ava:"https://ui-avatars.com/api/?name=ME"});
-        updatePVPList(); drawWheel();
-    }
-    function updatePVPList() {
-        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
-        document.getElementById('pvp-total').innerText = total.toFixed(2) + " TON";
-        document.getElementById('pvp-list').innerHTML = state.pvp.players.map(p => `<div style="display:flex;justify-content:space-between;background:#121214;padding:10px;margin:5px 0;border-radius:10px;border-left:4px solid ${p.color}"><span>${p.name}</span><b>${p.bet.toFixed(2)}</b></div>`).join('');
-    }
+    const botNamesPool = ['loser2281', 'snoopypop', 'Workman821', 'user_593', 'L14kh', 'yculu', 'AlexTon', 'Whale_99'];
 
     // ==========================================
-    // --- НОВАЯ ЛОГИКА BATTLE (GREEN VS BLUE) ---
+    // --- BATTLE (GREEN VS BLUE) ---
     // ==========================================
     let bat = {
         timer: 15,
@@ -387,12 +375,10 @@
         history: ['green', 'blue', 'green', 'green', 'blue'],
         pool: { green: 0, blue: 0 },
         bets: { green: [], blue: [] },
-        playerBet: null // { side: 'green', amount: 5 }
+        playerBet: null
     };
     let batInterval;
-    let botInterval;
-
-    const botNames = ['loser2281', 'snoopypop', 'Workman821', 'user_593', 'L14kh', 'yculu'];
+    let batBotInterval;
 
     function initBattle() {
         renderBatHistory();
@@ -408,28 +394,28 @@
         updateBatUI();
         
         clearInterval(batInterval);
-        clearInterval(botInterval);
+        clearInterval(batBotInterval);
 
-        // Таймер обратного отсчета
+        // Таймер 
         batInterval = setInterval(() => {
             bat.timer--;
             document.getElementById('bat-time').innerText = bat.timer < 10 ? '0' + bat.timer : bat.timer;
             if (bat.timer <= 0) {
                 clearInterval(batInterval);
-                clearInterval(botInterval);
+                clearInterval(batBotInterval);
                 resolveBattle();
             }
         }, 1000);
 
-        // Симуляция ботов (чтобы банк был живым)
-        botInterval = setInterval(() => {
-            if(Math.random() > 0.4 && bat.timer > 2) {
+        // Симуляция ботов для битвы
+        batBotInterval = setInterval(() => {
+            if(Math.random() > 0.3 && bat.timer > 2) {
                 let side = Math.random() > 0.5 ? 'green' : 'blue';
-                let amt = (Math.random() * 5 + 0.1).toFixed(2);
-                let name = botNames[Math.floor(Math.random() * botNames.length)];
+                let amt = (Math.random() * 8 + 0.5).toFixed(2);
+                let name = botNamesPool[Math.floor(Math.random() * botNamesPool.length)];
                 addBatBet(side, name, parseFloat(amt));
             }
-        }, 1200);
+        }, 1500);
     }
 
     function quickBet(action) {
@@ -444,7 +430,7 @@
         if(bat.playerBet) return alert("Вы уже поставили в этом раунде!");
         
         let amt = parseFloat(document.getElementById('bat-input').value);
-        if(isNaN(amt) || amt <= 0 || state.bal < amt) return alert("Неверная сумма или мало TON");
+        if(isNaN(amt) || amt <= 0 || state.bal < amt) return alert("Неверная сумма или недостаточно TON");
 
         state.bal -= amt;
         addWager(amt);
@@ -466,25 +452,17 @@
         if (total > 0) {
             pG = (bat.pool.green / total) * 100;
             pB = (bat.pool.blue / total) * 100;
-            // Считаем множители (Общий банк / Банк стороны). 
-            // Если банк стороны 0, ставим множитель 1.00 для визуала.
             mG = bat.pool.green > 0 ? (total / bat.pool.green) : 1.00;
             mB = bat.pool.blue > 0 ? (total / bat.pool.blue) : 1.00;
         }
 
-        // Обновление цифр
-        document.getElementById('bat-pct-g').innerText = pG.toFixed(0) + "%";
-        document.getElementById('bat-pct-b').innerText = pB.toFixed(0) + "%";
         document.getElementById('bat-mul-g').innerText = mG.toFixed(2);
         document.getElementById('bat-mul-b').innerText = mB.toFixed(2);
-
-        // Обновление прогресс-бара
         document.getElementById('bat-bar-g').style.width = pG + "%";
         document.getElementById('bat-bar-b').style.width = pB + "%";
         document.getElementById('bat-bar-g').innerText = pG.toFixed(0) + "%";
         document.getElementById('bat-bar-b').innerText = pB.toFixed(0) + "%";
 
-        // Обновление списков
         const renderList = (bets, cls) => bets.map(b => `<div class="bl-item ${cls}"><span>${b.name}</span>${b.amt.toFixed(2)}</div>`).join('');
         document.getElementById('list-g').innerHTML = renderList(bat.bets.green, 'g');
         document.getElementById('list-b').innerHTML = renderList(bat.bets.blue, 'b');
@@ -496,41 +474,115 @@
 
     function resolveBattle() {
         bat.status = 'rolling';
-        document.getElementById('bat-time').innerHTML = "⚙️"; // Иконка кручения
+        document.getElementById('bat-time').innerHTML = "⚙️"; 
 
-        // Логика рулетки (Jackpot)
         let total = bat.pool.green + bat.pool.blue;
         let greenChance = total > 0 ? (bat.pool.green / total) * 100 : 50;
         let roll = Math.random() * 100;
         let winner = roll <= greenChance ? 'green' : 'blue';
 
-        // Меняем цвет кольца
         let ring = document.getElementById('bat-ring');
         ring.className = `battle-timer-box glow-${winner}`;
 
         setTimeout(() => {
-            let winText = winner === 'green' ? "ЗЕЛЕНЫЕ!" : "СИНИЕ!";
+            let winText = winner === 'green' ? "ЗЕЛЕНЫЕ" : "СИНИЕ";
             document.getElementById('bat-time').innerHTML = "<span style='font-size: 24px'>" + winText + "</span>";
             
             bat.history.push(winner);
             renderBatHistory();
 
-            // Проверка победы игрока
             if (bat.playerBet && bat.playerBet.side === winner) {
                 let mul = total / bat.pool[winner];
                 let winAmt = bat.playerBet.amount * mul;
                 state.bal += winAmt;
                 saveState();
-                alert(`🎉 Победили ${winText}\nВы выиграли ${winAmt.toFixed(2)} TON!`);
-            } else if (bat.playerBet) {
-                alert(`💀 Победили ${winText}\nВаша ставка сгорела.`);
+                alert(`🎉 Выиграли ${winText}!\nТвой приз: ${winAmt.toFixed(2)} TON`);
             }
 
-            // Перезапуск
-            setTimeout(startBatTimer, 3000);
+            setTimeout(() => {
+                ring.className = `battle-timer-box glow-blue`; // Сброс свечения
+                startBatTimer();
+            }, 3000);
         }, 2000);
     }
+
+    // ==========================================
+    // --- PVP ARENA (КОЛЕСО С БОТАМИ) ---
+    // ==========================================
+    const canvas = document.getElementById('wheel'); const ctx = canvas.getContext('2d');
+    const colors = ['#0088cc', '#f7a809', '#e74c3c', '#2ecb71', '#9b59b6'];
+
+    function drawWheel() {
+        const r = 300; ctx.clearRect(0,0,600,600);
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        if (total === 0) { ctx.beginPath(); ctx.arc(r,r,280,0,Math.PI*2); ctx.fillStyle = '#121214'; ctx.fill(); return; }
+        let start = 0;
+        state.pvp.players.forEach(p => {
+            const arc = (p.bet / total) * 2 * Math.PI;
+            ctx.beginPath(); ctx.moveTo(r,r); ctx.arc(r,r,290,start,start+arc); ctx.fillStyle = p.color; ctx.fill(); start += arc;
+        });
+    }
+
+    function joinPVP() {
+        const bet = parseFloat(document.getElementById('pvp-input').value);
+        if (state.bal < bet) return alert("Недостаточно TON");
+        state.bal -= bet; addWager(bet); 
+        state.pvp.players.push({name:"Вы", bet:bet, color:colors[state.pvp.players.length%5], ava:"https://ui-avatars.com/api/?name=ME"});
+        updatePVPList(); drawWheel(); saveState();
+    }
+
+    function updatePVPList() {
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        document.getElementById('pvp-total').innerText = total.toFixed(2) + " TON";
+        document.getElementById('pvp-list').innerHTML = state.pvp.players.map(p => `<div style="display:flex;justify-content:space-between;background:#121214;padding:10px;margin:5px 0;border-radius:10px;border-left:4px solid ${p.color}"><span>${p.name}</span><b>${p.bet.toFixed(2)}</b></div>`).join('');
+    }
+
+    // Боты и таймер для Арены (Колеса)
+    function initPVPArenaBots() {
+        setInterval(() => {
+            if (state.pvp.spinning || state.pvp.players.length === 0) return;
+            state.pvp.timer--;
+            document.getElementById('pvp-timer').innerText = state.pvp.timer;
+            if (state.pvp.timer <= 0) spinPVP();
+        }, 1000);
+
+        setInterval(() => {
+            if (state.pvp.spinning || state.pvp.players.length >= 5 || Math.random() > 0.4) return;
+            // Бот подключается только если на колесе уже кто-то есть (чтобы не запускать колесо впустую)
+            if (state.pvp.players.length > 0) {
+                let amt = (Math.random() * 5 + 1).toFixed(2);
+                let name = botNamesPool[Math.floor(Math.random() * botNamesPool.length)];
+                state.pvp.players.push({name: name, bet: parseFloat(amt), color: colors[state.pvp.players.length%5] });
+                updatePVPList(); drawWheel();
+            }
+        }, 3000);
+    }
+
+    function spinPVP() {
+        state.pvp.spinning = true;
+        const total = state.pvp.players.reduce((s, p) => s + p.bet, 0);
+        const rand = Math.random() * total;
+        let winner = state.pvp.players[0], acc = 0;
+        
+        for(let p of state.pvp.players) { 
+            acc += p.bet; 
+            if (rand <= acc) { winner = p; break; } 
+        }
+        
+        canvas.style.transition = "transform 5s cubic-bezier(0.1, 0, 0.1, 1)";
+        canvas.style.transform = `rotate(${360 * 5 + Math.random() * 360}deg)`;
+        
+        setTimeout(() => {
+            alert("Победил " + winner.name + "!\nВыигрыш: " + total.toFixed(2) + " TON");
+            if (winner.name === "Вы") { state.bal += total; saveState(); }
+            
+            // Сброс
+            state.pvp = { players: [], timer: 20, spinning: false };
+            canvas.style.transition = "none"; canvas.style.transform = "rotate(-90deg)";
+            updatePVPList(); drawWheel();
+        }, 5500);
+    }
+
 </script>
 </body>
 </html>
-
