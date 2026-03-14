@@ -14,38 +14,34 @@
            ========================================= 
         */
         :root {
-            /* Базовая палитра */
             --bg-main: #06070a;
             --bg-card: #0f1117;
             --bg-card-alt: #161922;
             --bg-overlay: rgba(6, 7, 10, 0.8);
             
-            /* Акценты */
             --accent: #0088cc;
             --accent-soft: rgba(0, 136, 204, 0.15);
             --accent-glow: rgba(0, 136, 204, 0.4);
             
-            /* Состояние */
             --green: #20c976;
             --green-glow: rgba(32, 201, 118, 0.3);
             --red: #ff3b5c;
             --red-glow: rgba(255, 59, 92, 0.3);
             --gold: #ffb800;
             --gold-glow: rgba(255, 184, 0, 0.4);
+            --purple: #9b51e0;
+            --purple-glow: rgba(155, 81, 224, 0.4);
             
-            /* Текст */
             --text-main: #ffffff;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
             
-            /* Границы и радиусы */
             --border: #1e293b;
             --radius-xs: 8px;
             --radius-sm: 12px;
             --radius-md: 18px;
             --radius-lg: 26px;
             
-            /* Отступы системы */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -92,22 +88,10 @@
 
         .btn:active { transform: scale(0.96); opacity: 0.8; }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 15px var(--accent-glow);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card-alt);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-        }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-secondary { background: var(--bg-card-alt); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); }
+        .btn-gift { background: linear-gradient(135deg, var(--purple), #6a1b9a); color: white; box-shadow: 0 4px 15px var(--purple-glow); }
 
         .input-main {
             background: #000;
@@ -140,15 +124,8 @@
             align-items: center;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-ava-container {
-            position: relative;
-        }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-ava-container { position: relative; }
 
         .user-ava {
             width: 40px;
@@ -176,26 +153,9 @@
             border: 1px solid var(--bg-main);
         }
 
-        .user-meta {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-weight: 800;
-            font-size: 14px;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .user-status {
-            font-size: 10px;
-            color: var(--green);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
+        .user-meta { display: flex; flex-direction: column; }
+        .user-name { font-weight: 800; font-size: 14px; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-status { font-size: 10px; color: var(--green); font-weight: 700; text-transform: uppercase; }
 
         .balance-pill {
             background: var(--bg-card);
@@ -207,17 +167,8 @@
             gap: 8px;
             cursor: pointer;
         }
-
-        .balance-pill span {
-            font-family: 'Outfit';
-            font-weight: 900;
-            font-size: 16px;
-        }
-
-        .balance-pill .currency {
-            color: var(--accent);
-            font-size: 12px;
-        }
+        .balance-pill span { font-family: 'Outfit'; font-weight: 900; font-size: 16px; }
+        .balance-pill .currency { color: var(--accent); font-size: 12px; }
 
         /* =========================================
            4. ТАБ-БАР (НАВИГАЦИЯ)
@@ -249,21 +200,9 @@
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .nav-link svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-            transition: 0.3s;
-        }
-
-        .nav-link.active {
-            color: var(--accent);
-        }
-
-        .nav-link.active svg {
-            transform: translateY(-4px);
-            filter: drop-shadow(0 4px 10px var(--accent-glow));
-        }
+        .nav-link svg { width: 24px; height: 24px; fill: currentColor; transition: 0.3s; }
+        .nav-link.active { color: var(--accent); }
+        .nav-link.active svg { transform: translateY(-4px); filter: drop-shadow(0 4px 10px var(--accent-glow)); }
 
         /* =========================================
            5. ОСНОВНЫЕ ЭКРАНЫ
@@ -285,10 +224,7 @@
             display: none;
             animation: fadeIn 0.4s ease-out;
         }
-
-        .screen.active {
-            display: block;
-        }
+        .screen.active { display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -299,441 +235,231 @@
            6. ЛОГИКА И ВИЗУАЛ РУЛЕТКИ
            ========================================= 
         */
-        .roulette-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-        }
+        .roulette-container { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
 
-        .wheel-box {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin-bottom: 30px;
-        }
+        .wheel-box { position: relative; width: 300px; height: 300px; margin-bottom: 30px; }
 
         .wheel-pointer {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid white;
-            z-index: 10;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 25px solid white; z-index: 10; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
         }
 
         .wheel-main {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 12px solid var(--bg-card);
+            width: 100%; height: 100%; border-radius: 50%; border: 12px solid var(--bg-card);
             background: conic-gradient(var(--red) 0% 50%, var(--accent) 50% 100%);
             box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
-            transition: transform 6s cubic-bezier(0.15, 0, 0, 1);
-            position: relative;
+            transition: transform 6s cubic-bezier(0.15, 0, 0, 1); position: relative;
         }
 
         .wheel-center {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            background: var(--bg-main);
-            border: 6px solid var(--bg-card-alt);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; background: var(--bg-main); border: 6px solid var(--bg-card-alt);
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 5; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
 
-        .timer-value {
-            font-family: 'Outfit';
-            font-size: 32px;
-            font-weight: 900;
-            line-height: 1;
-        }
+        .timer-value { font-family: 'Outfit'; font-size: 32px; font-weight: 900; line-height: 1; }
+        .timer-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
 
-        .timer-label {
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        /* Статистика пулов */
-        .game-stats {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: var(--radius-md);
-            text-align: center;
-        }
-
+        .game-stats { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); padding: 15px; border-radius: var(--radius-md); text-align: center; }
         .stat-card.blue { border-left: 4px solid var(--accent); }
         .stat-card.red { border-left: 4px solid var(--red); }
-
-        .stat-label {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-family: 'Outfit';
-            font-size: 20px;
-            font-weight: 900;
-        }
-
+        .stat-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-family: 'Outfit'; font-size: 20px; font-weight: 900; }
         .blue-text { color: var(--accent); }
         .red-text { color: var(--red); }
 
-        /* Панель ставок */
-        .bet-panel {
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: var(--radius-lg);
-        }
-
-        .bet-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
+        .bet-panel { width: 100%; background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-lg); }
+        .bet-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        
         .bet-input-container {
-            display: flex;
-            align-items: center;
-            background: #000;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 5px;
-            margin-bottom: 15px;
+            display: flex; align-items: center; background: #000; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 5px; margin-bottom: 15px;
         }
-
         .bet-input-container input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            text-align: center;
-            font-family: 'Outfit';
-            font-size: 24px;
-            font-weight: 900;
-            width: 50%;
-            outline: none;
+            flex: 1; background: transparent; border: none; color: white; text-align: center;
+            font-family: 'Outfit'; font-size: 24px; font-weight: 900; width: 50%; outline: none;
         }
-
-        .bet-multiplier {
-            padding: 10px 15px;
-            font-family: 'Outfit';
-            font-weight: 900;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .bet-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn-bet {
-            height: 55px;
-            font-size: 18px;
-            text-transform: uppercase;
-        }
-
+        .bet-multiplier { padding: 10px 15px; font-family: 'Outfit'; font-weight: 900; color: var(--text-secondary); cursor: pointer; }
+        
+        .bet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-bet { height: 55px; font-size: 18px; text-transform: uppercase; position: relative; overflow: hidden; }
         .btn-bet-blue { background: linear-gradient(135deg, var(--accent), #005580); box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3); }
         .btn-bet-red { background: linear-gradient(135deg, var(--red), #99001a); box-shadow: 0 10px 20px rgba(255, 59, 92, 0.3); }
+        
+        /* Мои ставки индикаторы */
+        .my-bet-indicator {
+            position: absolute; top: 2px; right: 5px; font-size: 10px; font-weight: 800; color: var(--gold);
+            background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; display: none;
+        }
 
         /* =========================================
-           7. МАГАЗИН (SHOP)
+           7. МАГАЗИН И ПОДАРКИ (SHOP)
            ========================================= 
         */
-        .shop-header {
-            text-align: center;
-            margin-bottom: 25px;
+        .shop-header { text-align: center; margin-bottom: 20px; }
+        .shop-header h1 { font-family: 'Outfit'; font-size: 28px; font-weight: 900; }
+        
+        .shop-tabs {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px;
         }
-
-        .shop-header h1 {
-            font-family: 'Outfit';
-            font-size: 28px;
-            font-weight: 900;
+        .shop-tab {
+            padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 100px; font-size: 12px; font-weight: 800; color: var(--text-muted);
+            white-space: nowrap; cursor: pointer; transition: 0.3s;
         }
+        .shop-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        .shop-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding-bottom: 30px;
-        }
-
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 30px; }
         .shop-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            transition: 0.3s;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);
+            padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+            position: relative; transition: 0.3s;
         }
-
         .shop-item:hover { border-color: var(--accent); transform: translateY(-3px); }
-
-        .item-preview {
-            font-size: 45px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
-        }
-
-        .item-name {
-            font-weight: 800;
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .item-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-
-        .item-price {
-            font-family: 'Outfit';
-            font-weight: 900;
-            color: var(--gold);
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
-        .btn-buy {
-            width: 100%;
-            padding: 10px;
-            font-size: 13px;
-        }
+        .item-preview { font-size: 45px; margin-bottom: 15px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); }
+        .item-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+        .item-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.3; }
+        .item-price { font-family: 'Outfit'; font-weight: 900; color: var(--gold); font-size: 18px; margin-bottom: 15px; }
+        .btn-buy { width: 100%; padding: 10px; font-size: 13px; }
 
         /* =========================================
-           8. ПРОФИЛЬ И РЕФЕРАЛКА
+           8. РЕАЛИСТИЧНЫЙ ТОП 100
+           ========================================= 
+        */
+        .leaderboard-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .lb-header {
+            display: grid; grid-template-columns: 40px 1fr 100px; padding: 15px;
+            background: var(--bg-card-alt); border-bottom: 1px solid var(--border);
+            font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;
+        }
+        .lb-list {
+            max-height: 60vh; overflow-y: auto; padding: 10px;
+        }
+        .lb-item {
+            display: grid; grid-template-columns: 40px 1fr 100px; align-items: center;
+            padding: 12px 10px; border-radius: var(--radius-sm); margin-bottom: 5px;
+            background: var(--bg-main); border: 1px solid transparent; transition: 0.2s;
+        }
+        .lb-item:hover { border-color: var(--border); background: var(--bg-card-alt); }
+        .lb-rank { font-family: 'Outfit'; font-weight: 900; font-size: 16px; color: var(--text-secondary); text-align: center;}
+        
+        .lb-item.rank-1 { border-color: var(--gold); background: rgba(255, 184, 0, 0.05); }
+        .lb-item.rank-1 .lb-rank { color: var(--gold); font-size: 20px; }
+        
+        .lb-item.rank-2 { border-color: silver; background: rgba(192, 192, 192, 0.05); }
+        .lb-item.rank-2 .lb-rank { color: silver; font-size: 18px; }
+        
+        .lb-item.rank-3 { border-color: #cd7f32; background: rgba(205, 127, 50, 0.05); }
+        .lb-item.rank-3 .lb-rank { color: #cd7f32; font-size: 18px; }
+
+        .lb-user { display: flex; align-items: center; gap: 10px; }
+        .lb-ava { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; background: var(--bg-card-alt); border: 1px solid var(--border); }
+        .lb-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;}
+        .lb-balance { font-family: 'Outfit'; font-weight: 900; font-size: 14px; text-align: right; color: var(--text-main); }
+
+        /* =========================================
+           9. ПРОФИЛЬ И ИНВЕНТАРЬ
            ========================================= 
         */
         .profile-card {
             background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-main) 100%);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 25px;
+            border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 25px;
+            text-align: center; margin-bottom: 25px; position: relative;
         }
+        
+        .btn-daily {
+            position: absolute; top: 15px; right: 15px; background: var(--gold-glow);
+            color: var(--gold); border: 1px solid var(--gold); padding: 6px 12px;
+            border-radius: 100px; font-size: 10px; font-weight: 800; cursor: pointer;
+            animation: pulseGold 2s infinite;
+        }
+        @keyframes pulseGold { 0% { box-shadow: 0 0 0 0 rgba(255,184,0,0.4); } 70% { box-shadow: 0 0 0 10px rgba(255,184,0,0); } 100% { box-shadow: 0 0 0 0 rgba(255,184,0,0); } }
 
         .profile-ava-large {
-            width: 90px;
-            height: 90px;
-            border-radius: 24px;
-            background: var(--accent);
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            transform: rotate(-5deg);
-            border: 4px solid var(--bg-card-alt);
+            width: 90px; height: 90px; border-radius: 24px; background: var(--accent);
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; transform: rotate(-5deg); border: 4px solid var(--bg-card-alt);
             box-shadow: 0 15px 30px rgba(0,0,0,0.5);
         }
 
-        .xp-container {
-            margin: 15px 0;
-            text-align: left;
-        }
+        .xp-container { margin: 15px 0; text-align: left; }
+        .xp-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; }
+        .xp-bar-bg { height: 8px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        .xp-bar-fill { height: 100%; background: var(--accent); width: 45%; box-shadow: 0 0 10px var(--accent-glow); transition: width 0.5s ease; }
 
-        .xp-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 800;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .xp-bar-bg {
-            height: 8px;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .xp-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 45%;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        /* Реферальная секция */
-        .referral-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .ref-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .ref-badge {
-            background: var(--green-glow);
-            color: var(--green);
-            padding: 4px 10px;
-            border-radius: 100px;
-            font-size: 10px;
-            font-weight: 800;
-        }
-
-        .ref-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .ref-stat-box {
-            background: #000;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-
+        .referral-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 25px; }
+        .ref-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .ref-badge { background: var(--green-glow); color: var(--green); padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 800; }
+        .ref-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .ref-stat-box { background: #000; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
         .ref-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 4px;}
         .ref-stat-value { font-family: 'Outfit'; font-size: 18px; font-weight: 900; }
+        .ref-link-input-group { display: flex; gap: 10px; }
+        .ref-input { flex: 1; background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .ref-link-input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .ref-input {
-            flex: 1;
-            background: #000;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Инвентарь */
-        .inventory-section {
-            text-align: left;
-        }
-
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
+        .inventory-section { text-align: left; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .inv-item {
-            aspect-ratio: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            position: relative;
+            aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
+            font-size: 24px; position: relative; cursor: pointer; transition: 0.2s;
         }
-
-        .inv-item.empty::after {
-            content: '';
-            width: 40%; height: 2px;
-            background: var(--border);
-            position: absolute;
-            transform: rotate(45deg);
-        }
+        .inv-item:hover { border-color: var(--accent); }
+        .inv-item.empty::after { content: ''; width: 40%; height: 2px; background: var(--border); position: absolute; transform: rotate(45deg); }
 
         /* =========================================
-           9. ТОСТЫ И МОДАЛКИ
+           10. ТОСТЫ И УВЕДОМЛЕНИЯ
            ========================================= 
         */
         .toast-root {
-            position: fixed;
-            top: calc(var(--safe-top) + 85px);
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 90%;
-            pointer-events: none;
+            position: fixed; top: calc(var(--safe-top) + 85px); left: 50%; transform: translateX(-50%);
+            z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; pointer-events: none;
         }
-
         .toast-item {
-            background: white;
-            color: black;
-            padding: 12px 20px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            background: white; color: black; padding: 12px 20px; border-radius: 100px; font-size: 13px;
+            font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .toast-item.hide { animation: toastOut 0.3s ease-in forwards; }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(0.95); } }
 
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-20px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        /* Модалка подарка */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px); z-index: 9999; display: none; align-items: center; justify-content: center;
         }
-
-        .toast-item.hide {
-            animation: toastOut 0.3s ease-in forwards;
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+        .gift-modal {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 30px; text-align: center; width: 80%; max-width: 350px;
         }
-
-        @keyframes toastOut {
-            to { opacity: 0; transform: translateY(-10px) scale(0.95); }
-        }
+        .gift-icon { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
     </style>
 </head>
 <body>
 
     <div class="toast-root" id="toast-root"></div>
+
+    <div class="modal-overlay" id="gift-modal-overlay">
+        <div class="gift-modal">
+            <div class="gift-icon">🎁</div>
+            <h2 style="font-family: 'Outfit'; margin-bottom: 10px;">Ежедневный Бонус</h2>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">Забирай бесплатные TON каждый день!</p>
+            <button class="btn btn-gift" style="width: 100%; height: 50px; font-size: 16px;" onclick="claimDailyGift()">ЗАБРАТЬ +5.00 TON</button>
+            <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="closeModal('gift-modal-overlay')">ПОЗЖЕ</button>
+        </div>
+    </div>
 
     <header>
         <div class="user-info">
@@ -746,7 +472,7 @@
                 <div class="user-status">Online</div>
             </div>
         </div>
-        <div class="balance-pill" onclick="switchTab('profile')">
+        <div class="balance-pill" onclick="switchTab('profile', document.getElementById('nav-prof'))">
             <span id="header-balance">0.00</span>
             <span class="currency">TON</span>
         </div>
@@ -779,7 +505,7 @@
                 <div class="bet-panel">
                     <div class="bet-header">
                         <span style="font-size: 12px; font-weight: 800; color: var(--text-muted);">СУММА СТАВКИ</span>
-                        <span style="font-size: 12px; font-weight: 800; color: var(--accent);" onclick="adjustBet('max')">MAX</span>
+                        <span style="font-size: 12px; font-weight: 800; color: var(--accent); cursor:pointer;" onclick="adjustBet('max')">MAX</span>
                     </div>
                     <div class="bet-input-container">
                         <div class="bet-multiplier" onclick="adjustBet('half')">/2</div>
@@ -787,8 +513,14 @@
                         <div class="bet-multiplier" onclick="adjustBet('double')">x2</div>
                     </div>
                     <div class="bet-actions">
-                        <button class="btn btn-bet btn-bet-blue" onclick="placeBet('blue')">BLUE</button>
-                        <button class="btn btn-bet btn-bet-red" onclick="placeBet('red')">RED</button>
+                        <button class="btn btn-bet btn-bet-blue" onclick="placeBet('blue')">
+                            BLUE
+                            <div class="my-bet-indicator" id="my-bet-blue-ind">0</div>
+                        </button>
+                        <button class="btn btn-bet btn-bet-red" onclick="placeBet('red')">
+                            RED
+                            <div class="my-bet-indicator" id="my-bet-red-ind">0</div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -797,44 +529,37 @@
         <div id="screen-shop" class="screen">
             <div class="shop-header">
                 <h1>Магазин</h1>
-                <p style="color: var(--text-muted); font-size: 13px;">Улучшай свой профиль за TON</p>
+                <p style="color: var(--text-muted); font-size: 13px;">Улучшай профиль и дари подарки</p>
             </div>
+            
+            <div class="shop-tabs">
+                <div class="shop-tab active" onclick="changeShopCategory('avatars', this)">Аватары</div>
+                <div class="shop-tab" onclick="changeShopCategory('gifts', this)">Подарки (Gifts)</div>
+                <div class="shop-tab" onclick="changeShopCategory('ranks', this)">Статусы</div>
+            </div>
+
             <div class="shop-grid" id="shop-grid">
                 </div>
         </div>
 
         <div id="screen-top" class="screen">
             <h1 style="font-family: 'Outfit'; margin-bottom: 20px; text-align: center;">Лидеры Сезона</h1>
-            <div id="leaderboard-list">
-                <div class="stat-card" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-family: 'Outfit'; font-weight: 900; color: var(--gold); font-size: 20px;">1</span>
-                        <div class="user-ava" style="width: 32px; height: 32px; font-size: 12px;">W</div>
-                        <span style="font-weight: 800;">Whale_Master</span>
-                    </div>
-                    <span style="font-family: 'Outfit'; font-weight: 900;">2,450 TON</span>
+            <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: -15px; margin-bottom: 15px;">Топ 100 самых богатых игроков</p>
+            
+            <div class="leaderboard-container">
+                <div class="lb-header">
+                    <div style="text-align: center;">#</div>
+                    <div>Игрок</div>
+                    <div style="text-align: right;">Баланс</div>
                 </div>
-                <div class="stat-card" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-family: 'Outfit'; font-weight: 900; color: silver; font-size: 20px;">2</span>
-                        <div class="user-ava" style="width: 32px; height: 32px; font-size: 12px;">D</div>
-                        <span style="font-weight: 800;">Durov_Fan</span>
+                <div class="lb-list" id="leaderboard-list">
                     </div>
-                    <span style="font-family: 'Outfit'; font-weight: 900;">1,820 TON</span>
-                </div>
-                <div class="stat-card" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-family: 'Outfit'; font-weight: 900; color: #cd7f32; font-size: 20px;">3</span>
-                        <div class="user-ava" style="width: 32px; height: 32px; font-size: 12px;">T</div>
-                        <span style="font-weight: 800;">TON_King</span>
-                    </div>
-                    <span style="font-family: 'Outfit'; font-weight: 900;">1,100 TON</span>
-                </div>
             </div>
         </div>
 
         <div id="screen-profile" class="screen">
             <div class="profile-card">
+                <div class="btn-daily" onclick="openModal('gift-modal-overlay')">БОНУС 🎁</div>
                 <div class="profile-ava-large" id="profile-ava">P</div>
                 <h2 id="profile-name" style="font-family: 'Outfit'; font-size: 24px;">Player</h2>
                 <div class="xp-container">
@@ -847,8 +572,8 @@
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="btn btn-primary" style="height: 45px;">ДЕПОЗИТ</button>
-                    <button class="btn btn-secondary" style="height: 45px;">ВЫВОД</button>
+                    <button class="btn btn-primary" style="height: 45px;" onclick="showToast('Функция пополнения скоро!', 'var(--accent)')">ДЕПОЗИТ</button>
+                    <button class="btn btn-secondary" style="height: 45px;" onclick="showToast('Минималка 100 TON', 'var(--red)')">ВЫВОД</button>
                 </div>
             </div>
 
@@ -895,7 +620,7 @@
             <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
             Топ
         </a>
-        <a href="#" class="nav-link" onclick="switchTab('profile', this)">
+        <a href="#" class="nav-link" id="nav-prof" onclick="switchTab('profile', this)">
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             Профиль
         </a>
@@ -903,24 +628,37 @@
 
     <script>
         /* =========================================
-           10. БАЗА ДАННЫХ И СОСТОЯНИЕ
+           11. БАЗА ДАННЫХ И СОСТОЯНИЕ
            ========================================= 
         */
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const ITEMS_DATA = [
-            { id: 'av_1', name: 'Cyber Punk', icon: '🤖', price: 15, desc: 'Стальной стиль будущего' },
-            { id: 'av_2', name: 'Golden Ape', icon: '🦧', price: 50, desc: 'Для истинных холдеров' },
-            { id: 'av_3', name: 'Durov Style', icon: '🕶️', price: 100, desc: 'Стена будет возвращена' },
-            { id: 'av_4', name: 'Rocket Man', icon: '🚀', price: 250, desc: 'Летим на Луну' },
-            { id: 'av_5', name: 'Alien King', icon: '👽', price: 500, desc: 'Внеземной авторитет' },
-            { id: 'av_6', name: 'Devil TON', icon: '😈', price: 1000, desc: 'Чистый азарт' }
-        ];
+        // База данных магазина с категориями
+        const SHOP_DATA = {
+            avatars: [
+                { id: 'av_1', name: 'Cyber Punk', icon: '🤖', price: 15, desc: 'Стальной стиль будущего' },
+                { id: 'av_2', name: 'Golden Ape', icon: '🦧', price: 50, desc: 'Для истинных холдеров' },
+                { id: 'av_3', name: 'Durov Style', icon: '🕶️', price: 100, desc: 'Стена будет возвращена' },
+                { id: 'av_4', name: 'Rocket Man', icon: '🚀', price: 250, desc: 'Летим на Луну' },
+                { id: 'av_5', name: 'Alien King', icon: '👽', price: 500, desc: 'Внеземной авторитет' },
+                { id: 'av_6', name: 'Devil TON', icon: '😈', price: 1000, desc: 'Чистый азарт' }
+            ],
+            gifts: [
+                { id: 'gft_1', name: 'Telegram Star', icon: '⭐', price: 10, desc: 'Подари звезду другу' },
+                { id: 'gft_2', name: 'Coffee Cup', icon: '☕', price: 25, desc: 'Угости кофе' },
+                { id: 'gft_3', name: 'TON Diamond', icon: '💎', price: 150, desc: 'Драгоценный подарок' },
+                { id: 'gft_4', name: 'Meme Cat', icon: '😸', price: 75, desc: 'Пушистый подарок' }
+            ],
+            ranks: [
+                { id: 'rnk_1', name: 'VIP Status', icon: '👑', price: 300, desc: 'Выделение в топе' },
+                { id: 'rnk_2', name: 'Whale Badge', icon: '🐳', price: 1500, desc: 'Для настоящих китов' }
+            ]
+        };
 
         // Глобальное состояние (уникальное для юзера)
         let userId = tg.initDataUnsafe?.user?.id || 999999;
-        let prefix = `tb_v3_${userId}_`;
+        let prefix = `tb_v4_${userId}_`;
 
         let state = {
             balance: parseFloat(localStorage.getItem(prefix + 'bal')) || 100.0,
@@ -928,49 +666,53 @@
             level: parseInt(localStorage.getItem(prefix + 'lvl')) || 1,
             inventory: JSON.parse(localStorage.getItem(prefix + 'inv')) || [],
             activeAva: localStorage.getItem(prefix + 'active_ava') || 'P',
+            lastDailyBonus: parseInt(localStorage.getItem(prefix + 'daily')) || 0,
             
-            // Игровое состояние
+            // Игровое состояние и СТАВКИ (Исправлено)
             timer: 15,
             poolBlue: 0,
             poolRed: 0,
+            myBetBlue: 0,   // Личная ставка на синее
+            myBetRed: 0,    // Личная ставка на красное
             isSpinning: false,
             rotation: 0,
             chanceBlue: 50,
             
             // Рефералы
             refCount: parseInt(localStorage.getItem(prefix + 'ref_c')) || 0,
-            refEarned: parseFloat(localStorage.getItem(prefix + 'ref_e')) || 0.0
+            refEarned: parseFloat(localStorage.getItem(prefix + 'ref_e')) || 0.0,
+
+            currentShopCategory: 'avatars'
         };
 
         /* =========================================
-           11. ИНИЦИАЛИЗАЦИЯ И ОБНОВЛЕНИЕ UI
+           12. ИНИЦИАЛИЗАЦИЯ И ОБНОВЛЕНИЕ UI
            ========================================= 
         */
         function init() {
-            // Имя из ТГ
-            const name = tg.initDataUnsafe?.user?.first_name || "Player";
+            const name = tg.initDataUnsafe?.user?.first_name || "Игрок";
             document.getElementById('header-name').innerText = name;
             document.getElementById('profile-name').innerText = name;
             document.getElementById('ref-link').innerText = `t.me/tonbattle_bot?start=ref_${userId}`;
+            
+            // Если аватарка по умолчанию, берем первую букву имени
+            if (state.activeAva === 'P' && name.length > 0) {
+                state.activeAva = name.charAt(0).toUpperCase();
+            }
 
             updateUI();
             renderShop();
             renderInventory();
+            generateLeaderboard();
             
-            // Запуск цикла игры
             setInterval(gameTick, 1000);
-            
-            // Симуляция живых ставок
-            setInterval(simulateBets, 3000);
+            setInterval(simulateBets, 2500); // Симуляция живой активности
         }
 
         function updateUI() {
-            // Баланс
             const b = state.balance.toFixed(2);
             document.getElementById('header-balance').innerText = b;
-            document.getElementById('prof-bal')?.innerText || (document.getElementById('prof-bal')); // На всякий
             
-            // XP и Уровень
             const xpMax = state.level * 1000;
             const xpPerc = (state.xp / xpMax) * 100;
             document.getElementById('header-level').innerText = state.level;
@@ -978,13 +720,21 @@
             document.getElementById('xp-text').innerText = `${state.xp} / ${xpMax} XP`;
             document.getElementById('xp-bar').style.width = `${xpPerc}%`;
             
-            // Аватарка
             document.getElementById('header-ava').innerText = state.activeAva;
             document.getElementById('profile-ava').innerText = state.activeAva;
 
-            // Рефералы
             document.getElementById('ref-count').innerText = state.refCount;
             document.getElementById('ref-earned').innerText = state.refEarned.toFixed(2) + ' TON';
+
+            // Обновление индикаторов собственных ставок
+            const bInd = document.getElementById('my-bet-blue-ind');
+            const rInd = document.getElementById('my-bet-red-ind');
+            
+            if (state.myBetBlue > 0) { bInd.style.display = 'block'; bInd.innerText = state.myBetBlue.toFixed(1); }
+            else { bInd.style.display = 'none'; }
+            
+            if (state.myBetRed > 0) { rInd.style.display = 'block'; rInd.innerText = state.myBetRed.toFixed(1); }
+            else { rInd.style.display = 'none'; }
 
             save();
         }
@@ -997,10 +747,11 @@
             localStorage.setItem(prefix + 'active_ava', state.activeAva);
             localStorage.setItem(prefix + 'ref_c', state.refCount);
             localStorage.setItem(prefix + 'ref_e', state.refEarned);
+            localStorage.setItem(prefix + 'daily', state.lastDailyBonus);
         }
 
         /* =========================================
-           12. ЛОГИКА ИГРЫ (РУЛЕТКА)
+           13. ИСПРАВЛЕННАЯ ЛОГИКА ИГРЫ (ВЫПЛАТЫ)
            ========================================= 
         */
         function gameTick() {
@@ -1028,121 +779,237 @@
             document.getElementById('chance-blue').innerText = pBlue.toFixed(0);
             document.getElementById('chance-red').innerText = (100 - pBlue).toFixed(0);
 
-            // Отрисовка секторов круга
             const wheel = document.getElementById('wheel');
             wheel.style.background = `conic-gradient(var(--red) 0% ${100 - pBlue}%, var(--accent) ${100 - pBlue}% 100%)`;
+        }
+
+        function placeBet(color) {
+            if (state.isSpinning) return showToast("Раунд уже идет, жди!");
+
+            const amt = parseFloat(document.getElementById('bet-input').value);
+            if (isNaN(amt) || amt <= 0) return showToast("Введите корректную сумму");
+            if (amt > state.balance) return showToast("Недостаточно TON на балансе");
+
+            state.balance -= amt;
+            
+            // Фиксируем ставку в пулы и ЛИЧНЫЕ переменные
+            if (color === 'blue') {
+                state.poolBlue += amt;
+                state.myBetBlue += amt;
+            } else {
+                state.poolRed += amt;
+                state.myBetRed += amt;
+            }
+
+            updateUI();
+            updatePools();
+            showToast(`Ставка ${amt} TON на ${color.toUpperCase()} принята!`, 'white');
+        }
+
+        function adjustBet(mode) {
+            const input = document.getElementById('bet-input');
+            let val = parseFloat(input.value);
+            if (mode === 'half') input.value = Math.max(0.1, (val / 2)).toFixed(1);
+            if (mode === 'double') input.value = (val * 2).toFixed(1);
+            if (mode === 'max') input.value = Math.max(0.1, state.balance).toFixed(1);
         }
 
         function runSpin() {
             state.isSpinning = true;
             const wheel = document.getElementById('wheel');
             
-            // Генерируем случайный угол
             const extraDegrees = Math.floor(Math.random() * 360);
-            state.rotation += (360 * 6) + extraDegrees;
+            state.rotation += (360 * 6) + extraDegrees; // 6 оборотов + рандом
             
             wheel.style.transform = `rotate(${state.rotation}deg)`;
 
-            // Ждем завершения анимации (6 сек)
             setTimeout(() => {
                 const finalAngle = state.rotation % 360;
-                
-                // Расчет победителя:
-                // Так как conic-gradient начинается сверху (0 град), а мы считаем по часовой...
-                // Угол красного сектора = 360 * (100 - pBlue) / 100
                 const redLimit = 360 * ( (100 - state.chanceBlue) / 100 );
-                
-                // Стрелка указывает на 0 (верх), поэтому проверяем, какой сектор там оказался
-                // Из-за вращения, нужно учитывать инверсию угла
                 const resultAngle = (360 - (finalAngle % 360)) % 360;
                 
                 let winner = resultAngle <= redLimit ? 'RED' : 'BLUE';
-
-                showToast(`ВЫИГРАЛ ЦВЕТ: ${winner}`, winner === 'RED' ? 'var(--red)' : 'var(--accent)');
                 
-                // Начисление опыта за раунд
-                addXP(50);
+                // РАСЧЕТ ВЫИГРЫША (ИСПРАВЛЕНИЕ БАГА)
+                let winAmount = 0;
+                let playerWon = false;
 
-                // Сброс через 3 секунды
+                if (winner === 'RED' && state.myBetRed > 0) {
+                    // Коэффициент выигрыша зависит от шанса, стандартно х2 для 50/50
+                    let multiplier = 100 / (100 - state.chanceBlue);
+                    if(multiplier === Infinity || isNaN(multiplier)) multiplier = 2; // защита
+                    winAmount = state.myBetRed * multiplier;
+                    state.balance += winAmount;
+                    playerWon = true;
+                } 
+                else if (winner === 'BLUE' && state.myBetBlue > 0) {
+                    let multiplier = 100 / state.chanceBlue;
+                    if(multiplier === Infinity || isNaN(multiplier)) multiplier = 2;
+                    winAmount = state.myBetBlue * multiplier;
+                    state.balance += winAmount;
+                    playerWon = true;
+                }
+
+                // Уведомления
+                if (playerWon) {
+                    showToast(`ПОБЕДА! +${winAmount.toFixed(2)} TON 💰`, 'var(--green)');
+                    addXP(100);
+                } else if (state.myBetBlue > 0 || state.myBetRed > 0) {
+                    showToast(`Проигрыш. Выпал ${winner}`, 'var(--text-muted)');
+                    addXP(25); // Утешительный опыт
+                } else {
+                    showToast(`Выпал цвет: ${winner}`, winner === 'RED' ? 'var(--red)' : 'var(--accent)');
+                }
+
+                // Сброс личных ставок
+                state.myBetBlue = 0;
+                state.myBetRed = 0;
+                updateUI();
+
                 setTimeout(() => {
                     state.timer = 15;
                     state.poolBlue = 0;
                     state.poolRed = 0;
                     state.isSpinning = false;
                     updatePools();
-                }, 3000);
+                }, 3500);
 
             }, 6000);
         }
 
-        function placeBet(color) {
-            if (state.isSpinning) return showToast("Раунд уже идет!");
-
-            const amt = parseFloat(document.getElementById('bet-input').value);
-            if (isNaN(amt) || amt <= 0) return showToast("Введите сумму");
-            if (amt > state.balance) return showToast("Недостаточно TON");
-
-            state.balance -= amt;
-            if (color === 'blue') state.poolBlue += amt;
-            else state.poolRed += amt;
-
-            updateUI();
-            updatePools();
-            showToast(`Ставка ${amt} TON на ${color} принята`);
-        }
-
-        function adjustBet(mode) {
-            const input = document.getElementById('bet-input');
-            let val = parseFloat(input.value);
-            if (mode === 'half') input.value = (val / 2).toFixed(1);
-            if (mode === 'double') input.value = (val * 2).toFixed(1);
-            if (mode === 'max') input.value = state.balance.toFixed(1);
-        }
-
         function simulateBets() {
             if (state.isSpinning || state.timer < 3) return;
-            
-            const randomAmt = (Math.random() * 5).toFixed(1);
-            if (Math.random() > 0.5) state.poolBlue += parseFloat(randomAmt);
-            else state.poolRed += parseFloat(randomAmt);
-            
-            updatePools();
+            // Боты ставят
+            if (Math.random() > 0.4) {
+                const randomAmt = (Math.random() * 15).toFixed(1);
+                if (Math.random() > 0.5) state.poolBlue += parseFloat(randomAmt);
+                else state.poolRed += parseFloat(randomAmt);
+                updatePools();
+            }
         }
 
         /* =========================================
-           13. МАГАЗИН И ИНВЕНТАРЬ
+           14. ГЕНЕРАЦИЯ ТОП 100 ИГРОКОВ (Реалистично)
            ========================================= 
         */
+        const MOCK_NAMES = ["Alex", "CryptoGod", "Durov_fan", "TON_Whale", "Sniper", "MemeLord", "Ivan_T", "Oleg99", "TraderX", "NotcoinBillionaire", "Gamer123", "Pavel", "Satoshi", "LuckyStrike", "CatLover"];
+        
+        function generateLeaderboard() {
+            const listDiv = document.getElementById('leaderboard-list');
+            let html = '';
+            
+            // Генерируем 100 игроков с убывающим балансом
+            let currentBal = 15000;
+            
+            for (let i = 1; i <= 100; i++) {
+                // Немного рандома для баланса
+                currentBal = currentBal - (Math.random() * 200 + 10);
+                if (currentBal < 0) currentBal = Math.random() * 10;
+
+                const rName = MOCK_NAMES[Math.floor(Math.random() * MOCK_NAMES.length)] + '_' + Math.floor(Math.random() * 1000);
+                const rAva = rName.charAt(0);
+                
+                let rankClass = '';
+                if (i === 1) rankClass = 'rank-1';
+                else if (i === 2) rankClass = 'rank-2';
+                else if (i === 3) rankClass = 'rank-3';
+
+                html += `
+                    <div class="lb-item ${rankClass}">
+                        <div class="lb-rank">${i}</div>
+                        <div class="lb-user">
+                            <div class="lb-ava">${rAva}</div>
+                            <div class="lb-name">${rName}</div>
+                        </div>
+                        <div class="lb-balance">${currentBal.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1})}</div>
+                    </div>
+                `;
+            }
+            
+            // Добавляем текущего юзера где-то внизу, чтобы было реалистично
+            html += `
+                <div class="lb-item" style="border: 1px solid var(--accent); background: var(--accent-soft); margin-top: 10px;">
+                    <div class="lb-rank" style="color: var(--accent);">YOU</div>
+                    <div class="lb-user">
+                        <div class="lb-ava" style="background: var(--accent); color: white; border-color: white;">${state.activeAva}</div>
+                        <div class="lb-name">${tg.initDataUnsafe?.user?.first_name || "Игрок"}</div>
+                    </div>
+                    <div class="lb-balance" style="color: var(--accent);">${state.balance.toFixed(1)}</div>
+                </div>
+            `;
+
+            listDiv.innerHTML = html;
+        }
+
+        /* =========================================
+           15. РАСШИРЕННЫЙ МАГАЗИН И ИНВЕНТАРЬ
+           ========================================= 
+        */
+        function changeShopCategory(cat, el) {
+            state.currentShopCategory = cat;
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderShop();
+        }
+
         function renderShop() {
             const grid = document.getElementById('shop-grid');
-            grid.innerHTML = ITEMS_DATA.map(item => {
+            const items = SHOP_DATA[state.currentShopCategory];
+            
+            grid.innerHTML = items.map(item => {
                 const isOwned = state.inventory.includes(item.id);
+                const isGift = state.currentShopCategory === 'gifts';
+                
+                let btnHtml = '';
+                if (isGift) {
+                    btnHtml = `<button class="btn btn-gift btn-buy" onclick="buyItem('${item.id}', true)">ПОДАРИТЬ</button>`;
+                } else {
+                    btnHtml = `<button class="btn btn-primary btn-buy" 
+                                onclick="buyItem('${item.id}', false)" 
+                                style="${isOwned ? 'background: var(--green);' : ''}">
+                            ${isOwned ? 'В ИНВЕНТАРЕ' : 'КУПИТЬ'}
+                        </button>`;
+                }
+
                 return `
                     <div class="shop-item">
                         <div class="item-preview">${item.icon}</div>
                         <div class="item-name">${item.name}</div>
                         <div class="item-desc">${item.desc}</div>
                         <div class="item-price">${item.price} TON</div>
-                        <button class="btn btn-primary btn-buy" 
-                                onclick="buyItem('${item.id}')" 
-                                style="${isOwned ? 'background: var(--green);' : ''}">
-                            ${isOwned ? 'КУПЛЕНО' : 'КУПИТЬ'}
-                        </button>
+                        ${btnHtml}
                     </div>
                 `;
             }).join('');
         }
 
-        function buyItem(id) {
-            if (state.inventory.includes(id)) return showToast("Уже куплено");
+        function buyItem(id, isGift) {
+            // Находим предмет во всех категориях
+            let item = null;
+            for (let cat in SHOP_DATA) {
+                let found = SHOP_DATA[cat].find(i => i.id === id);
+                if (found) item = found;
+            }
+
+            if (!item) return;
+
+            if (!isGift && state.inventory.includes(id)) {
+                return showToast("Уже куплено, проверьте инвентарь!");
+            }
             
-            const item = ITEMS_DATA.find(i => i.id === id);
-            if (state.balance < item.price) return showToast("Недостаточно TON");
+            if (state.balance < item.price) return showToast("Недостаточно TON для покупки", "var(--red)");
 
             state.balance -= item.price;
-            state.inventory.push(id);
             
-            showToast(`Успешно куплено: ${item.name}`);
+            if (isGift) {
+                showToast(`Подарок "${item.name}" успешно отправлен!`, "var(--purple)");
+                addXP(200); // Много опыта за щедрость
+            } else {
+                state.inventory.push(id);
+                showToast(`Успешно куплено: ${item.name}`, "var(--green)");
+                addXP(100);
+            }
+            
             updateUI();
             renderShop();
             renderInventory();
@@ -1152,18 +1019,24 @@
             const grid = document.getElementById('inv-grid');
             let html = '';
             
-            // Отображаем купленные
             state.inventory.forEach(itemId => {
-                const item = ITEMS_DATA.find(i => i.id === itemId);
-                html += `
-                    <div class="inv-item" onclick="setActiveAva('${item.icon}')">
-                        ${item.icon}
-                    </div>
-                `;
+                let item = null;
+                for (let cat in SHOP_DATA) {
+                    let found = SHOP_DATA[cat].find(i => i.id === id);
+                    if (found) item = found;
+                }
+                
+                if (item) {
+                    html += `
+                        <div class="inv-item" onclick="setActiveAva('${item.icon}')">
+                            ${item.icon}
+                        </div>
+                    `;
+                }
             });
 
-            // Пустые слоты до 8
-            for (let i = 0; i < (8 - state.inventory.length); i++) {
+            const emptySlots = Math.max(0, 8 - state.inventory.length);
+            for (let i = 0; i < emptySlots; i++) {
                 html += `<div class="inv-item empty"></div>`;
             }
             grid.innerHTML = html;
@@ -1172,13 +1045,35 @@
         function setActiveAva(icon) {
             state.activeAva = icon;
             updateUI();
-            showToast("Аватар изменен");
+            showToast("Аватар успешно установлен!");
+            
+            // Если мы сейчас в топе, обновляем и его
+            generateLeaderboard();
         }
 
         /* =========================================
-           14. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+           16. ЕЖЕДНЕВНЫЙ ПОДАРОК И УТИЛИТЫ
            ========================================= 
         */
+        function claimDailyGift() {
+            const now = new Date().getTime();
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            if (now - state.lastDailyBonus > oneDay) {
+                state.balance += 5.0;
+                state.lastDailyBonus = now;
+                updateUI();
+                showToast("Вы получили 5 TON! 🎁", "var(--gold)");
+                closeModal('gift-modal-overlay');
+            } else {
+                showToast("Подарок уже получен. Приходи завтра!", "var(--red)");
+                closeModal('gift-modal-overlay');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
         function addXP(amount) {
             state.xp += amount;
             const xpMax = state.level * 1000;
@@ -1196,12 +1091,15 @@
             
             document.getElementById('screen-' + screenId).classList.add('active');
             el.classList.add('active');
+            
+            // Если перешли в топ, обновляем его
+            if (screenId === 'top') generateLeaderboard();
         }
 
         function copyRef() {
             const text = document.getElementById('ref-link').innerText;
             navigator.clipboard.writeText(text);
-            showToast("Ссылка скопирована!");
+            showToast("Реферальная ссылка скопирована!");
         }
 
         function showToast(text, color = 'white') {
@@ -1209,21 +1107,20 @@
             const item = document.createElement('div');
             item.className = 'toast-item';
             item.innerHTML = `
-                <div style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; box-shadow: 0 0 10px ${color}"></div>
+                <div style="width: 10px; height: 10px; border-radius: 50%; background: ${color}; box-shadow: 0 0 10px ${color}"></div>
                 <span>${text}</span>
             `;
             root.appendChild(item);
 
             setTimeout(() => {
                 item.classList.add('hide');
-                setTimeout(() => item.remove(), 500);
-            }, 3000);
+                setTimeout(() => item.remove(), 400); // 400ms чтобы отыграла анимация исчезновения
+            }, 2500);
         }
 
-        // Старт
+        // Запуск
         window.onload = init;
 
     </script>
 </body>
 </html>
-
