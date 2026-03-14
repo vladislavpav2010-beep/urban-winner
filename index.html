@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON BATTLE ULTIMATE EDITION</title>
+    <title>TON BATTLE - EXCLUSIVE EDITION</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- 1. ПЕРЕМЕННЫЕ И ОСНОВА --- */
+        /* =========================================
+           1. ПЕРЕМЕННЫЕ И БАЗОВЫЕ НАСТРОЙКИ
+           ========================================= */
         :root {
-            --bg: #0b0d10;
-            --card: #15181f;
-            --accent: #2e8cff;
-            --accent-glow: rgba(46, 140, 255, 0.3);
-            --gold: #f5b027;
-            --text: #ffffff;
-            --text-m: #8e939d;
-            --border: #22262e;
-            --green: #2ecb71;
-            --red: #ff4a4a;
-            --side-1: #2ecb71;
-            --side-2: #4a68ff;
-            --safe-area-top: env(safe-area-inset-top);
-            --safe-area-bottom: env(safe-area-inset-bottom);
+            /* Палитра */
+            --bg-main: #090a0f;
+            --bg-card: #13151b;
+            --bg-card-hover: #1a1d24;
+            --accent: #0088cc;
+            --accent-glow: rgba(0, 136, 204, 0.4);
+            --gold: #ffb800;
+            --gold-glow: rgba(255, 184, 0, 0.3);
+            --text-main: #ffffff;
+            --text-muted: #798293;
+            --border: #20242f;
+            --green: #20c976;
+            --red: #ff3b3b;
+            
+            /* Цвета рулетки */
+            --color-blue: #3b70ff;
+            --color-red: #ff3b5c;
+            
+            /* Размеры и отступы */
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-round: 50%;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         * {
@@ -37,481 +50,651 @@
         }
 
         body {
-            background: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-main);
+            color: var(--text-main);
             height: 100vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- 2. ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ --- */
-        .flex-center { display: flex; align-items: center; justify-content: center; }
+        /* Скрываем скроллбары, но оставляем прокрутку */
+        ::-webkit-scrollbar { display: none; }
+        .scrollable { overflow-y: auto; scrollbar-width: none; }
+
+        /* Вспомогательные классы */
+        .flex-row { display: flex; align-items: center; }
         .flex-between { display: flex; align-items: center; justify-content: space-between; }
-        .text-gradient { background: linear-gradient(90deg, #fff, var(--text-m)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .text-outfit { font-family: 'Outfit', sans-serif; }
+        .text-gradient { background: linear-gradient(90deg, #fff, #a0a5b1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* --- 3. ШАПКА --- */
+        /* =========================================
+           2. HEADER (ШАПКА)
+           ========================================= */
         header {
-            padding: calc(var(--safe-area-top) + 15px) 15px 15px;
-            background: rgba(11, 13, 16, 0.8);
-            backdrop-filter: blur(15px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: calc(var(--safe-top) + 12px) 16px 12px;
+            background: rgba(9, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            z-index: 100;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .header-content { display: flex; align-items: center; justify-content: space-between; }
-
-        .balance-card {
-            background: var(--card);
+        .balance-widget {
+            background: linear-gradient(180deg, var(--bg-card), #0d0f14);
             border: 1px solid var(--border);
             padding: 8px 16px;
             border-radius: 100px;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: 0.2s;
         }
+        .balance-widget:active { transform: scale(0.95); }
+        .balance-widget span { font-family: 'Outfit'; font-weight: 800; font-size: 17px; color: var(--text-main); letter-spacing: 0.5px;}
+        .balance-widget .curr { color: var(--accent); font-size: 14px; }
 
-        .balance-card span { font-family: 'Outfit'; font-weight: 900; font-size: 16px; color: var(--accent); }
-
-        .user-pill {
+        .profile-mini {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: var(--card);
-            padding: 4px 4px 4px 12px;
+            background: var(--bg-card);
+            padding: 4px 6px 4px 14px;
             border-radius: 100px;
             border: 1px solid var(--border);
         }
+        .profile-mini .name { font-weight: 700; font-size: 13px; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-mini .ava { width: 32px; height: 32px; border-radius: var(--radius-round); background: var(--accent); font-weight: 800; font-size: 14px; }
 
-        .avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border-radius: 50%;
-            font-weight: 800;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        /* --- 4. НАВИГАЦИЯ --- */
+        /* =========================================
+           3. BOTTOM NAVIGATION (МЕНЮ)
+           ========================================= */
         nav {
             position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #0f1115;
-            padding-bottom: var(--safe-area-bottom);
+            bottom: 0; left: 0; right: 0;
+            background: rgba(13, 15, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding-bottom: var(--safe-bottom);
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .nav-item {
-            padding: 12px 0;
+            flex: 1;
+            padding: 12px 0 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            color: var(--text-m);
-            font-size: 10px;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 11px;
             font-weight: 700;
-            width: 20%;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .nav-item i { font-size: 20px; margin-bottom: 2px; transition: 0.3s; }
-        .nav-item.active { color: #fff; }
-        .nav-item.active i { transform: translateY(-3px); color: var(--accent); }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; transition: 0.3s; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item.active svg { transform: translateY(-4px); filter: drop-shadow(0 4px 8px var(--accent-glow)); }
 
-        /* --- 5. КОНТЕНТ (ЭКРАНЫ) --- */
-        .main-container {
+        /* =========================================
+           4. ОСНОВНОЙ КОНТЕЙНЕР И ЭКРАНЫ
+           ========================================= */
+        .main-content {
             flex: 1;
-            overflow-y: auto;
-            padding: 20px 15px 100px;
-            scrollbar-width: none;
-        }
-        .main-container::-webkit-scrollbar { display: none; }
-
-        .screen { display: none; animation: slideUp 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
-        .screen.active { display: block; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- 6. ЭКРАН: БИТВА (ИГРА) --- */
-        .banner {
-            background: linear-gradient(135deg, #1a1f29, #15181f);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 20px;
+            margin-top: calc(var(--safe-top) + 65px);
+            margin-bottom: calc(var(--safe-bottom) + 70px);
             position: relative;
-            overflow: hidden;
-        }
-        .banner::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            opacity: 0.3;
         }
 
-        .wheel-area { position: relative; width: 260px; height: 260px; margin: 20px auto 30px; }
+        .screen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Общие компоненты */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .btn-primary {
+            width: 100%; padding: 16px;
+            background: var(--accent);
+            color: #fff; border: none;
+            border-radius: var(--radius-md);
+            font-family: 'Outfit'; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: 0.2s;
+            box-shadow: 0 8px 20px var(--accent-glow);
+        }
+        .btn-primary:active { transform: scale(0.97); box-shadow: 0 4px 10px var(--accent-glow); }
         
-        .wheel-container {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 8px solid #1c2029;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.5);
-            transition: transform 6s cubic-bezier(0.15, 0, 0, 1);
-            background: conic-gradient(var(--side-1) 0% 50%, var(--side-2) 50% 100%);
+        .btn-secondary {
+            padding: 12px 20px;
+            background: #1c1f28;
+            color: var(--text-main); border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-weight: 700; font-size: 14px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-secondary:active { background: #232733; }
+
+        /* =========================================
+           5. ЭКРАН 1: БИТВА (РУЛЕТКА)
+           ========================================= */
+        .battle-banner {
+            background: linear-gradient(135deg, #182035, var(--bg-card));
+            border-radius: var(--radius-lg);
+            padding: 16px; margin-bottom: 24px;
+            border: 1px solid #2a344a;
+            position: relative; overflow: hidden;
+        }
+        .battle-banner::before {
+            content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px;
+            background: var(--accent); filter: blur(50px); opacity: 0.3;
         }
 
-        .wheel-center {
+        /* Рулетка */
+        .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 0 auto 30px; }
+        .wheel-pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; z-index: 10;
+            border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 24px solid var(--text-main);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+        }
+        .wheel-outer {
+            width: 100%; height: 100%; border-radius: var(--radius-round);
+            border: 10px solid #1a1d24;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.8);
+            background: conic-gradient(var(--color-blue) 0% 50%, var(--color-red) 50% 100%);
+            transition: transform 7s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .wheel-inner {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 110px; height: 110px; background: var(--bg);
-            border: 6px solid #1c2029; border-radius: 50%;
-            flex-direction: column;
+            width: 120px; height: 120px; border-radius: var(--radius-round);
+            background: var(--bg-main); border: 8px solid #1a1d24;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
+        .wheel-timer-val { font-family: 'Outfit'; font-size: 38px; font-weight: 900; line-height: 1; }
+        .wheel-timer-lbl { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
 
-        .timer-val { font-family: 'Outfit'; font-size: 32px; font-weight: 900; line-height: 1; }
-        .timer-label { font-size: 10px; color: var(--text-m); font-weight: 800; text-transform: uppercase; }
+        /* Ставки и Пулы */
+        .pools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .pool-card { background: var(--bg-card); border: 1px solid var(--border); padding: 14px; border-radius: var(--radius-md); text-align: center; }
+        .pool-card .lbl { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .pool-card .val { font-family: 'Outfit'; font-size: 22px; font-weight: 900; margin-top: 5px; }
+        .pool-blue .val { color: var(--color-blue); text-shadow: 0 0 15px rgba(59, 112, 255, 0.3); }
+        .pool-red .val { color: var(--color-red); text-shadow: 0 0 15px rgba(255, 59, 92, 0.3); }
 
-        .pointer {
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
-            border-top: 20px solid var(--accent); z-index: 10;
-        }
-
-        /* Шкалы */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-card span { font-size: 11px; color: var(--text-m); font-weight: 700; }
-        .stat-card b { display: block; font-family: 'Outfit'; font-size: 20px; margin-top: 4px; }
-
-        .progress-bar {
-            height: 12px; background: #1c2029; border-radius: 100px;
-            display: flex; overflow: hidden; margin-bottom: 25px; border: 1px solid var(--border);
-        }
-        .prog-1 { background: var(--side-1); width: 50%; transition: 0.5s; box-shadow: 0 0 10px var(--side-1); }
-        .prog-2 { background: var(--side-2); width: 50%; transition: 0.5s; box-shadow: 0 0 10px var(--side-2); }
+        .progress-wrap { height: 12px; background: #1a1d24; border-radius: 20px; display: flex; overflow: hidden; margin-bottom: 24px; border: 1px solid var(--border); }
+        .progress-blue { background: var(--color-blue); width: 50%; transition: width 0.5s ease; box-shadow: 0 0 10px var(--color-blue); }
+        .progress-red { background: var(--color-red); width: 50%; transition: width 0.5s ease; box-shadow: 0 0 10px var(--color-red); }
 
         /* Ввод ставки */
-        .input-wrap {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 20px; padding: 15px; margin-bottom: 15px;
-        }
-        .input-control { display: flex; align-items: center; justify-content: space-between; }
-        .input-control input {
-            background: transparent; border: none; color: #fff;
-            width: 60%; font-family: 'Outfit'; font-size: 28px; font-weight: 900; text-align: center; outline: none;
-        }
-        .circle-btn {
-            width: 44px; height: 44px; border-radius: 50%; background: #1c2029;
-            border: 1px solid var(--border); color: #fff; font-size: 20px; cursor: pointer;
-        }
-
-        .chips-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .chip {
-            padding: 10px 18px; background: var(--card); border: 1px solid var(--border);
-            border-radius: 14px; font-weight: 800; font-family: 'Outfit'; color: var(--text-m); white-space: nowrap;
-        }
+        .bet-controls { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 24px; }
+        .bet-input-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; background: #0d0f14; border-radius: var(--radius-md); padding: 5px; border: 1px solid var(--border); }
+        .btn-circle { width: 45px; height: 45px; border-radius: var(--radius-md); background: #1a1d24; border: none; color: #fff; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .btn-circle:active { background: #252a36; transform: scale(0.9); }
+        .bet-input-row input { flex: 1; background: transparent; border: none; color: #fff; font-family: 'Outfit'; font-size: 28px; font-weight: 900; text-align: center; outline: none; width: 100%; }
+        
+        .chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 20px; }
+        .chip { padding: 10px 20px; background: #1a1d24; border: 1px solid var(--border); border-radius: 12px; font-family: 'Outfit'; font-weight: 800; font-size: 14px; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s;}
+        .chip:active { transform: scale(0.95); }
         .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-        /* Кнопка действия */
-        .btn-play {
-            width: 100%; padding: 18px; border-radius: 20px; border: none;
-            background: var(--accent); color: #fff; font-size: 18px; font-weight: 900;
-            box-shadow: 0 8px 25px var(--accent-glow); margin-bottom: 40px;
-        }
+        /* Выбор цвета */
+        .color-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-color { padding: 18px; border-radius: var(--radius-md); border: none; color: #fff; font-family: 'Outfit'; font-weight: 900; font-size: 18px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s;}
+        .btn-color:active { transform: scale(0.96); }
+        .btn-color.blue { background: linear-gradient(135deg, #4b7dff, #2955cc); box-shadow: 0 8px 25px rgba(59, 112, 255, 0.4); }
+        .btn-color.red { background: linear-gradient(135deg, #ff5e79, #cc2340); box-shadow: 0 8px 25px rgba(255, 59, 92, 0.4); }
+        .btn-color span { font-size: 11px; font-family: 'Manrope'; font-weight: 700; opacity: 0.8; }
 
-        /* --- 7. ЭКРАН: ТОП --- */
-        .season-card {
-            background: linear-gradient(180deg, var(--card), var(--bg));
-            border-radius: 24px; padding: 25px; text-align: center; border: 1px solid var(--border);
-            margin-bottom: 25px;
-        }
-        .cup-icon { width: 80px; margin-bottom: 15px; filter: drop-shadow(0 0 15px var(--gold)); }
-        .season-timer { font-family: 'Outfit'; font-size: 36px; font-weight: 900; color: #fff; margin: 10px 0; }
+        /* Живая лента */
+        .live-feed { margin-top: 30px; }
+        .feed-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+        .feed-title .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .feed-list { display: flex; flex-direction: column; gap: 8px; }
+        .feed-item { background: var(--bg-card); border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; animation: slideInFeed 0.3s ease forwards; }
+        @keyframes slideInFeed { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .feed-user { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; }
+        .feed-ava { width: 24px; height: 24px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .feed-amt { font-family: 'Outfit'; font-weight: 800; }
+        .feed-amt.blue { color: var(--color-blue); }
+        .feed-amt.red { color: var(--color-red); }
+
+        /* =========================================
+           6. ЭКРАН 2: МАГАЗИН (SHOP) - ВОЗВРАЩЕНИЕ ЛЕГЕНДЫ
+           ========================================= */
+        .shop-header { text-align: center; margin-bottom: 24px; }
+        .shop-header h1 { font-family: 'Outfit'; font-size: 32px; font-weight: 900; margin-bottom: 8px; }
+        .shop-header p { color: var(--text-muted); font-size: 14px; }
+
+        .shop-categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .cat-btn { padding: 10px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 100px; font-weight: 800; font-size: 13px; color: var(--text-muted); white-space: nowrap; transition: 0.2s; }
+        .cat-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-bottom: 20px; }
+        .shop-item { background: linear-gradient(180deg, var(--bg-card), #0d0f14); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; text-align: center; position: relative; overflow: hidden; transition: 0.3s; }
+        .shop-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .item-icon { font-size: 48px; margin-bottom: 12px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
+        .item-name { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+        .item-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 16px; min-height: 30px;}
+        .item-price { font-family: 'Outfit'; font-size: 18px; font-weight: 900; color: var(--gold); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .btn-buy { width: 100%; padding: 12px; background: rgba(0, 136, 204, 0.1); border: 1px solid var(--accent); color: var(--accent); border-radius: var(--radius-md); font-weight: 800; transition: 0.2s; }
+        .btn-buy:active { background: var(--accent); color: #fff; }
+        .item-owned .btn-buy { background: rgba(32, 201, 118, 0.1); border-color: var(--green); color: var(--green); }
+
+        /* =========================================
+           7. ЭКРАН 3: ТОП (ЛИДЕРЫ)
+           ========================================= */
+        .top-season-card { background: linear-gradient(180deg, #1f1a0e, var(--bg-card)); border: 1px solid #3d3118; border-radius: var(--radius-lg); padding: 30px 20px; text-align: center; margin-bottom: 30px; position: relative; }
+        .top-cup { font-size: 70px; line-height: 1; margin-bottom: 15px; filter: drop-shadow(0 0 30px var(--gold-glow)); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         
-        .leader-row {
-            display: flex; align-items: center; gap: 15px;
-            background: var(--card); padding: 12px 15px; border-radius: 18px;
-            margin-bottom: 10px; border: 1px solid var(--border);
-        }
-        .rank { width: 30px; font-weight: 900; font-family: 'Outfit'; font-size: 18px; color: var(--text-m); }
-        .leader-row.gold { border-color: var(--gold); background: rgba(245, 176, 39, 0.05); }
-        .leader-row.gold .rank { color: var(--gold); }
-
-        /* --- 8. ЭКРАН: ПРОФИЛЬ --- */
-        .profile-header { text-align: center; margin-bottom: 30px; }
-        .p-avatar { width: 90px; height: 90px; background: var(--accent); border-radius: 50%; font-size: 36px; margin: 0 auto 15px; box-shadow: 0 0 30px var(--accent-glow); border: 4px solid var(--bg); }
+        .podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; margin-top: 20px;}
+        .podium-place { display: flex; flex-direction: column; align-items: center; width: 30%; }
+        .podium-ava { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; margin-bottom: -15px; z-index: 2; position: relative; }
+        .podium-bar { width: 100%; background: var(--bg-card); border-radius: 12px 12px 0 0; border: 1px solid var(--border); border-bottom: none; text-align: center; padding: 25px 5px 10px; font-family: 'Outfit'; font-weight: 900; font-size: 24px; color: rgba(255,255,255,0.2); }
+        .podium-name { font-size: 11px; font-weight: 800; margin-top: 8px; text-align: center; overflow: hidden; text-overflow: ellipsis; width: 100%; white-space: nowrap; }
+        .podium-score { font-family: 'Outfit'; font-size: 13px; font-weight: 800; color: var(--accent); }
         
-        .wallet-card {
-            background: var(--card); border-radius: 24px; padding: 20px;
-            border: 1px solid var(--border); margin-bottom: 20px;
-        }
-        .w-balance { font-family: 'Outfit'; font-size: 42px; font-weight: 900; margin: 10px 0; }
+        .podium-1 .podium-bar { height: 120px; background: linear-gradient(180deg, rgba(255, 184, 0, 0.15), var(--bg-card)); border-color: var(--gold); color: var(--gold); }
+        .podium-1 .podium-ava { border-color: var(--gold); width: 64px; height: 64px; margin-bottom: -20px; box-shadow: 0 0 20px var(--gold-glow); }
+        .podium-2 .podium-bar { height: 90px; background: linear-gradient(180deg, rgba(192, 192, 192, 0.15), var(--bg-card)); border-color: #c0c0c0; color: #c0c0c0; }
+        .podium-2 .podium-ava { border-color: #c0c0c0; }
+        .podium-3 .podium-bar { height: 70px; background: linear-gradient(180deg, rgba(205, 127, 50, 0.15), var(--bg-card)); border-color: #cd7f32; color: #cd7f32; }
+        .podium-3 .podium-ava { border-color: #cd7f32; }
 
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-sec {
-            padding: 14px; border-radius: 16px; border: 1px solid var(--border);
-            background: #1c2029; color: #fff; font-weight: 800; font-size: 14px;
-        }
+        .leader-list { display: flex; flex-direction: column; gap: 10px; }
+        .leader-row { background: var(--bg-card); border: 1px solid var(--border); padding: 12px 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 15px; }
+        .leader-rank { font-family: 'Outfit'; font-size: 16px; font-weight: 900; color: var(--text-muted); width: 20px; text-align: center; }
+        .leader-info { flex: 1; font-weight: 700; font-size: 14px; }
+        .leader-val { font-family: 'Outfit'; font-weight: 800; color: var(--text-main); }
 
-        .history-list { margin-top: 25px; }
-        .history-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 0; border-bottom: 1px solid var(--border);
-        }
-        .h-info b { display: block; font-size: 14px; }
-        .h-info span { font-size: 11px; color: var(--text-m); }
-        .h-amt { font-family: 'Outfit'; font-weight: 800; }
-        .h-amt.plus { color: var(--green); }
-        .h-amt.minus { color: var(--red); }
+        /* =========================================
+           8. ЭКРАН 4: ПРОФИЛЬ
+           ========================================= */
+        .profile-header-main { text-align: center; padding: 20px 0 30px; position: relative; }
+        .p-ava-huge { width: 100px; height: 100px; border-radius: 30px; background: linear-gradient(135deg, var(--accent), #1a4b8c); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: #fff; box-shadow: 0 15px 35px var(--accent-glow); border: 4px solid var(--bg-main); transform: rotate(-5deg); transition: 0.3s; }
+        .p-ava-huge:active { transform: rotate(0deg) scale(0.95); }
+        .p-name-huge { font-family: 'Outfit'; font-size: 28px; font-weight: 900; letter-spacing: 0.5px; }
+        .p-id-lbl { background: var(--bg-card); border: 1px solid var(--border); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; color: var(--text-muted); display: inline-block; margin-top: 8px; }
 
-        /* --- 9. МОДАЛКИ И СНЕКБАРЫ --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-        }
-        .modal {
-            background: var(--card); border: 1px solid var(--border);
-            width: 90%; max-width: 400px; border-radius: 24px; padding: 25px;
-            animation: modalPop 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28);
-        }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .wallet-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; text-align: center; }
+        .wallet-block .lbl { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .wallet-block .bal { font-family: 'Outfit'; font-size: 48px; font-weight: 900; margin: 10px 0 20px; line-height: 1; }
+        .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .promo-block { display: flex; gap: 10px; margin-bottom: 24px; }
+        .promo-block input { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; color: #fff; font-weight: 700; outline: none; font-size: 14px; }
+        .promo-block button { background: var(--text-main); color: #000; border: none; padding: 0 24px; border-radius: var(--radius-md); font-weight: 900; font-family: 'Outfit'; cursor: pointer; }
 
-        .snackbar {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: #222; color: #fff; padding: 12px 24px; border-radius: 100px;
-            font-size: 13px; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 2000; display: none; white-space: nowrap;
-        }
+        .section-title { font-family: 'Outfit'; font-size: 20px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
+        .inv-slot { background: var(--bg-card); border: 1px solid var(--border); aspect-ratio: 1; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; }
+        .inv-slot.empty { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); color: rgba(255,255,255,0.1); }
+        .inv-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--bg-main); }
+
+        .hist-list { display: flex; flex-direction: column; gap: 0; }
+        .hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .hist-item:last-child { border-bottom: none; }
+        .h-l b { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .h-l span { font-size: 11px; color: var(--text-muted); }
+        .h-r { font-family: 'Outfit'; font-weight: 800; font-size: 16px; }
+        .h-r.plus { color: var(--green); }
+        .h-r.minus { color: var(--text-main); }
+
+        /* =========================================
+           9. МОДАЛКИ И УВЕДОМЛЕНИЯ (TOASTS)
+           ========================================= */
+        .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-bg.show { opacity: 1; pointer-events: auto; }
+        .modal-box { background: var(--bg-card); border: 1px solid var(--border); width: 90%; max-width: 360px; border-radius: var(--radius-lg); padding: 24px; transform: scale(0.9); transition: 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+        .modal-bg.show .modal-box { transform: scale(1); }
+        .modal-title { font-family: 'Outfit'; font-size: 24px; font-weight: 900; margin-bottom: 10px; text-align: center; }
+        .modal-body { color: var(--text-muted); font-size: 14px; text-align: center; margin-bottom: 24px; line-height: 1.5; }
+        .modal-input { width: 100%; background: #0d0f14; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; color: #fff; font-family: 'Outfit'; font-size: 18px; font-weight: 800; outline: none; margin-bottom: 15px; text-align: center; }
+
+        .toast-container { position: fixed; top: calc(var(--safe-top) + 80px); left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: none; }
+        .toast { background: rgba(255,255,255,0.95); color: #000; padding: 12px 20px; border-radius: 100px; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: toastIn 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28) forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .toast.hide { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(0.9); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-content">
-            <div class="balance-card">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" fill="#0098EA"/><path d="M7 9l5 7 5-7H7z" fill="#fff"/></svg>
-                <span id="h-bal">0.00</span>
-            </div>
-            <div class="user-pill">
-                <span id="u-name-top" style="font-weight: 800; font-size: 13px;">Игрок</span>
-                <div class="avatar flex-center" id="u-ava-top">?</div>
-            </div>
+        <div class="profile-mini">
+            <div class="ava" id="hdr-ava">U</div>
+            <div class="name" id="hdr-name">Игрок</div>
+        </div>
+        <div class="balance-widget" onclick="switchTab('profile')">
+            <span id="hdr-bal">0.00</span>
+            <span class="curr">TON</span>
         </div>
     </header>
 
-    <div class="main-container">
+    <div class="main-content scrollable">
         
-        <div id="view-battle" class="screen active">
-            <div class="banner">
+        <div id="tab-battle" class="screen active">
+            <div class="battle-banner">
+                <div style="position: relative; z-index: 2;">
+                    <div style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.6); letter-spacing: 1px; margin-bottom: 4px;">СЕЗОННЫЙ ПУЛ</div>
+                    <div style="font-family: 'Outfit'; font-size: 28px; font-weight: 900; color: #fff;">15,000 <span style="color:var(--accent)">TON</span></div>
+                </div>
+            </div>
+
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <div class="wheel-outer" id="roulette-wheel"></div>
+                <div class="wheel-inner">
+                    <span class="wheel-timer-val" id="r-timer">15</span>
+                    <span class="wheel-timer-lbl">Секунд</span>
+                </div>
+            </div>
+
+            <div class="pools-grid">
+                <div class="pool-card pool-blue">
+                    <div class="lbl">Blue Pool</div>
+                    <div class="val" id="pool-blue-val">0.00</div>
+                </div>
+                <div class="pool-card pool-red">
+                    <div class="lbl">Red Pool</div>
+                    <div class="val" id="pool-red-val">0.00</div>
+                </div>
+            </div>
+
+            <div class="progress-wrap">
+                <div class="progress-blue" id="bar-blue"></div>
+                <div class="progress-red" id="bar-red"></div>
+            </div>
+
+            <div class="bet-controls">
                 <div class="flex-between">
-                    <div>
-                        <p style="font-size: 11px; font-weight: 800; color: var(--text-m);">ЕЖЕДНЕВНЫЙ ТУРНИР</p>
-                        <h2 style="font-family: 'Outfit'; font-size: 20px; color: var(--gold);">3 000 TON</h2>
+                    <span style="font-size: 12px; font-weight: 800; color: var(--text-muted);">СУММА СТАВКИ</span>
+                    <span style="font-size: 12px; font-weight: 800; color: var(--accent); cursor: pointer;" onclick="setBet('max')">MAX</span>
+                </div>
+                <div class="bet-input-row">
+                    <button class="btn-circle" onclick="adjBet(-1)">-</button>
+                    <input type="number" id="bet-amt" value="1.00" step="0.1">
+                    <button class="btn-circle" onclick="adjBet(1)">+</button>
+                </div>
+                <div class="chips-scroll">
+                    <div class="chip" onclick="setBet(1)">1 TON</div>
+                    <div class="chip" onclick="setBet(5)">5 TON</div>
+                    <div class="chip" onclick="setBet(10)">10 TON</div>
+                    <div class="chip" onclick="setBet(50)">50 TON</div>
+                    <div class="chip" onclick="setBet(100)">100 TON</div>
+                </div>
+                
+                <div class="color-btns">
+                    <button class="btn-color blue" onclick="placeBet('blue')">
+                        BLUE <span>x2 Payout</span>
+                    </button>
+                    <button class="btn-color red" onclick="placeBet('red')">
+                        RED <span>x2 Payout</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="live-feed">
+                <div class="feed-title"><div class="dot"></div> LIVE СТАВКИ</div>
+                <div class="feed-list" id="live-feed-list">
                     </div>
-                    <button class="btn-sec" style="padding: 8px 15px; border-radius: 10px; font-size: 10px;">ПРАВИЛА</button>
-                </div>
             </div>
-
-            <div class="wheel-area">
-                <div class="pointer"></div>
-                <div class="wheel-container" id="wheel"></div>
-                <div class="wheel-center flex-center">
-                    <span class="timer-label">До старта</span>
-                    <span class="timer-val" id="timer">15</span>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span>Пул Green</span>
-                    <b id="pool-1" style="color: var(--side-1);">0.00</b>
-                </div>
-                <div class="stat-card">
-                    <span>Пул Blue</span>
-                    <b id="pool-2" style="color: var(--side-2);">0.00</b>
-                </div>
-            </div>
-
-            <div class="progress-bar">
-                <div class="prog-1" id="prog-1"></div>
-                <div class="prog-2" id="prog-2"></div>
-            </div>
-
-            <div class="input-wrap">
-                <div class="flex-between" style="margin-bottom: 10px;">
-                    <span style="font-size: 12px; font-weight: 800; color: var(--text-m);">ВАША СТАВКА</span>
-                    <span style="font-size: 12px; font-weight: 800; color: var(--accent);">MAX: <span id="max-hint">0.00</span></span>
-                </div>
-                <div class="input-control">
-                    <button class="circle-btn" onclick="stepBet(-0.1)">-</button>
-                    <input type="number" id="bet-input" value="0.50" step="0.1">
-                    <button class="circle-btn" onclick="stepBet(0.1)">+</button>
-                </div>
-            </div>
-
-            <div class="chips-row">
-                <div class="chip" onclick="setBet(0.3)">0.3</div>
-                <div class="chip" onclick="setBet(1)">1.0</div>
-                <div class="chip" onclick="setBet(5)">5.0</div>
-                <div class="chip" onclick="setBet(10)">10</div>
-                <div class="chip" onclick="setBet('max')">MAX</div>
-            </div>
-
-            <button class="btn-play" onclick="handlePlaceBet()">СДЕЛАТЬ СТАВКУ</button>
         </div>
 
-        <div id="view-top" class="screen">
-            <div class="season-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/3112/3112946.png" class="cup-icon">
-                <p style="font-size: 12px; font-weight: 800; color: var(--text-m);">СЕЗОН ЗАКОНЧИТСЯ ЧЕРЕЗ:</p>
-                <div class="season-timer" id="season-timer">29д 23:59:59</div>
+        <div id="tab-shop" class="screen">
+            <div class="shop-header">
+                <h1>Магазин</h1>
+                <p>Выделяйся среди других игроков</p>
             </div>
 
-            <h3 style="margin-bottom: 15px; font-family: 'Outfit';">Лидеры месяца</h3>
-            <div id="leaderboard-list">
+            <div class="shop-categories">
+                <div class="cat-btn active">⚡ Аватары</div>
+                <div class="cat-btn">🎨 Темы (Скоро)</div>
+                <div class="cat-btn">🚀 Бусты (Скоро)</div>
+            </div>
+
+            <div class="shop-grid" id="shop-grid">
                 </div>
         </div>
 
-        <div id="view-profile" class="screen">
-            <div class="profile-header">
-                <div class="p-avatar flex-center" id="p-ava">?</div>
-                <h2 id="p-name" style="font-family: 'Outfit';">Username</h2>
-                <p id="p-id" style="color: var(--text-m); font-size: 12px; font-weight: 700;">ID: 00000000</p>
+        <div id="tab-top" class="screen">
+            <div class="top-season-card">
+                <div class="top-cup">🏆</div>
+                <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 5px;">КОНЕЦ СЕЗОНА ЧЕРЕЗ</div>
+                <div style="font-family: 'Outfit'; font-size: 36px; font-weight: 900; color: #fff; line-height: 1;" id="season-time">29д 14:05</div>
             </div>
 
-            <div class="wallet-card">
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-m);">ОБЩИЙ БАЛАНС</p>
-                <div class="w-balance"><span id="w-bal">0.00</span> <small style="font-size: 14px; color: var(--accent);">TON</small></div>
-                <div class="action-grid">
-                    <button class="btn-play" style="padding: 14px; margin: 0; font-size: 14px;" onclick="openModal('dep')">ПОПОЛНИТЬ</button>
-                    <button class="btn-sec" onclick="openModal('wit')">ВЫВОД</button>
+            <div class="podium">
+                <div class="podium-place podium-2">
+                    <div class="podium-ava">S</div>
+                    <div class="podium-bar">2</div>
+                    <div class="podium-name">Solana_Boy</div>
+                    <div class="podium-score">850 TON</div>
+                </div>
+                <div class="podium-place podium-1">
+                    <div class="podium-ava">W</div>
+                    <div class="podium-bar">1</div>
+                    <div class="podium-name">WhaleKing</div>
+                    <div class="podium-score">1420 TON</div>
+                </div>
+                <div class="podium-place podium-3">
+                    <div class="podium-ava">D</div>
+                    <div class="podium-bar">3</div>
+                    <div class="podium-name">DurovFan</div>
+                    <div class="podium-score">530 TON</div>
                 </div>
             </div>
 
-            <div class="wallet-card" style="padding: 15px;">
-                <p style="font-size: 11px; font-weight: 800; color: var(--text-m); margin-bottom: 10px;">ПРОМОКОД</p>
-                <div class="flex-between">
-                    <input type="text" id="promo-input" placeholder="Введите код..." style="background: transparent; border: none; color: #fff; font-weight: 700; outline: none; width: 70%;">
-                    <button class="btn-sec" style="padding: 8px 15px;" onclick="claimPromo()">ОК</button>
+            <div class="leader-list">
+                <div class="leader-row"><div class="leader-rank">4</div><div class="leader-info">CryptoNinja</div><div class="leader-val">410.5</div></div>
+                <div class="leader-row"><div class="leader-rank">5</div><div class="leader-info">TonMaster</div><div class="leader-val">380.0</div></div>
+                <div class="leader-row"><div class="leader-rank">6</div><div class="leader-info">Lucky777</div><div class="leader-val">290.2</div></div>
+            </div>
+        </div>
+
+        <div id="tab-profile" class="screen">
+            <div class="profile-header-main">
+                <div class="p-ava-huge" id="prof-ava">U</div>
+                <div class="p-name-huge" id="prof-name">Username</div>
+                <div class="p-id-lbl" id="prof-id">ID: 00000000</div>
+            </div>
+
+            <div class="wallet-block">
+                <div class="lbl">Доступно для вывода</div>
+                <div class="bal"><span id="prof-bal">0.00</span> <span style="font-size: 20px; color: var(--accent);">TON</span></div>
+                <div class="action-btns">
+                    <button class="btn-primary" onclick="showModal('deposit')">ПОПОЛНИТЬ</button>
+                    <button class="btn-secondary" onclick="showModal('withdraw')">ВЫВЕСТИ</button>
                 </div>
             </div>
 
-            <h3 style="margin-bottom: 15px; font-family: 'Outfit';">История игр</h3>
-            <div class="history-list" id="history-list">
+            <div class="promo-block">
+                <input type="text" id="promo-input" placeholder="Промокод...">
+                <button onclick="activatePromo()">ОК</button>
+            </div>
+
+            <div class="section-title">
+                Инвентарь <span style="font-size: 13px; color: var(--text-muted); font-weight: 700;">МАКС 8</span>
+            </div>
+            <div class="inv-grid" id="inv-grid">
                 </div>
+
+            <div class="section-title" style="margin-top: 20px;">История транзакций</div>
+            <div class="card" style="padding: 0 20px;">
+                <div class="hist-list" id="hist-list">
+                    </div>
+            </div>
         </div>
 
     </div>
 
     <nav>
         <div class="nav-item active" onclick="switchTab('battle', this)">
-            <i>⚔</i>
-            БАТЛ
+            <svg viewBox="0 0 24 24"><path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/></svg>
+            Батл
+        </div>
+        <div class="nav-item" onclick="switchTab('shop', this)">
+            <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            Магазин
         </div>
         <div class="nav-item" onclick="switchTab('top', this)">
-            <i>🏆</i>
-            ТОП
+            <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM7 10.82C5.84 10.4 5 9.3 5 8V7h2v3.82zM19 8c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+            Топ
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
-            <i>👤</i>
-            ПРОФИЛЬ
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Профиль
         </div>
     </nav>
 
-    <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <h2 id="modal-title" style="font-family: 'Outfit'; margin-bottom: 15px;">Заголовок</h2>
-            <div id="modal-content"></div>
-            <button class="btn-play" style="margin-top: 20px; margin-bottom: 0;" onclick="closeModal()">ЗАКРЫТЬ</button>
+    <div class="toast-container" id="toast-root"></div>
+
+    <div class="modal-bg" id="modal" onclick="closeModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-title" id="m-title">Заголовок</div>
+            <div class="modal-body" id="m-body">Текст модалки...</div>
+            <div id="m-extra"></div>
+            <button class="btn-primary" onclick="closeModal()">ПОНЯТНО</button>
         </div>
     </div>
 
-    <div class="snackbar" id="snackbar">Уведомление</div>
-
     <script>
+        // Инициализация Telegram SDK
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // 1. Состояние приложения
+        // База данных Магазина
+        const SHOP_DB = [
+            { id: 'av_monkey', name: 'NFT Monkey', price: 25, icon: '🐵', desc: 'Уникальный аватар' },
+            { id: 'av_robot', name: 'Cyber Bot', price: 50, icon: '🤖', desc: 'Светящийся аватар' },
+            { id: 'av_alien', name: 'Alien King', price: 150, icon: '👽', desc: 'Редкий пришелец' },
+            { id: 'av_devil', name: 'Hell Lord', price: 300, icon: '😈', desc: 'Премиум статус' }
+        ];
+
+        // Состояние приложения (Сохраняется в localStorage)
         let state = {
             user: {
-                id: 0,
+                id: 123456,
                 name: "Player",
-                balance: parseFloat(localStorage.getItem('ton_bal')) || 100.0,
-                history: JSON.parse(localStorage.getItem('ton_hist')) || []
+                ava: "P",
+                balance: parseFloat(localStorage.getItem('tb_bal')) || 100.00,
+                inv: JSON.parse(localStorage.getItem('tb_inv')) || [],
+                history: JSON.parse(localStorage.getItem('tb_hist')) || []
             },
             game: {
                 timer: 15,
-                pool1: 0,
-                pool2: 0,
-                isRolling: false,
+                poolBlue: 0,
+                poolRed: 0,
+                isSpinning: false,
                 rotation: 0
-            },
-            currentTab: 'battle'
+            }
         };
 
-        // 2. Инициализация Telegram
-        function initUser() {
-            const u = tg.initDataUnsafe?.user;
-            if (u) {
+        // 1. ИНИЦИАЛИЗАЦИЯ
+        function initApp() {
+            // Берем данные из ТГ, если открыто там
+            if (tg.initDataUnsafe?.user) {
+                const u = tg.initDataUnsafe.user;
                 state.user.id = u.id;
                 state.user.name = u.first_name;
-                const letter = u.first_name[0].toUpperCase();
-                document.getElementById('u-ava-top').innerText = letter;
-                document.getElementById('p-ava').innerText = letter;
-                document.getElementById('u-name-top').innerText = u.first_name;
-                document.getElementById('p-name').innerText = u.first_name;
-                document.getElementById('p-id').innerText = "ID: " + u.id;
+                state.user.ava = u.first_name.charAt(0).toUpperCase();
             }
-            updateBalances();
-        }
-
-        // 3. Обновление UI балансов
-        function updateBalances() {
-            const b = state.user.balance.toFixed(2);
-            document.getElementById('h-bal').innerText = b;
-            document.getElementById('w-bal').innerText = b;
-            document.getElementById('p-bal').innerText = b;
-            document.getElementById('max-hint').innerText = b;
-            localStorage.setItem('ton_bal', state.user.balance);
-        }
-
-        // 4. Логика переключения вкладок
-        function switchTab(name, el) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
-            document.getElementById('view-' + name).classList.add('active');
-            el.classList.add('active');
-            state.currentTab = name;
+            // Обновляем UI Профиля и Шапки
+            document.getElementById('hdr-name').innerText = state.user.name;
+            document.getElementById('prof-name').innerText = state.user.name;
+            document.getElementById('prof-id').innerText = "ID: " + state.user.id;
+            
+            updateAva(state.user.ava);
+            updateBalanceUI();
+            
+            // Рендер контента
+            renderShop();
+            renderInv();
+            renderHistory();
 
-            if (name === 'top') renderLeaderboard();
-            if (name === 'profile') renderHistory();
+            // Запуск игрового цикла
+            setInterval(gameLoop, 1000);
+            
+            // Запуск ленты ставок
+            setInterval(generateFakeBet, 2500);
         }
 
-        // 5. ИГРОВАЯ ЛОГИКА (Рулетка)
+        function updateAva(symbol) {
+            document.getElementById('hdr-ava').innerText = symbol;
+            document.getElementById('prof-ava').innerText = symbol;
+        }
+
+        function updateBalanceUI() {
+            const b = state.user.balance.toFixed(2);
+            document.getElementById('hdr-bal').innerText = b;
+            document.getElementById('prof-bal').innerText = b;
+            localStorage.setItem('tb_bal', state.user.balance);
+        }
+
+        function addHistory(title, amt, type) {
+            state.user.history.unshift({ title, amt, type, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            if(state.user.history.length > 20) state.user.history.pop(); // Храним только 20
+            localStorage.setItem('tb_hist', JSON.stringify(state.user.history));
+            renderHistory();
+        }
+
+        // 2. НАВИГАЦИЯ
+        function switchTab(tabId, el = null) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            } else {
+                // Вызов без клика по меню (например из кода)
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelector(`.nav-item[onclick*="${tabId}"]`).classList.add('active');
+            }
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // 3. ИГРОВОЙ ДВИЖОК
         function gameLoop() {
-            if (state.game.isRolling) return;
+            if (state.game.isSpinning) return;
 
             state.game.timer--;
-            document.getElementById('timer').innerText = state.game.timer;
+            document.getElementById('r-timer').innerText = state.game.timer;
 
-            // Имитация добавления ставок ботами
-            if (state.game.timer > 2) {
-                const side = Math.random() > 0.5 ? 1 : 2;
-                const amt = Math.random() * 2;
-                if (side === 1) state.game.pool1 += amt;
-                else state.game.pool2 += amt;
-                updatePools();
+            // Фейковые вливания в пулы для массовости
+            if(state.game.timer > 2 && Math.random() > 0.4) {
+                let amt = Math.random() * 5;
+                if(Math.random() > 0.5) state.game.poolBlue += amt; else state.game.poolRed += amt;
+                updatePoolsUI();
             }
 
             if (state.game.timer <= 0) {
@@ -519,191 +702,245 @@
             }
         }
 
-        function updatePools() {
-            document.getElementById('pool-1').innerText = state.game.pool1.toFixed(2);
-            document.getElementById('pool-2').innerText = state.game.pool2.toFixed(2);
+        function updatePoolsUI() {
+            document.getElementById('pool-blue-val').innerText = state.game.poolBlue.toFixed(2);
+            document.getElementById('pool-red-val').innerText = state.game.poolRed.toFixed(2);
             
-            const total = state.game.pool1 + state.game.pool2;
+            let total = state.game.poolBlue + state.game.poolRed;
             if (total > 0) {
-                const p1 = (state.game.pool1 / total) * 100;
-                document.getElementById('prog-1').style.width = p1 + '%';
-                document.getElementById('prog-2').style.width = (100 - p1) + '%';
+                let pBlue = (state.game.poolBlue / total) * 100;
+                document.getElementById('bar-blue').style.width = pBlue + '%';
+                document.getElementById('bar-red').style.width = (100 - pBlue) + '%';
+            } else {
+                document.getElementById('bar-blue').style.width = '50%';
+                document.getElementById('bar-red').style.width = '50%';
             }
         }
 
         function spinWheel() {
-            state.game.isRolling = true;
-            const wheel = document.getElementById('wheel');
-            const randomExtra = Math.floor(Math.random() * 360);
-            state.game.rotation += (360 * 5) + randomExtra;
+            state.game.isSpinning = true;
+            let wheel = document.getElementById('roulette-wheel');
+            
+            // Логика вращения (рандомный угол)
+            let extra = Math.floor(Math.random() * 360);
+            state.game.rotation += (360 * 6) + extra; // 6 полных оборотов + остаток
             
             wheel.style.transform = `rotate(${state.game.rotation}deg)`;
 
+            // Ждем завершения анимации CSS (7 сек)
             setTimeout(() => {
-                const finalDeg = state.game.rotation % 360;
-                // В conic-gradient Green 0-50% (0-180deg), Blue 50-100% (180-360deg)
-                // Но указатель сверху, так что считаем от 0
-                const winner = (finalDeg > 180) ? "Green" : "Blue"; 
+                let finalDeg = state.game.rotation % 360;
+                // Синий: 0-180, Красный: 180-360 (грубый подсчет)
+                let winner = finalDeg > 180 ? 'RED' : 'BLUE';
+                showToast(`Выпал цвет: ${winner} 🎯`, winner === 'RED' ? '#ff3b5c' : '#3b70ff');
                 
-                showSnackbar(`Победил цвет: ${winner}!`);
-                resetGame();
-            }, 6500);
+                setTimeout(resetRound, 3000);
+            }, 7500);
         }
 
-        function resetGame() {
-            setTimeout(() => {
-                state.game.timer = 15;
-                state.game.pool1 = 0;
-                state.game.pool2 = 0;
-                state.game.isRolling = false;
-                updatePools();
-            }, 2000);
+        function resetRound() {
+            state.game.timer = 15;
+            state.game.poolBlue = 0;
+            state.game.poolRed = 0;
+            state.game.isSpinning = false;
+            updatePoolsUI();
         }
 
-        // 6. Управление ставками
-        function setBet(v) {
-            const input = document.getElementById('bet-input');
-            if (v === 'max') input.value = state.user.balance.toFixed(2);
-            else input.value = v.toFixed(2);
+        // 4. СТАВКИ
+        function setBet(val) {
+            let input = document.getElementById('bet-amt');
+            if (val === 'max') input.value = state.user.balance.toFixed(2);
+            else input.value = parseFloat(val).toFixed(2);
         }
 
-        function stepBet(v) {
-            const input = document.getElementById('bet-input');
-            let curr = parseFloat(input.value);
-            if (curr + v >= 0) input.value = (curr + v).toFixed(2);
+        function adjBet(val) {
+            let input = document.getElementById('bet-amt');
+            let curr = parseFloat(input.value) || 0;
+            if (curr + val > 0) input.value = (curr + val).toFixed(2);
         }
 
-        function handlePlaceBet() {
-            const amt = parseFloat(document.getElementById('bet-input').value);
-            if (amt > state.user.balance) return showSnackbar("Недостаточно TON");
-            if (amt <= 0) return showSnackbar("Сумма должна быть больше 0");
-            if (state.game.isRolling) return showSnackbar("Игра уже идет");
+        function placeBet(color) {
+            if (state.game.isSpinning) return showToast("Ставки закрыты! 🚫");
+            
+            let amt = parseFloat(document.getElementById('bet-amt').value);
+            if (isNaN(amt) || amt <= 0) return showToast("Некорректная сумма");
+            if (amt > state.user.balance) return showToast("Недостаточно TON 💰");
 
+            // Списываем баланс
             state.user.balance -= amt;
-            updateBalances();
+            updateBalanceUI();
             
-            // Добавляем в случайный пул
-            if (Math.random() > 0.5) state.game.pool1 += amt;
-            else state.game.pool2 += amt;
-            updatePools();
+            // Добавляем в пул
+            if(color === 'blue') state.game.poolBlue += amt;
+            else state.game.poolRed += amt;
+            updatePoolsUI();
 
-            showSnackbar("Ставка принята!");
-            
-            // Добавляем в историю
-            state.user.history.unshift({
-                type: 'Игра',
-                amt: -amt,
-                date: new Date().toLocaleTimeString()
-            });
-            localStorage.setItem('ton_hist', JSON.stringify(state.user.history));
+            addHistory(`Ставка ${color.toUpperCase()}`, amt, 'minus');
+            showToast(`Ставка ${amt} TON принята! ✅`);
         }
 
-        // 7. Промокоды и уведомления
-        function claimPromo() {
-            const code = document.getElementById('promo-input').value.toLowerCase();
-            if (code === 'ton2026') {
-                state.user.balance += 10;
-                updateBalances();
-                showSnackbar("Промокод активирован: +10 TON");
+        function generateFakeBet() {
+            if(state.game.isSpinning) return;
+            const names = ["Alex", "Doge", "Whale", "TonFan", "Crypto", "Meme"];
+            const isBlue = Math.random() > 0.5;
+            const amt = (Math.random() * 10 + 1).toFixed(1);
+            
+            const feed = document.getElementById('live-feed-list');
+            const el = document.createElement('div');
+            el.className = 'feed-item';
+            el.innerHTML = `
+                <div class="feed-user">
+                    <div class="feed-ava">${names[Math.floor(Math.random()*names.length)][0]}</div>
+                    ${names[Math.floor(Math.random()*names.length)]}
+                </div>
+                <div class="feed-amt ${isBlue ? 'blue' : 'red'}">${amt} TON</div>
+            `;
+            feed.prepend(el);
+            if(feed.children.length > 4) feed.removeChild(feed.lastChild);
+        }
+
+        // 5. МАГАЗИН И ИНВЕНТАРЬ
+        function renderShop() {
+            let html = "";
+            SHOP_DB.forEach(item => {
+                let isOwned = state.user.inv.includes(item.id);
+                html += `
+                    <div class="shop-item ${isOwned ? 'item-owned' : ''}">
+                        <div class="item-icon">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-desc">${item.desc}</div>
+                        <div class="item-price">${item.price} TON</div>
+                        <button class="btn-buy" onclick="buyItem('${item.id}')">
+                            ${isOwned ? 'УЖЕ КУПЛЕНО' : 'КУПИТЬ'}
+                        </button>
+                    </div>
+                `;
+            });
+            document.getElementById('shop-grid').innerHTML = html;
+        }
+
+        function buyItem(id) {
+            if(state.user.inv.includes(id)) return showToast("Уже есть в инвентаре!");
+            
+            let item = SHOP_DB.find(i => i.id === id);
+            if(state.user.balance < item.price) return showToast("Не хватает TON 😔");
+
+            // Покупка
+            state.user.balance -= item.price;
+            state.user.inv.push(id);
+            updateBalanceUI();
+            
+            localStorage.setItem('tb_inv', JSON.stringify(state.user.inv));
+            addHistory(`Покупка: ${item.name}`, item.price, 'minus');
+            
+            showToast(`Успешно куплено: ${item.name} 🎉`);
+            renderShop();
+            renderInv();
+        }
+
+        function renderInv() {
+            let html = "";
+            // Сначала рисуем купленные предметы
+            state.user.inv.forEach(id => {
+                let item = SHOP_DB.find(i => i.id === id);
+                if(item) {
+                    html += `
+                        <div class="inv-slot" onclick="equipAva('${item.icon}')" style="cursor:pointer; background:rgba(0,136,204,0.1); border-color:var(--accent);">
+                            ${item.icon}
+                            <div class="inv-badge">USE</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Дополняем пустыми слотами до 8
+            let emptySlots = 8 - state.user.inv.length;
+            for(let i=0; i<emptySlots; i++) {
+                html += `<div class="inv-slot empty"></div>`;
+            }
+            document.getElementById('inv-grid').innerHTML = html;
+        }
+
+        function equipAva(icon) {
+            updateAva(icon);
+            showToast("Аватар установлен!");
+        }
+
+        // 6. ПРОФИЛЬ (История, Промо)
+        function renderHistory() {
+            let html = "";
+            if(state.user.history.length === 0) {
+                html = "<div style='padding: 20px; text-align:center; color: var(--text-muted);'>Пусто</div>";
+            } else {
+                state.user.history.forEach(h => {
+                    html += `
+                        <div class="hist-item">
+                            <div class="h-l"><b>${h.title}</b><span>${h.time}</span></div>
+                            <div class="h-r ${h.type}">${h.type === 'plus' ? '+' : '-'}${parseFloat(h.amt).toFixed(2)}</div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('hist-list').innerHTML = html;
+        }
+
+        function activatePromo() {
+            let val = document.getElementById('promo-input').value.toUpperCase();
+            if(val === 'TONVIP') {
+                state.user.balance += 50;
+                updateBalanceUI();
+                addHistory('Промокод TONVIP', 50, 'plus');
+                showToast("Промокод активирован! +50 TON 🎁", "var(--green)");
                 document.getElementById('promo-input').value = "";
             } else {
-                showSnackbar("Неверный промокод");
+                showToast("Неверный код ❌");
             }
         }
 
-        function showSnackbar(txt) {
-            const s = document.getElementById('snackbar');
-            s.innerText = txt;
-            s.style.display = 'block';
-            setTimeout(() => { s.style.display = 'none'; }, 2500);
-        }
-
-        // 8. Рендеринг списков
-        function renderLeaderboard() {
-            const list = document.getElementById('leaderboard-list');
-            const data = [
-                { name: "CryptoWhale", score: 1450.50 },
-                { name: "TonMaster", score: 890.20 },
-                { name: "LuckyGuy", score: 540.00 },
-                { name: "SolanaRebel", score: 310.45 },
-                { name: "DurovFan", score: 120.00 }
-            ];
-
-            list.innerHTML = data.map((item, i) => `
-                <div class="leader-row ${i === 0 ? 'gold' : ''}">
-                    <div class="rank">${i + 1}</div>
-                    <div style="flex: 1; font-weight: 700;">${item.name}</div>
-                    <div style="font-family: 'Outfit'; font-weight: 800; color: var(--accent);">${item.score.toFixed(2)} TON</div>
-                </div>
-            `).join('');
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if (state.user.history.length === 0) {
-                list.innerHTML = "<p style='text-align:center; color:var(--text-m); padding:20px;'>Истории пока нет</p>";
-                return;
-            }
-            list.innerHTML = state.user.history.map(item => `
-                <div class="history-item">
-                    <div class="h-info">
-                        <b>${item.type}</b>
-                        <span>${item.date}</span>
-                    </div>
-                    <div class="h-amt ${item.amt > 0 ? 'plus' : 'minus'}">
-                        ${item.amt > 0 ? '+' : ''}${item.amt.toFixed(2)}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 9. Модальные окна
-        function openModal(type) {
-            const modal = document.getElementById('modal-overlay');
-            const title = document.getElementById('modal-title');
-            const content = document.getElementById('modal-content');
-
-            if (type === 'dep') {
-                title.innerText = "Пополнение";
-                content.innerHTML = `
-                    <p style="color:var(--text-m); font-size:14px; margin-bottom:15px;">Переведите TON на адрес ниже. Баланс обновится автоматически после 1 подтверждения.</p>
-                    <div style="background:#000; padding:15px; border-radius:12px; font-family:monospace; font-size:12px; word-break:break-all; border:1px solid var(--border);">
-                        UQACY26...m5z8rYm_SAMPLE_ADDR
-                    </div>
-                `;
-            } else {
-                title.innerText = "Вывод средств";
-                content.innerHTML = `
-                    <input type="number" placeholder="Сумма..." id="wit-amt" style="width:100%; padding:15px; border-radius:12px; background:#1c2029; border:1px solid var(--border); color:#fff; margin-bottom:15px;">
-                    <input type="text" placeholder="Адрес кошелька..." style="width:100%; padding:15px; border-radius:12px; background:#1c2029; border:1px solid var(--border); color:#fff;">
+        // 7. UI УТИЛИТЫ (Модалки, Тосты)
+        function showModal(type) {
+            let mTitle = document.getElementById('m-title');
+            let mBody = document.getElementById('m-body');
+            let mExtra = document.getElementById('m-extra');
+            
+            if(type === 'deposit') {
+                mTitle.innerText = "Пополнение";
+                mBody.innerHTML = "Для пополнения отправьте TON на этот адрес. Баланс обновится автоматически.";
+                mExtra.innerHTML = `<div style="background:#000; padding:12px; border-radius:12px; font-family:monospace; word-break:break-all; margin-bottom:20px; border:1px solid var(--border); user-select:all;">UQACY...TEST_ADDRESS_...x8A</div>`;
+            } else if (type === 'withdraw') {
+                mTitle.innerText = "Вывод";
+                mBody.innerHTML = `Доступно: <b>${state.user.balance.toFixed(2)} TON</b>`;
+                mExtra.innerHTML = `
+                    <input type="number" class="modal-input" placeholder="Сумма вывода">
+                    <input type="text" class="modal-input" placeholder="Адрес кошелька TON">
                 `;
             }
 
-            modal.style.display = 'flex';
+            document.getElementById('modal').classList.add('show');
         }
 
         function closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('modal').classList.remove('show');
         }
 
-        // 10. Сезонный таймер
-        function updateSeasonTimer() {
-            const timer = document.getElementById('season-timer');
-            // Упрощенная логика: всегда показывает около 29 дней
-            let d = 29, h = 23, m = 59, s = 59;
-            setInterval(() => {
-                s--;
-                if(s < 0) { s = 59; m--; }
-                timer.innerText = `${d}д ${h}:${m}:${s}`;
-            }, 1000);
+        function showToast(msg, color = '#fff') {
+            const root = document.getElementById('toast-root');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span style="color:${color}; font-size:16px;">●</span> ${msg}`;
+            
+            root.prepend(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        // Старт
-        window.onload = () => {
-            initUser();
-            setInterval(gameLoop, 1000);
-            updateSeasonTimer();
-        };
+        // ЗАПУСК
+        window.onload = initApp;
+
     </script>
 </body>
 </html>
+
