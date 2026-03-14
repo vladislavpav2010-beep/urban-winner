@@ -50,12 +50,11 @@
         /* РУЛЕТКА */
         .wheel-wrap { position: relative; width: 240px; height: 240px; margin: 0 auto 30px; }
         .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 30px; height: 35px; background: #fff; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
-        /* Само колесо */
+        
         .wheel { 
             width: 100%; height: 100%; border-radius: 50%; border: 8px solid #1c1c1e;
             background: conic-gradient(var(--red) 0% 50%, var(--blue) 50% 100%);
             box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
-            /* Железобетонная анимация вращения */
             transition: transform 6s cubic-bezier(0.15, 0.0, 0.0, 1.0); 
             transform: rotate(0deg);
         }
@@ -87,7 +86,7 @@
         .p-side-title { font-size: 11px; color: var(--text-m); font-weight: 800; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         .p-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
 
-        /* ПРОФИЛЬ - ПОЛНАЯ ПЕРЕРАБОТКА */
+        /* ПРОФИЛЬ */
         .prof-header { display: flex; align-items: center; gap: 15px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
         .prof-avatar { width: 70px; height: 70px; background: linear-gradient(135deg, var(--accent), #005580); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px solid rgba(255,255,255,0.1); }
         .prof-info h2 { font-family: 'Outfit'; font-size: 22px; margin-bottom: 4px; }
@@ -103,7 +102,6 @@
         .s-box span { font-size: 11px; color: var(--text-m); font-weight: 800; text-transform: uppercase; }
         .s-box b { display: block; font-family: 'Outfit'; font-size: 20px; margin-top: 5px; }
 
-        /* ИНВЕНТАРЬ / ПОДАРКИ */
         .gifts-section { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
         .sect-title { font-family: 'Outfit'; font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .gifts-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
@@ -111,7 +109,6 @@
         .gift-item .icon { font-size: 28px; margin-bottom: 8px; }
         .gift-item .name { font-size: 11px; font-weight: 700; color: #fff; }
 
-        /* РЕФЕРАЛКА */
         .ref-banner { background: linear-gradient(135deg, #1a1a2e, #0f0f1a); border: 1px solid var(--accent); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
         .ref-banner::before { content:''; position:absolute; top:-50px; right:-50px; width:100px; height:100px; background:var(--accent); filter:blur(50px); opacity:0.3; }
         .ref-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 6px; margin-bottom: 10px; }
@@ -122,9 +119,9 @@
 
         /* НАВИГАЦИЯ */
         .navbar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #09090b; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0 20px; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: var(--text-m); font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; width: 33%; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: var(--text-m); font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; width: 25%; } /* Изменено на 25% для 4 кнопок */
         .nav-item.active { color: #fff; }
-        .nav-item.active .nav-icon { background: var(--accent); color: #fff; border-radius: 12px; padding: 8px 20px; }
+        .nav-item.active .nav-icon { background: var(--accent); color: #fff; border-radius: 12px; padding: 8px 18px; }
         .nav-icon { font-size: 20px; transition: 0.3s; padding: 8px; }
 
         /* ТОП */
@@ -212,8 +209,16 @@
                 </div>
         </div>
 
+        <div id="view-store" class="screen">
+            <h2 style="font-family:'Outfit'; text-align:center; margin-bottom:20px; font-size:24px;">МАГАЗИН</h2>
+            <div style="background:var(--card); border:1px solid var(--border); border-radius:20px; padding:50px 20px; text-align:center; color:var(--text-m);">
+                <div style="font-size:45px; margin-bottom:15px;">🛍️</div>
+                <h3 style="color:#fff; font-family:'Outfit'; margin-bottom:10px;">Раздел в разработке</h3>
+                <p style="font-size:13px; line-height:1.5;">Скоро здесь появятся эксклюзивные аватары, цвета ников, новые фоны и подарочные боксы.</p>
+            </div>
+        </div>
+
         <div id="view-profile" class="screen">
-            
             <div class="prof-header">
                 <div class="prof-avatar">🦁</div>
                 <div class="prof-info">
@@ -265,6 +270,9 @@
         <div class="nav-item" onclick="switchTab('top', this)">
             <div class="nav-icon">🏆</div><span>ТОП</span>
         </div>
+        <div class="nav-item" onclick="switchTab('store', this)">
+            <div class="nav-icon">🛒</div><span>МАГАЗИН</span>
+        </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
             <div class="nav-icon">👤</div><span>ПРОФИЛЬ</span>
         </div>
@@ -277,7 +285,7 @@
         bal: parseFloat(localStorage.getItem('tb_bal_pro')) || 150.0,
         hist: JSON.parse(localStorage.getItem('tb_hist_pro')) || ['s1','s2','s1','s1','s2'],
         game: { timer: 15, pool1: 0, pool2: 0, users1: [], users2: [], myBet: null, isRolling: false },
-        currentRotation: 0 // Сохраняем градус рулетки
+        currentRotation: 0
     };
 
     function save() {
@@ -310,6 +318,14 @@
         document.getElementById('timer-label').innerText = "Секунд до вращения";
         document.getElementById('timer-num').style.color = "#fff";
         
+        // ФИКС РУЛЕТКИ: Обнуляем поворот перед стартом, чтобы цвета не сбивались
+        let wheel = document.getElementById('wheel');
+        wheel.style.transition = 'none'; // Отключаем плавность для мгновенного сброса
+        wheel.style.transform = `rotate(0deg)`;
+        state.currentRotation = 0;
+        void wheel.offsetWidth; // Принудительно применяем CSS
+        wheel.style.transition = 'transform 6s cubic-bezier(0.15, 0.0, 0.0, 1.0)'; // Возвращаем плавность
+        
         updateGameUI();
         renderHistory();
 
@@ -324,7 +340,6 @@
         }, 1000);
     }
 
-    // СТАВКИ С СУММИРОВАНИЕМ
     function placeBet(side) {
         if(state.game.isRolling) return alert("Рулетка уже крутится!");
         if(state.game.myBet && state.game.myBet.side !== side) return alert("Вы уже поставили на другую команду!");
@@ -339,7 +354,7 @@
         if(!state.game.myBet) {
             state.game.myBet = { side: side, amt: amt };
         } else {
-            state.game.myBet.amt += amt; // Суммируем ставку
+            state.game.myBet.amt += amt;
         }
 
         addPlayerToPool(side, "ВЫ (YOU)", amt);
@@ -366,21 +381,18 @@
         let p1 = total > 0 ? (state.game.pool1 / total * 100) : 50;
         let p2 = 100 - p1;
 
-        // Полоса и текст
         document.getElementById('bar-red').style.width = p1 + '%';
         document.getElementById('bar-blue').style.width = p2 + '%';
         document.getElementById('perc-red').innerText = p1.toFixed(0);
         document.getElementById('perc-blue').innerText = p2.toFixed(0);
         
-        // Пулы
         document.getElementById('pool-1').innerText = state.game.pool1.toFixed(1);
         document.getElementById('pool-2').innerText = state.game.pool2.toFixed(1);
 
-        // Градиент рулетки
+        // Раскрашиваем рулетку по процентам
         let wheel = document.getElementById('wheel');
         wheel.style.background = `conic-gradient(var(--red) 0% ${p1}%, var(--blue) ${p1}% 100%)`;
 
-        // Сортируем списки (у кого больше ставка - тот выше)
         state.game.users1.sort((a,b) => b.amt - a.amt);
         state.game.users2.sort((a,b) => b.amt - a.amt);
 
@@ -388,7 +400,6 @@
         document.getElementById('list-2').innerHTML = state.game.users2.map(u => `<div class="p-row"><b style="color:var(--blue)">${u.amt.toFixed(1)}</b><span style="color:${u.name==='ВЫ (YOU)'?'#fff':'var(--text-m)'}">${u.name}</span></div>`).join('');
     }
 
-    // ВРАЩЕНИЕ И ОПРЕДЕЛЕНИЕ ПОБЕДИТЕЛЯ
     function spinWheel() {
         state.game.isRolling = true;
         document.getElementById('timer-label').innerText = "ВРАЩЕНИЕ...";
@@ -401,27 +412,22 @@
             return; 
         }
 
-        // Логика победы
         let redChance = (state.game.pool1 / total * 100);
-        let roll = Math.random() * 100; // Случайное число 0-100
+        let roll = Math.random() * 100;
         let winSide = roll <= redChance ? 's1' : 's2';
 
-        // Анимация рулетки (физика вращения)
-        // roll * 3.6 переводит проценты в градусы (0-360)
+        // Идеальный расчет угла. 0 градусов теперь всегда соответствует старту красных
         let stopDeg = 360 - (roll * 3.6); 
-        // Добавляем 5 полных оборотов (1800 градусов) к текущему углу
-        state.currentRotation += (360 * 5) + stopDeg; 
+        state.currentRotation = (360 * 5) + stopDeg; // 5 оборотов + нужный угол
         
         let wheel = document.getElementById('wheel');
         wheel.style.transform = `rotate(${state.currentRotation}deg)`;
 
-        // Ждем 6 секунд пока рулетка остановится
         setTimeout(() => {
             state.hist.push(winSide);
             stats.games++;
 
             if(state.game.myBet && state.game.myBet.side === winSide) {
-                // Расчет выигрыша пропорционально
                 let multiplier = total / (winSide === 's1' ? state.game.pool1 : state.game.pool2);
                 let winAmount = state.game.myBet.amt * multiplier;
                 
@@ -439,7 +445,6 @@
     // --- УТИЛИТЫ ---
     function renderHistory() {
         let hHtml = '';
-        // Показываем последние 10 игр
         let recent = state.hist.slice(-10);
         recent.forEach(s => {
             hHtml += `<div class="h-dot ${s === 's1' ? 'h-red' : 'h-blue'}"></div>`;
@@ -467,7 +472,6 @@
             {n: "ВЫ (YOU)", a: "🦁", v: state.bal}
         ];
         
-        // Сортируем по богатству
         leaders.sort((a,b) => b.v - a.v);
 
         let html = '';
@@ -475,9 +479,7 @@
             html += `<div class="leader-card">
                 <div class="l-rank">${i+1}</div>
                 <div class="l-avatar">${l.a}</div>
-                <div class="l-info">
-                    <div class="l-name">${l.n}</div>
-                </div>
+                <div class="l-info"><div class="l-name">${l.n}</div></div>
                 <div class="l-score">${l.v.toFixed(1)} TON</div>
             </div>`;
         });
@@ -487,7 +489,6 @@
     function maxBet() { document.getElementById('bet-amt').value = state.bal.toFixed(2); }
     function resetData() { if(confirm("Удалить профиль?")) { localStorage.clear(); location.reload(); } }
 
-    // СИМУЛЯЦИЯ ОНЛАЙНА (БОТЫ СТАВЯТ СТАВКИ)
     setInterval(() => {
         if(!state.game.isRolling && state.game.timer > 2 && Math.random() > 0.6) {
             let side = Math.random() > 0.5 ? 's1' : 's2';
@@ -497,7 +498,6 @@
         }
     }, 1200);
 
-    // СТАРТ
     window.onload = () => {
         updateBal();
         startNewRound();
