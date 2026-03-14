@@ -87,35 +87,37 @@
         .p-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
 
         /* ПРОФИЛЬ */
-        .prof-header { display: flex; align-items: center; gap: 15px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .prof-avatar { width: 70px; height: 70px; background: linear-gradient(135deg, var(--accent), #005580); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 2px solid rgba(255,255,255,0.1); }
-        .prof-info h2 { font-family: 'Outfit'; font-size: 22px; margin-bottom: 4px; }
-        .prof-info p { color: var(--text-m); font-size: 13px; font-weight: 700; }
         
-        .fin-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .fin-btn { padding: 15px; border-radius: 16px; font-weight: 800; font-family: 'Outfit'; text-align: center; border: none; color: #fff; font-size: 15px; }
-        .fin-btn.dep { background: var(--green); }
-        .fin-btn.wit { background: #2c2c2e; border: 1px solid var(--border); }
+        <div id="view-profile" class="screen">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 12px; color: var(--text-m);">Ваш баланс</div>
+        <div style="font-size: 32px; font-weight: 900; margin: 10px 0;">
+            <span id="p-bal">0.00</span> <small style="font-size: 14px; color: var(--accent);">TON</small>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-main" style="background: var(--green);" onclick="deposit()">↓ Пополнить</button>
+            <button class="btn-main" style="background: #242831;" onclick="withdraw()">↑ Вывести</button>
+        </div>
+        <button class="btn-main" style="margin-top: 10px;" onclick="alert('Перевод временно недоступен')">Перевод</button>
+    </div>
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .s-box { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 16px; }
-        .s-box span { font-size: 11px; color: var(--text-m); font-weight: 800; text-transform: uppercase; }
-        .s-box b { display: block; font-family: 'Outfit'; font-size: 20px; margin-top: 5px; }
+    <div style="font-size: 12px; color: var(--text-m); margin-bottom: 10px; font-weight: 800;">Инвентарь</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+        <div class="card" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin: 0;">🎁</div>
+        <div class="card" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin: 0;">🎁</div>
+        <div class="card" style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; margin: 0;">❯</div>
+    </div>
 
-        .gifts-section { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        .sect-title { font-family: 'Outfit'; font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .gifts-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-        .gift-item { min-width: 90px; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 16px; padding: 15px 10px; text-align: center; }
-        .gift-item .icon { font-size: 28px; margin-bottom: 8px; }
-        .gift-item .name { font-size: 11px; font-weight: 700; color: #fff; }
+    <div class="card">
+        <h3 style="font-size: 16px; margin-bottom: 10px;">Промокод</h3>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="promo-input" placeholder="Введите код" style="flex: 1; background: #0f1115; border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: #fff; outline: none;">
+            <button class="btn-main" style="width: 50px;" onclick="checkPromo()">✔</button>
+        </div>
+    </div>
+</div>
 
-        .ref-banner { background: linear-gradient(135deg, #1a1a2e, #0f0f1a); border: 1px solid var(--accent); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
-        .ref-banner::before { content:''; position:absolute; top:-50px; right:-50px; width:100px; height:100px; background:var(--accent); filter:blur(50px); opacity:0.3; }
-        .ref-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 6px; margin-bottom: 10px; }
-        .ref-desc { font-size: 13px; color: #d1d1d6; font-weight: 600; line-height: 1.5; margin-bottom: 15px; }
-        .ref-link-box { background: #000; border: 1px dashed var(--accent); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .ref-link-box span { font-family: 'Outfit'; font-size: 14px; color: #fff; }
-        .btn-copy { background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; }
 
         /* НАВИГАЦИЯ */
         .navbar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #09090b; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0 20px; z-index: 1000; }
