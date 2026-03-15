@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON BATTLE ULTIMATE PRO</title>
+    <title>TON BATTLE ULTIMATE V2</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
@@ -11,15 +11,13 @@
     
     <style>
         /* ================================================================
-           1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
-           Я разбил всё на мелкие блоки, чтобы код был читаемым и длинным.
-           ================================================================
-        */
+           1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+           ================================================================ */
         :root {
             --bg-black: #06070a;
             --bg-dark: #0f1117;
             --bg-light: #161922;
-            --bg-overlay: rgba(6, 7, 10, 0.9);
+            --bg-overlay: rgba(6, 7, 10, 0.95);
             
             --cyan: #0088cc;
             --cyan-glow: rgba(0, 136, 204, 0.5);
@@ -43,6 +41,7 @@
             --text-dark: #64748b;
             
             --brd: #1e293b;
+            --brd-light: #334155;
             
             --rad-s: 12px;
             --rad-m: 20px;
@@ -52,6 +51,9 @@
             --safe-b: env(safe-area-inset-bottom, 0px);
         }
 
+        /* ================================================================
+           2. БАЗОВЫЕ НАСТРОЙКИ СТИЛЕЙ
+           ================================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -59,12 +61,12 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            font-family: 'Manrope', sans-serif;
         }
 
         body {
             background-color: var(--bg-black);
             color: var(--text-primary);
-            font-family: 'Manrope', sans-serif;
             height: 100vh;
             width: 100vw;
             display: flex;
@@ -73,14 +75,26 @@
             position: fixed;
         }
 
+        svg.ton-logo {
+            width: 14px;
+            height: 14px;
+            vertical-align: middle;
+            margin-right: 4px;
+            margin-bottom: 2px;
+        }
+
         /* ================================================================
-           2. АНИМАЦИИ
-           Добавляем динамики интерфейсу.
-           ================================================================
-        */
+           3. АНИМАЦИИ
+           ================================================================ */
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @keyframes pulseGold {
@@ -89,16 +103,9 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 184, 0, 0); }
         }
 
-        @keyframes winBling {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); filter: brightness(1.5); }
-            100% { transform: scale(1); }
-        }
-
         /* ================================================================
-           3. КОМПОНЕНТЫ ШАПКИ
-           ================================================================
-        */
+           4. ШАПКА ПРОФИЛЯ (HEADER)
+           ================================================================ */
         header {
             padding: calc(var(--safe-t) + 15px) 20px 15px;
             background: rgba(6, 7, 10, 0.85);
@@ -131,19 +138,6 @@
             position: relative;
         }
 
-        .level-tag {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: var(--gold);
-            color: black;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 5px;
-            border-radius: 5px;
-            border: 2px solid var(--bg-black);
-        }
-
         .user-meta-data {
             display: flex;
             flex-direction: column;
@@ -172,11 +166,8 @@
             border-radius: 100px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            gap: 6px;
         }
-
-        .wallet-pill:active { transform: scale(0.95); }
 
         .wallet-pill .amount {
             font-family: 'Outfit';
@@ -184,24 +175,16 @@
             font-size: 17px;
         }
 
-        .wallet-pill .unit {
-            color: var(--cyan);
-            font-size: 11px;
-            font-weight: 800;
-        }
-
         /* ================================================================
-           4. ОСНОВНОЙ КОНТЕНТ (РУЛЕТКА)
-           ================================================================
-        */
+           5. ОСНОВНОЙ КОНТЕЙНЕР И ЭКРАНЫ
+           ================================================================ */
         main {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            padding-bottom: 100px;
+            padding-bottom: 110px;
             scrollbar-width: none;
         }
-
         main::-webkit-scrollbar { display: none; }
 
         .game-screen {
@@ -209,13 +192,18 @@
             animation: slideUp 0.4s ease-out;
         }
 
-        .game-screen.active { display: block; }
+        .game-screen.active {
+            display: block;
+        }
 
+        /* ================================================================
+           6. ИГРОВОЙ ЭКРАН (РУЛЕТКА И СТАВКИ)
+           ================================================================ */
         .roulette-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .wheel-wrapper {
@@ -279,7 +267,40 @@
             text-transform: uppercase;
         }
 
-        /* Статистика пулов */
+        /* ИСТОРИЯ РАУНДОВ */
+        .history-bar {
+            background: var(--bg-dark);
+            border: 1px solid var(--brd);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            width: 100%;
+            height: 44px;
+        }
+
+        .history-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-right: auto;
+            text-transform: uppercase;
+        }
+
+        .history-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+        .history-dot.blue { background: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
+        .history-dot.red { background: var(--pink); box-shadow: 0 0 8px var(--pink-glow); }
+
+        /* ПУЛЫ */
         .pools-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -309,14 +330,16 @@
 
         .pool-value {
             font-family: 'Outfit';
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 900;
+            display: flex;
+            align-items: center;
         }
 
         .c-cyan { color: var(--cyan); }
         .c-pink { color: var(--pink); }
 
-        /* Панель ставок */
+        /* УПРАВЛЕНИЕ СТАВКАМИ */
         .bet-control {
             background: var(--bg-dark);
             border: 1px solid var(--brd);
@@ -377,7 +400,6 @@
             font-weight: 900;
             font-size: 18px;
             cursor: pointer;
-            transition: 0.2s;
             position: relative;
         }
 
@@ -402,16 +424,13 @@
             padding: 2px 6px;
             border-radius: 4px;
             display: none;
+            font-family: 'Manrope';
+            font-weight: 800;
         }
 
         /* ================================================================
-           5. МАГАЗИН (SHOP)
-           ================================================================
-        */
-        .shop-container {
-            padding-bottom: 20px;
-        }
-
+           7. МАГАЗИН И ПРОМОКОДЫ
+           ================================================================ */
         .shop-title {
             text-align: center;
             font-family: 'Outfit';
@@ -423,7 +442,39 @@
             text-align: center;
             color: var(--text-dark);
             font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .promo-box {
+            background: var(--bg-dark);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 15px;
             margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .promo-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--brd);
+            border-radius: 10px;
+            padding: 0 15px;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .btn-promo {
+            background: var(--green);
+            color: black;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-weight: 900;
+            font-size: 12px;
+            text-transform: uppercase;
         }
 
         .shop-tabs {
@@ -475,8 +526,16 @@
         }
 
         .shop-card-name { font-weight: 800; font-size: 16px; margin-bottom: 5px; }
-        .shop-card-desc { font-size: 11px; color: var(--text-dark); margin-bottom: 15px; }
-        .shop-card-price { font-family: 'Outfit'; font-weight: 900; color: var(--gold); font-size: 18px; margin-bottom: 15px; }
+        .shop-card-desc { font-size: 11px; color: var(--text-dark); margin-bottom: 15px; line-height: 1.3; }
+        .shop-card-price { 
+            font-family: 'Outfit'; 
+            font-weight: 900; 
+            color: var(--gold); 
+            font-size: 18px; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
 
         .btn-buy {
             width: 100%;
@@ -490,9 +549,32 @@
         }
 
         /* ================================================================
-           6. ТАБЛИЦА ЛИДЕРОВ (TOP)
-           ================================================================
-        */
+           8. ТАБЛИЦА ЛИДЕРОВ И СЕЗОН (ТОП 100)
+           ================================================================ */
+        .season-timer-box {
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.1), rgba(255, 184, 0, 0.05));
+            border: 1px solid var(--gold);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .season-timer-title {
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .season-timer-val {
+            font-family: 'Outfit';
+            font-size: 24px;
+            font-weight: 900;
+            color: white;
+        }
+
         .leaderboard-box {
             background: var(--bg-dark);
             border-radius: var(--rad-l);
@@ -523,16 +605,25 @@
         .lb-rank { font-family: 'Outfit'; font-weight: 900; color: var(--text-dark); }
         .lb-user-info { display: flex; align-items: center; gap: 10px; }
         .lb-ava { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
+        
+        .lb-name-group {
+            display: flex;
+            flex-direction: column;
+        }
+
         .lb-name { font-weight: 700; font-size: 14px; }
-        .lb-val { text-align: right; font-family: 'Outfit'; font-weight: 900; }
+        .lb-reward { font-size: 10px; color: var(--gold); font-weight: 800; display: flex; align-items: center; margin-top: 2px;}
+        
+        .lb-val { text-align: right; font-family: 'Outfit'; font-weight: 900; display: flex; align-items: center; justify-content: flex-end;}
 
         .rank-1 .lb-rank { color: var(--gold); font-size: 20px; }
+        .rank-2 .lb-rank { color: #C0C0C0; font-size: 18px; }
+        .rank-3 .lb-rank { color: #CD7F32; font-size: 18px; }
         .rank-1 { background: rgba(255,184,0,0.05); }
 
         /* ================================================================
-           7. ПРОФИЛЬ
-           ================================================================
-        */
+           9. ПРОФИЛЬ, ИНВЕНТАРЬ И ЗАДАНИЯ
+           ================================================================ */
         .profile-hero {
             background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-black) 100%);
             border: 1px solid var(--brd);
@@ -556,32 +647,56 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        .xp-strip {
-            margin: 20px 0;
-            text-align: left;
+        .tasks-box {
+            background: var(--bg-dark);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 20px;
+            margin-bottom: 25px;
         }
 
-        .xp-labels {
+        .task-row {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .xp-bar-outer {
-            height: 10px;
+            align-items: center;
+            padding: 15px;
             background: #000;
-            border-radius: 10px;
-            overflow: hidden;
             border: 1px solid var(--brd);
+            border-radius: 12px;
         }
 
-        .xp-bar-inner {
-            height: 100%;
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .task-reward {
+            font-size: 12px;
+            color: var(--cyan);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-task {
             background: var(--cyan);
-            width: 45%;
-            box-shadow: 0 0 15px var(--cyan-glow);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+        }
+        
+        .btn-task:disabled {
+            background: var(--bg-light);
+            color: var(--text-dark);
         }
 
         .inv-grid {
@@ -603,15 +718,14 @@
         }
 
         /* ================================================================
-           8. НАВИГАЦИЯ (NAVBAR)
-           ================================================================
-        */
+           10. НАВИГАЦИЯ (NAVBAR)
+           ================================================================ */
         nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(15, 17, 23, 0.9);
+            background: rgba(15, 17, 23, 0.95);
             backdrop-filter: blur(20px);
             border-top: 1px solid var(--brd);
             padding: 10px 0 calc(var(--safe-b) + 10px);
@@ -636,9 +750,8 @@
         .nav-item.active { color: var(--cyan); }
 
         /* ================================================================
-           9. УВЕДОМЛЕНИЯ (TOASTS)
-           ================================================================
-        */
+           11. УВЕДОМЛЕНИЯ (TOASTS)
+           ================================================================ */
         #toast-container {
             position: fixed;
             top: 100px;
@@ -670,15 +783,15 @@
 
     <header>
         <div class="user-block">
-            <div class="user-avatar-circle" id="h-ava">P</div>
+            <div class="user-avatar-circle" id="h-ava">В</div>
             <div class="user-meta-data">
-                <div class="name" id="h-name">Загрузка...</div>
+                <div class="name" id="h-name">Владислав</div>
                 <div class="status">ONLINE (BETA)</div>
             </div>
         </div>
         <div class="wallet-pill">
-            <span class="amount" id="h-bal">105.00</span>
-            <span class="unit">TON</span>
+            <span class="amount" id="h-bal">0.00</span>
+            <span class="ton-svg-container" id="h-svg"></span>
         </div>
     </header>
 
@@ -693,6 +806,12 @@
                         <span class="timer-small">сек</span>
                     </div>
                 </div>
+            </div>
+            
+            <div class="history-bar">
+                <div class="history-label">История:</div>
+                <div id="history-container" style="display: flex; gap: 5px;">
+                    </div>
             </div>
 
             <div class="pools-grid">
@@ -733,9 +852,14 @@
             <h1 class="shop-title">Магазин</h1>
             <p class="shop-subtitle">Улучшай профиль и дари подарки</p>
             
+            <div class="promo-box">
+                <input type="text" id="promo-input" class="promo-input" placeholder="Введите промокод">
+                <button class="btn-promo" onclick="activatePromo()">Активация</button>
+            </div>
+
             <div class="shop-tabs">
-                <div class="shop-tab-item active">Аватары</div>
-                <div class="shop-tab-item">Подарки</div>
+                <div class="shop-tab-item">Аватары</div>
+                <div class="shop-tab-item active">Подарки</div>
                 <div class="shop-tab-item">Статусы</div>
             </div>
 
@@ -747,32 +871,39 @@
             <h1 class="shop-title">Лидеры Сезона</h1>
             <p class="shop-subtitle">Топ 100 самых богатых игроков</p>
             
+            <div class="season-timer-box">
+                <div class="season-timer-title">До конца сезона:</div>
+                <div class="season-timer-val">47 ДН 12 ЧАСОВ</div>
+            </div>
+            
             <div class="leaderboard-box" id="top-list">
                 </div>
         </div>
 
         <div id="scr-profile" class="game-screen">
             <div class="profile-hero">
-                <div class="profile-avatar-big" id="p-ava">P</div>
-                <h2 style="font-family: 'Outfit'; font-size: 26px;" id="p-name">Player</h2>
+                <div class="profile-avatar-big" id="p-ava">В</div>
+                <h2 style="font-family: 'Outfit'; font-size: 26px;" id="p-name">Владислав</h2>
                 
-                <div class="xp-strip">
-                    <div class="xp-labels">
-                        <span>УРОВЕНЬ <span id="p-lvl">1</span></span>
-                        <span>450 / 1000 XP</span>
-                    </div>
-                    <div class="xp-bar-outer">
-                        <div class="xp-bar-inner"></div>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
                     <button class="btn-buy" style="height: 45px;">ДЕПОЗИТ</button>
                     <button class="btn-buy" style="height: 45px; background: var(--bg-light);">ВЫВОД</button>
                 </div>
             </div>
 
-            <h3 style="font-family: 'Outfit'; margin-bottom: 15px;">Мой Инвентарь</h3>
+            <div class="tasks-box">
+                <h3 style="font-family: 'Outfit'; margin-bottom: 15px;">Доступные задания</h3>
+                
+                <div class="task-row">
+                    <div class="task-info">
+                        <span class="task-title">Подписка на спонсора</span>
+                        <span class="task-reward" id="task-rew-svg">+ 0.50</span>
+                    </div>
+                    <button class="btn-task" id="btn-task-1" onclick="completeTask()">Выполнить</button>
+                </div>
+            </div>
+
+            <h3 style="font-family: 'Outfit'; margin-bottom: 15px;">Мой Инвентарь (Подарки)</h3>
             <div class="inv-grid" id="inv-list">
                 </div>
         </div>
@@ -789,7 +920,7 @@
         </a>
         <a href="#" class="nav-item" onclick="navTo('top', this)">
             <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
-            <span>Топ</span>
+            <span>Топ 100</span>
         </a>
         <a href="#" class="nav-item" onclick="navTo('profile', this)">
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -798,26 +929,36 @@
     </nav>
 
     <script>
-        /* ================================================================
-           10. ЛОГИКА ПРИЛОЖЕНИЯ (JAVASCRIPT)
-           ================================================================
-        */
-        
+        // 1. Логотип TON для подстановки везде
+        const TON_SVG = `<svg class="ton-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#0098EA"/><path d="M16.4883 8.32422L12.0001 14.8524L7.51184 8.32422H16.4883Z" fill="white"/></svg>`;
+
+        // Подключаем Telegram Web App (если есть)
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        // Данные пользователя
-        const USER = {
+        
+        // 2. Инициализация БАЗЫ ДАННЫХ Пользователя (localStorage)
+        let defaultUser = {
             id: tg.initDataUnsafe?.user?.id || 777,
-            name: tg.initDataUnsafe?.user?.first_name || "Владислав",
-            balance: 105.00,
-            xp: 450,
-            level: 1,
-            avatar: "В",
-            inventory: []
+            name: "Владислав Павленко", // Имя установлено принудительно, как просили
+            balance: 0.00, // СТРОГО 0.00 при первом запуске
+            inventory: [],
+            usedPromos: [],
+            tasks: { circleGift: false }
         };
 
-        // Состояние игры
+        // Загружаем данные. Если игрок заходит впервые — создаем с 0.
+        let savedData = localStorage.getItem('tonBattle_user_v2');
+        let USER = savedData ? JSON.parse(savedData) : defaultUser;
+
+        // Глобальная база (имитация бэкенда для счетчика промокодов)
+        let GLOBAL_DB = JSON.parse(localStorage.getItem('tonBattle_globals')) || { promoAprilUses: 0 };
+
+        function saveState() {
+            localStorage.setItem('tonBattle_user_v2', JSON.stringify(USER));
+            localStorage.setItem('tonBattle_globals', JSON.stringify(GLOBAL_DB));
+        }
+
+        // 3. Состояние игрового движка
         const GAME = {
             timer: 15,
             poolBlue: 0,
@@ -825,66 +966,114 @@
             myBetBlue: 0,
             myBetRed: 0,
             isSpinning: false,
-            history: []
+            history: JSON.parse(localStorage.getItem('tb_history')) || ['blue', 'red', 'red', 'blue', 'blue', 'red']
         };
 
-        // Список товаров
+        // 4. Магазин: ПОДАРКИ (акцент на подарки)
         const SHOP_ITEMS = [
-            { id: 1, name: "Cyber Punk", icon: "🤖", price: 15, desc: "Стальной стиль будущего" },
-            { id: 2, name: "Golden Ape", icon: "🦧", price: 50, desc: "Для истинных холдеров" },
-            { id: 3, name: "Durov Style", icon: "🕶️", price: 100, desc: "Стена будет возвращена" },
-            { id: 4, name: "Rocket Man", icon: "🚀", price: 250, desc: "Летим на Луну" }
+            { id: 101, name: "Крипто Роза", icon: "🌹", price: 5, desc: "Романтика блокчейна" },
+            { id: 102, name: "Ламба", icon: "🏎️", price: 50, desc: "Мечта каждого" },
+            { id: 103, name: "Биткоин Монета", icon: "₿", price: 100, desc: "Цифровое золото" },
+            { id: 104, name: "Корона", icon: "👑", price: 250, desc: "Для королей топа" },
+            { id: 105, name: "Ракета", icon: "🚀", price: 500, desc: "Туземун!" },
+            { id: 106, name: "Бриллиант", icon: "💎", price: 1000, desc: "Diamond hands" }
         ];
 
-        // Инициализация
+        // 5. ГЕНЕРАЦИЯ ТОП 100 ИГРОКОВ (Массив базы данных)
+        const LEADERBOARD_100 = [];
+        const names = ["Durov_fan", "TON_Whale", "CryptoGod", "Sniper", "Oleg99", "Ivan_T", "NotcoinBillionaire", "Alex_pro"];
+        let currentTopBalance = 15000;
+        
+        for (let i = 1; i <= 100; i++) {
+            // Рассчитываем награды строго по твоему списку:
+            let reward = 0;
+            if (i === 1) reward = 100;
+            else if (i === 2) reward = 75;
+            else if (i === 3) reward = 50;
+            else if (i === 4) reward = 25;
+            else if (i >= 5 && i <= 6) reward = 15;
+            else if (i >= 7 && i <= 9) reward = 10;
+            else if (i === 10) reward = 5;
+            else if (i >= 11 && i <= 15) reward = 3;
+            else if (i >= 16 && i <= 20) reward = 1;
+            else if (i >= 21 && i <= 35) reward = 0.5;
+            else if (i >= 36 && i <= 100) reward = 0.1;
+
+            LEADERBOARD_100.push({
+                rank: i,
+                name: names[i % names.length] + "_" + Math.floor(Math.random() * 999),
+                bal: currentTopBalance.toFixed(1),
+                ava: names[i % names.length][0],
+                reward: reward
+            });
+            // Постепенно уменьшаем баланс вниз по топу
+            currentTopBalance -= (Math.random() * 100 + 10);
+        }
+
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
+        // ==========================================
         function init() {
+            // Подстановка имени
             document.getElementById('h-name').innerText = USER.name;
             document.getElementById('p-name').innerText = USER.name;
             document.getElementById('h-ava').innerText = USER.name[0];
             document.getElementById('p-ava').innerText = USER.name[0];
             
+            // Расстановка SVG
+            document.getElementById('h-svg').innerHTML = TON_SVG;
+            document.getElementById('task-rew-svg').innerHTML = `+ 0.50 ${TON_SVG}`;
+            
             updateUI();
+            renderHistory();
             renderShop();
             renderTop();
-            renderInventory();
+            renderProfile();
+            
             startGlobalTimer();
             startBotSimulation();
         }
 
+        // ==========================================
+        // ОБНОВЛЕНИЕ ИНТЕРФЕЙСА И СОХРАНЕНИЙ
+        // ==========================================
         function updateUI() {
             document.getElementById('h-bal').innerText = USER.balance.toFixed(2);
-            document.getElementById('pool-b-val').innerText = GAME.poolBlue.toFixed(2);
-            document.getElementById('pool-r-val').innerText = GAME.poolRed.toFixed(2);
+            document.getElementById('pool-b-val').innerHTML = `${GAME.poolBlue.toFixed(2)} ${TON_SVG}`;
+            document.getElementById('pool-r-val').innerHTML = `${GAME.poolRed.toFixed(2)} ${TON_SVG}`;
             
-            // Расчет процентов
             const total = GAME.poolBlue + GAME.poolRed;
             const pB = total === 0 ? 50 : (GAME.poolBlue / total * 100);
             document.getElementById('perc-b').innerText = Math.round(pB);
             document.getElementById('perc-r').innerText = Math.round(100 - pB);
             
-            // Визуал рулетки
             if (!GAME.isSpinning) {
                 document.getElementById('wheel').style.background = `conic-gradient(var(--pink) 0% ${100-pB}%, var(--cyan) ${100-pB}% 100%)`;
             }
 
-            // Тэги моих ставок
             const tb = document.getElementById('my-tag-b');
             const tr = document.getElementById('my-tag-r');
             if (GAME.myBetBlue > 0) { tb.style.display = 'block'; tb.innerText = GAME.myBetBlue; } else { tb.style.display = 'none'; }
             if (GAME.myBetRed > 0) { tr.style.display = 'block'; tr.innerText = GAME.myBetRed; } else { tr.style.display = 'none'; }
         }
 
-        /* ТАЙМЕР И ИГРОВОЙ ЦИКЛ */
+        function renderHistory() {
+            const cont = document.getElementById('history-container');
+            // Показываем последние 8 игр
+            const slice = GAME.history.slice(-8);
+            cont.innerHTML = slice.map(color => `<div class="history-dot ${color}"></div>`).join('');
+            localStorage.setItem('tb_history', JSON.stringify(GAME.history));
+        }
+
+        // ==========================================
+        // ЛОГИКА ИГРЫ (РУЛЕТКА)
+        // ==========================================
         function startGlobalTimer() {
             setInterval(() => {
                 if (GAME.isSpinning) return;
-
                 GAME.timer--;
                 document.getElementById('timer-val').innerText = GAME.timer;
-
-                if (GAME.timer <= 0) {
-                    runSpin();
-                }
+                if (GAME.timer <= 0) runSpin();
             }, 1000);
         }
 
@@ -892,43 +1081,43 @@
             GAME.isSpinning = true;
             const wheel = document.getElementById('wheel');
             
-            // Определяем победителя (на основе пулов)
             const total = GAME.poolBlue + GAME.poolRed;
             const winChance = total === 0 ? 50 : (GAME.poolBlue / total * 100);
-            const randomPoint = Math.random() * 100;
-            const winner = randomPoint <= winChance ? 'blue' : 'red';
+            const winner = (Math.random() * 100) <= winChance ? 'blue' : 'red';
             
-            // Угол поворота (минимум 5 полных оборотов + сектор)
-            const baseRotation = 1800; 
+            const baseRot = 1800; 
             const sectorAngle = winner === 'blue' ? (Math.random() * 170) : (190 + Math.random() * 160);
-            const finalAngle = baseRotation + sectorAngle;
+            wheel.style.transform = `rotate(${baseRot + sectorAngle}deg)`;
 
-            wheel.style.transform = `rotate(${finalAngle}deg)`;
-
-            setTimeout(() => {
-                finishRound(winner);
-            }, 5000);
+            setTimeout(() => { finishRound(winner); }, 5000);
         }
 
         function finishRound(winner) {
             let winMsg = "";
-            if (winner === 'blue' && GAME.myBetBlue > 0) {
-                const prize = GAME.myBetBlue * 1.95;
+            let prize = 0;
+            
+            if (winner === 'blue' && GAME.myBetBlue > 0) prize = GAME.myBetBlue * 1.95;
+            else if (winner === 'red' && GAME.myBetRed > 0) prize = GAME.myBetRed * 1.95;
+
+            if (prize > 0) {
                 USER.balance += prize;
                 winMsg = `ПОБЕДА! +${prize.toFixed(2)} TON`;
-            } else if (winner === 'red' && GAME.myBetRed > 0) {
-                const prize = GAME.myBetRed * 1.95;
-                USER.balance += prize;
-                winMsg = `ПОБЕДА! +${prize.toFixed(2)} TON`;
+                saveState(); // СОХРАНЯЕМ ВЫИГРЫШ
             } else if (GAME.myBetBlue > 0 || GAME.myBetRed > 0) {
                 winMsg = "Проигрыш. Попробуй еще раз!";
+                saveState(); // СОХРАНЯЕМ ПРОИГРЫШ
             } else {
                 winMsg = `Выпал цвет: ${winner.toUpperCase()}`;
             }
 
             showToast(winMsg);
             
-            // Сброс
+            // Добавляем в историю
+            GAME.history.push(winner);
+            if(GAME.history.length > 20) GAME.history.shift();
+            renderHistory();
+            
+            // Сброс стола
             GAME.isSpinning = false;
             GAME.timer = 15;
             GAME.poolBlue = 0;
@@ -944,40 +1133,25 @@
             updateUI();
         }
 
-        /* СИМУЛЯЦИЯ БОТОВ (ЧТОБЫ БЫЛО ДВИЖЕНИЕ) */
         function startBotSimulation() {
             setInterval(() => {
                 if (GAME.isSpinning || GAME.timer < 3) return;
-                
-                const side = Math.random() > 0.5 ? 'blue' : 'red';
-                const amount = parseFloat((Math.random() * 10 + 1).toFixed(1));
-                
-                if (side === 'blue') GAME.poolBlue += amount;
-                else GAME.poolRed += amount;
-                
+                const amt = parseFloat((Math.random() * 5 + 0.1).toFixed(1));
+                if (Math.random() > 0.5) GAME.poolBlue += amt; else GAME.poolRed += amt;
                 updateUI();
-            }, 2000);
+            }, 1500);
         }
 
-        /* ДЕЙСТВИЯ ИГРОКА */
         function makeBet(side) {
             if (GAME.isSpinning) return;
-            
             const amt = parseFloat(document.getElementById('bet-input').value);
-            if (amt > USER.balance || amt <= 0) {
-                showToast("Недостаточно TON!");
-                return;
-            }
+            if (amt > USER.balance || amt <= 0) { showToast("Недостаточно TON!"); return; }
 
             USER.balance -= amt;
-            if (side === 'blue') {
-                GAME.myBetBlue += amt;
-                GAME.poolBlue += amt;
-            } else {
-                GAME.myBetRed += amt;
-                GAME.poolRed += amt;
-            }
+            if (side === 'blue') { GAME.myBetBlue += amt; GAME.poolBlue += amt; } 
+            else { GAME.myBetRed += amt; GAME.poolRed += amt; }
             
+            saveState(); // СРАЗУ СОХРАНЯЕМ СТАВКУ
             updateUI();
             showToast("Ставка принята!");
         }
@@ -990,14 +1164,9 @@
             if (mode === 'max') input.value = USER.balance.toFixed(1);
         }
 
-        function navTo(screenId, el) {
-            document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById('scr-' + screenId).classList.add('active');
-            el.classList.add('active');
-        }
-
+        // ==========================================
+        // МАГАЗИН И ПРОМОКОДЫ
+        // ==========================================
         function renderShop() {
             const list = document.getElementById('shop-list');
             list.innerHTML = SHOP_ITEMS.map(item => `
@@ -1005,7 +1174,7 @@
                     <div class="shop-card-icon">${item.icon}</div>
                     <div class="shop-card-name">${item.name}</div>
                     <div class="shop-card-desc">${item.desc}</div>
-                    <div class="shop-card-price">${item.price} TON</div>
+                    <div class="shop-card-price">${item.price} ${TON_SVG}</div>
                     <button class="btn-buy" onclick="buyItem(${item.id})">КУПИТЬ</button>
                 </div>
             `).join('');
@@ -1013,18 +1182,57 @@
 
         function buyItem(id) {
             const item = SHOP_ITEMS.find(i => i.id === id);
-            if (USER.balance < item.price) {
-                showToast("Недостаточно TON!");
-                return;
-            }
+            if (USER.balance < item.price) { showToast("Недостаточно TON!"); return; }
+            
             USER.balance -= item.price;
             USER.inventory.push(item);
+            saveState(); // СОХРАНЯЕМ ПОКУПКУ И ИНВЕНТАРЬ
+            
             showToast(`Куплено: ${item.name}`);
             updateUI();
-            renderInventory();
+            renderProfile();
         }
 
-        function renderInventory() {
+        function activatePromo() {
+            const code = document.getElementById('promo-input').value.trim().toUpperCase();
+            if (code === "") return;
+
+            if (code === "GIFTAPRIL") {
+                if (USER.usedPromos.includes(code)) {
+                    showToast("Ты уже активировал этот промокод!");
+                    return;
+                }
+                if (GLOBAL_DB.promoAprilUses >= 15) {
+                    showToast("Лимит активаций (15) исчерпан!");
+                    return;
+                }
+
+                // Награда
+                USER.balance += 5.0; // Даем 5 TON за промо
+                USER.usedPromos.push(code);
+                GLOBAL_DB.promoAprilUses++;
+                
+                saveState(); // СОХРАНЯЕМ БАЛАНС И ТО ЧТО ПРОМО ИСПОЛЬЗОВАН
+                updateUI();
+                showToast(`Промокод активирован! Начислено 5 TON.`);
+                document.getElementById('promo-input').value = "";
+            } else {
+                showToast("Неверный промокод!");
+            }
+        }
+
+        // ==========================================
+        // ЗАДАНИЯ (ПРОФИЛЬ)
+        // ==========================================
+        function renderProfile() {
+            // Отрисовка кнопки задания
+            const btn = document.getElementById('btn-task-1');
+            if (USER.tasks.circleGift) {
+                btn.innerText = "Выполнено";
+                btn.disabled = true;
+            }
+
+            // Отрисовка инвентаря
             const list = document.getElementById('inv-list');
             let slots = USER.inventory.map(i => `<div class="inv-slot">${i.icon}</div>`).join('');
             for(let i = USER.inventory.length; i < 8; i++) {
@@ -1033,30 +1241,55 @@
             list.innerHTML = slots;
         }
 
+        function completeTask() {
+            if (USER.tasks.circleGift) return;
+
+            // Перекидываем на канал
+            window.open('https://t.me/CircleGift', '_blank');
+            
+            // Начисляем через 3 секунды (имитация проверки подписки)
+            setTimeout(() => {
+                USER.balance += 0.5;
+                USER.tasks.circleGift = true;
+                saveState(); // СОХРАНЯЕМ ВЫПОЛНЕНИЕ И БАЛАНС
+                updateUI();
+                renderProfile();
+                showToast("Задание выполнено! +0.5 TON");
+            }, 3000);
+        }
+
+        // ==========================================
+        // ТОП 100
+        // ==========================================
         function renderTop() {
             const list = document.getElementById('top-list');
             let rows = `<div class="lb-head"><div>#</div><div>Игрок</div><div style="text-align:right">Баланс</div></div>`;
             
-            const topData = [
-                { name: "TON_Whale", bal: 14959.1, ava: "T" },
-                { name: "Durov_fan", bal: 14929.7, ava: "D" },
-                { name: "Ivan_T_956", bal: 14812.5, ava: "I" },
-                { name: "CryptoGod", bal: 14759.6, ava: "C" },
-                { name: "Sniper_99", bal: 14650.2, ava: "S" }
-            ];
-
-            rows += topData.map((u, i) => `
-                <div class="lb-row ${i === 0 ? 'rank-1' : ''}">
-                    <div class="lb-rank">${i+1}</div>
+            rows += LEADERBOARD_100.map((u) => `
+                <div class="lb-row rank-${u.rank}">
+                    <div class="lb-rank">${u.rank}</div>
                     <div class="lb-user-info">
                         <div class="lb-ava">${u.ava}</div>
-                        <div class="lb-name">${u.name}</div>
+                        <div class="lb-name-group">
+                            <span class="lb-name">${u.name}</span>
+                            <span class="lb-reward">Приз: ${u.reward} ${TON_SVG}</span>
+                        </div>
                     </div>
-                    <div class="lb-val">${u.bal.toLocaleString()}</div>
+                    <div class="lb-val">${u.bal} ${TON_SVG}</div>
                 </div>
             `).join('');
             
             list.innerHTML = rows;
+        }
+
+        // ==========================================
+        // УТИЛИТЫ НАВИГАЦИИ И УВЕДОМЛЕНИЙ
+        // ==========================================
+        function navTo(screenId, el) {
+            document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('scr-' + screenId).classList.add('active');
+            el.classList.add('active');
         }
 
         function showToast(text) {
@@ -1071,6 +1304,7 @@
             }, 3000);
         }
 
+        // Запуск
         window.onload = init;
 
     </script>
