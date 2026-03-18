@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TON BATTLE ULTIMATE V3</title>
+    <title>TON BATTLE ULTIMATE V3 + STAKING</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
@@ -137,6 +137,17 @@
         @keyframes floatUpDown {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
+        }
+
+        @keyframes fillProgress {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes glowReward {
+            0% { text-shadow: 0 0 5px var(--green); }
+            50% { text-shadow: 0 0 20px var(--green), 0 0 30px var(--green); }
+            100% { text-shadow: 0 0 5px var(--green); }
         }
 
         /* ================================================================
@@ -956,7 +967,258 @@
         }
 
         /* ================================================================
-           10. BOTTOM NAVIGATION BAR
+           10. НОВЫЙ БЛОК: СТЕЙКИНГ (STAKING EXTREME)
+           ================================================================ */
+        .staking-overview {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+            border: 1px solid var(--brd-orange);
+            border-radius: var(--rad-l);
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-orange);
+        }
+
+        .staking-overview::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 120px;
+            height: 120px;
+            background: var(--orange-main);
+            filter: blur(60px);
+            opacity: 0.15;
+            border-radius: 50%;
+        }
+
+        .stake-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stake-stat-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stake-stat-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stake-stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stake-reward-highlight {
+            color: var(--green);
+            animation: glowReward 2s infinite ease-in-out;
+        }
+
+        .btn-claim-rewards {
+            width: 100%;
+            background: var(--green);
+            color: var(--bg-black);
+            border: none;
+            padding: 16px;
+            border-radius: var(--rad-m);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--green-glow);
+            transition: all 0.2s;
+        }
+
+        .btn-claim-rewards:active { transform: scale(0.96); }
+        .btn-claim-rewards:disabled { 
+            background: var(--bg-dark); 
+            color: var(--text-secondary); 
+            box-shadow: none; 
+            border: 1px solid var(--brd);
+            cursor: not-allowed;
+        }
+
+        /* Карточки планов стейкинга */
+        .staking-plans {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stake-plan-card {
+            background: var(--bg-black);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-m);
+            padding: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .stake-plan-card.active-plan {
+            border-color: var(--orange-main);
+            box-shadow: inset 0 0 15px rgba(255,102,0,0.1);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .plan-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .apr-badge {
+            background: rgba(255, 102, 0, 0.15);
+            color: var(--orange-main);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 900;
+            border: 1px solid rgba(255, 102, 0, 0.3);
+        }
+
+        .plan-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .plan-details span { color: var(--text-primary); font-weight: 800; }
+
+        .stake-action-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stake-input {
+            flex: 1;
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-s);
+            padding: 0 15px;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .btn-do-stake {
+            background: var(--orange-main);
+            color: var(--bg-black);
+            border: none;
+            border-radius: var(--rad-s);
+            padding: 0 20px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-do-stake:active { transform: scale(0.95); }
+
+        /* Активные стейки (Инвентарь стейкинга) */
+        .active-stakes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .active-stake-item {
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .active-stake-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .staked-amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stake-progress-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-black);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--brd);
+        }
+
+        .stake-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange-dark), var(--orange-main));
+            border-radius: 10px;
+            transition: width 1s linear;
+        }
+
+        .stake-footer-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .btn-unstake {
+            background: transparent;
+            border: 1px solid var(--brd-light);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: var(--rad-s);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn-unstake:hover { border-color: var(--pink); color: var(--pink); }
+
+        /* ================================================================
+           11. BOTTOM NAVIGATION BAR
            ================================================================ */
         nav {
             position: fixed;
@@ -999,7 +1261,7 @@
         .nav-btn.active .nav-icon { filter: drop-shadow(0 0 5px var(--orange-glow)); transform: translateY(-2px); }
 
         /* ================================================================
-           11. СИСТЕМА УВЕДОМЛЕНИЙ (CUSTOM TOASTS)
+           12. СИСТЕМА УВЕДОМЛЕНИЙ (CUSTOM TOASTS)
            ================================================================ */
         #alert-container {
             position: fixed;
@@ -1143,6 +1405,65 @@
                 </div>
         </div>
 
+        <div id="screen-staking" class="game-screen">
+            <div class="screen-header">
+                <h1 class="screen-title">Стейкинг</h1>
+                <p class="screen-subtitle">Умножай свой капитал с CircleGift APR</p>
+            </div>
+
+            <div class="staking-overview">
+                <div class="stake-stats-row">
+                    <div class="stake-stat-block">
+                        <span class="stake-stat-label">В стейкинге</span>
+                        <span class="stake-stat-value" id="st-total-staked">0.00 <span class="ton-svg-icon"></span></span>
+                    </div>
+                    <div class="stake-stat-block" style="text-align: right; align-items: flex-end;">
+                        <span class="stake-stat-label">Доступно наград</span>
+                        <span class="stake-stat-value stake-reward-highlight" id="st-total-rewards">0.000 <span class="ton-svg-icon"></span></span>
+                    </div>
+                </div>
+                <button class="btn-claim-rewards" id="btn-claim-st-rewards" onclick="claimStakingRewards()">Забрать награды</button>
+            </div>
+
+            <h3 class="section-heading">Доступные пулы (APR)</h3>
+            <div class="staking-plans">
+                
+                <div class="stake-plan-card">
+                    <div class="plan-header">
+                        <div class="plan-title">Flexible Pool <span class="ton-svg-icon"></span></div>
+                        <div class="apr-badge">120% APR</div>
+                    </div>
+                    <div class="plan-details">
+                        <div>Период: <span>Свободный</span></div>
+                        <div>Комиссия: <span>0%</span></div>
+                    </div>
+                    <div class="stake-action-area">
+                        <input type="number" id="input-stake-pool-1" class="stake-input" placeholder="Сумма TON">
+                        <button class="btn-do-stake" onclick="makeStake(1, 120)">STAKE</button>
+                    </div>
+                </div>
+
+                <div class="stake-plan-card">
+                    <div class="plan-header">
+                        <div class="plan-title">Diamond Lock <span class="ton-svg-icon"></span></div>
+                        <div class="apr-badge">365% APR</div>
+                    </div>
+                    <div class="plan-details">
+                        <div>Период: <span>14 Дней</span></div>
+                        <div>Мин. сумма: <span>5 TON</span></div>
+                    </div>
+                    <div class="stake-action-area">
+                        <input type="number" id="input-stake-pool-2" class="stake-input" placeholder="Сумма TON">
+                        <button class="btn-do-stake" onclick="makeStake(2, 365, 14)">STAKE</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-heading" style="margin-top: 10px;">Мои депозиты</h3>
+            <div class="active-stakes-list" id="render-active-stakes">
+                <div style="text-align: center; color: var(--text-secondary); font-size: 12px; padding: 20px;">У вас пока нет активных стейков.</div>
+            </div>
+        </div>
         <div id="screen-top" class="game-screen">
             <div class="screen-header">
                 <h1 class="screen-title">Лидеры Сезона</h1>
@@ -1192,6 +1513,12 @@
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21.58 12.09c-.11-2.5-2.07-4.52-4.58-4.52H7c-2.51 0-4.47 2.03-4.58 4.52L2 19h3.5l1.5-2h10l1.5 2h3.5l-2.42-6.91zM7.5 14c-.83 0-1.5-.67-1.5-1.5S6.67 11 7.5 11 9 11.67 9 12.5 8.33 14 7.5 14zm4 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
             <span>Батл</span>
         </div>
+        
+        <div class="nav-btn" onclick="switchTab('staking', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+            <span>Стейкинг</span>
+        </div>
+
         <div class="nav-btn" onclick="switchTab('shop', this)">
             <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
             <span>Магазин</span>
@@ -1230,27 +1557,35 @@
             } catch (e) {
                 console.log("TG SDK error", e);
             }
-            // Если запущено не в ТГ, ставим твое дефолтное имя как ты просил
             return "Владислав Павленко"; 
         }
 
-        // 3. База данных Пользователя (localStorage ключ V3)
-        const DB_KEY = 'tonBattle_user_v3';
+        // 3. База данных Пользователя (localStorage ключ V3_STAKING)
+        const DB_KEY = 'tonBattle_user_v3_staking'; // Изменил ключ, чтобы обновить БД с новой структурой
         const GLOBAL_KEY = 'tonBattle_globals_v3';
         
         let initialUser = {
             id: tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 99999),
             name: getRealUserName(),
-            balance: 0.00,
+            balance: 50.00, // Дадим стартовый баланс для теста стейкинга
             inventory: [],
             usedPromos: [],
-            tasks: { circleGift: false }
+            tasks: { circleGift: false },
+            // НОВАЯ СТРУКТУРА ДЛЯ СТЕЙКИНГА
+            staking: {
+                activeStakes: [], // { id, amount, apr, lockDays, startTime, lastClaimTime }
+                pendingRewards: 0.00
+            }
         };
 
         let dbData = localStorage.getItem(DB_KEY);
         let USER = dbData ? JSON.parse(dbData) : initialUser;
 
-        // Если имя в сохраненке не совпадает с текущим ТГ (зашел другой аккаунт) — обновляем
+        // Если старый юзер без структуры стейкинга (миграция)
+        if(!USER.staking) {
+            USER.staking = { activeStakes: [], pendingRewards: 0.00 };
+        }
+
         const currentRealName = getRealUserName();
         if(USER.name !== currentRealName && currentRealName !== "Владислав Павленко") {
             USER.name = currentRealName;
@@ -1271,7 +1606,7 @@
             betB: 0,
             betR: 0,
             spinning: false,
-            history: JSON.parse(localStorage.getItem('tb_hist_v3')) || ['blue', 'red', 'red', 'blue', 'red', 'blue']
+            history: JSON.parse(localStorage.getItem('tb_hist_v3_s')) || ['blue', 'red', 'red', 'blue', 'red', 'blue']
         };
 
         // 5. База данных магазина (ТОЛЬКО ПОДАРКИ)
@@ -1289,10 +1624,9 @@
         const botPrefixes = ["Crypto", "TON_", "Whale_", "Sniper", "Gamer", "Lucky_", "Pro_"];
         const botNames = ["Alex", "Dmitry", "Ivan", "Oleg", "Anna", "Max", "Igor", "Sergey"];
         
-        let currentBotBal = 100.0; // Максимальный баланс у топ-1 (как ты просил)
+        let currentBotBal = 100.0; 
         
         for (let i = 1; i <= 100; i++) {
-            // Система наград из твоего списка
             let seasonReward = 0;
             if (i === 1) seasonReward = 100;
             else if (i === 2) seasonReward = 75;
@@ -1316,7 +1650,6 @@
                 reward: seasonReward
             });
             
-            // Плавно уменьшаем баланс бота для следующего места
             let decrease = (currentBotBal > 10) ? (Math.random() * 2 + 0.5) : (Math.random() * 0.2 + 0.05);
             currentBotBal -= decrease;
             if(currentBotBal < 0.1) currentBotBal = 0.1;
@@ -1326,7 +1659,6 @@
         // ИНИЦИАЛИЗАЦИЯ И РЕНДЕРИНГ
         // ==========================================
         function initApp() {
-            // Установка имен
             const firstLetter = USER.name.charAt(0).toUpperCase();
             document.getElementById('hdr-name').innerText = USER.name;
             document.getElementById('prof-name').innerText = USER.name;
@@ -1339,15 +1671,17 @@
             renderTop100();
             renderProfileData();
             
+            // Инициализация Стейкинга
+            renderStakingDashboard();
+            startStakingEngine();
+            
             startCoreLoop();
             startBotBehavior();
         }
 
         function updateDisplayData() {
-            // Баланс
             document.getElementById('hdr-bal').innerText = USER.balance.toFixed(2);
             
-            // Пулы
             document.getElementById('val-blue').innerText = ENGINE.poolB.toFixed(2);
             document.getElementById('val-red').innerText = ENGINE.poolR.toFixed(2);
             
@@ -1356,12 +1690,10 @@
             document.getElementById('perc-blue').innerText = Math.round(percBlue) + '%';
             document.getElementById('perc-red').innerText = Math.round(100 - percBlue) + '%';
             
-            // Обновление колеса
             if (!ENGINE.spinning) {
                 document.getElementById('spin-wheel').style.background = `conic-gradient(var(--pink) 0% ${100-percBlue}%, var(--cyan) ${100-percBlue}% 100%)`;
             }
 
-            // Мои ставки
             const indB = document.getElementById('ind-bet-blue');
             const indR = document.getElementById('ind-bet-red');
             if (ENGINE.betB > 0) { indB.style.display = 'block'; indB.innerText = ENGINE.betB.toFixed(1); } else { indB.style.display = 'none'; }
@@ -1370,12 +1702,12 @@
 
         function renderHistoryDots() {
             const container = document.getElementById('history-dots-box');
-            const latestHistory = ENGINE.history.slice(-8); // 8 последних игр
+            const latestHistory = ENGINE.history.slice(-8); 
             container.innerHTML = latestHistory.map(color => {
                 let letter = color === 'blue' ? 'B' : 'R';
                 return `<div class="h-dot ${color}">${letter}</div>`;
             }).join('');
-            localStorage.setItem('tb_hist_v3', JSON.stringify(ENGINE.history));
+            localStorage.setItem('tb_hist_v3_s', JSON.stringify(ENGINE.history));
         }
 
         // ==========================================
@@ -1400,17 +1732,14 @@
             const total = ENGINE.poolB + ENGINE.poolR;
             const blueChance = total === 0 ? 50 : (ENGINE.poolB / total * 100);
             
-            // Рандомайзер на основе шансов пула
             const isBlueWin = (Math.random() * 100) <= blueChance;
             const winningColor = isBlueWin ? 'blue' : 'red';
             
-            // Анимация кручения
-            const baseRotations = 360 * 5; // 5 полных кругов
-            const targetAngle = isBlueWin ? (Math.random() * 160) : (190 + Math.random() * 160); // Выбор сектора
+            const baseRotations = 360 * 5; 
+            const targetAngle = isBlueWin ? (Math.random() * 160) : (190 + Math.random() * 160); 
             
             wheel.style.transform = `rotate(${baseRotations + targetAngle}deg)`;
 
-            // Ждем завершения CSS анимации (6 секунд)
             setTimeout(() => { resolveRound(winningColor); }, 6000);
         }
 
@@ -1419,18 +1748,15 @@
             let alertType = "info";
             let moneyWon = 0;
             
-            // Расчет победителя (x1.95 для компенсации маржи/подарков, имитация реальной экономики)
             if (winner === 'blue' && ENGINE.betB > 0) moneyWon = ENGINE.betB * 1.95;
             else if (winner === 'red' && ENGINE.betR > 0) moneyWon = ENGINE.betR * 1.95;
 
-            // ОБЪЯСНЕНИЕ МЕХАНИКИ ПОБЕДЫ/ПОРАЖЕНИЯ:
             if (moneyWon > 0) {
                 USER.balance += moneyWon;
                 resultMessage = `🎉 ПОБЕДА! Зачислено +${moneyWon.toFixed(2)} TON`;
                 alertType = "success";
                 saveDB();
             } else if (ENGINE.betB > 0 || ENGINE.betR > 0) {
-                // Игрок ставил, но не угадал цвет (твой вопрос "почему поражение")
                 resultMessage = `❌ Ставка сгорела (Выпал ${winner.toUpperCase()}). Пробуй еще!`;
                 alertType = "error";
                 saveDB();
@@ -1440,12 +1766,10 @@
 
             pushAlert(resultMessage, alertType);
             
-            // Обновляем историю
             ENGINE.history.push(winner);
-            if(ENGINE.history.length > 50) ENGINE.history.shift(); // Храним до 50
+            if(ENGINE.history.length > 50) ENGINE.history.shift(); 
             renderHistoryDots();
             
-            // Сброс стола для нового раунда
             ENGINE.spinning = false;
             ENGINE.timeRemaining = 15;
             ENGINE.poolB = 0;
@@ -1453,19 +1777,16 @@
             ENGINE.betB = 0;
             ENGINE.betR = 0;
             
-            // Возврат колеса в исходное положение без анимации
             const wheel = document.getElementById('spin-wheel');
             wheel.style.transition = 'none';
             wheel.style.transform = 'rotate(0deg)';
             
-            // Восстановление транзишена для следующего спина
             setTimeout(() => { wheel.style.transition = 'transform 6s cubic-bezier(0.2, 0.8, 0.1, 1)'; }, 50);
             
             updateDisplayData();
         }
 
         function startBotBehavior() {
-            // Боты кидают деньги в пулы
             setInterval(() => {
                 if (ENGINE.spinning || ENGINE.timeRemaining < 3) return;
                 const randomAmount = parseFloat((Math.random() * 3 + 0.1).toFixed(2));
@@ -1481,7 +1802,7 @@
 
             if (type === 'half') inputField.value = Math.max(0.1, (currentVal / 2)).toFixed(1);
             if (type === 'double') inputField.value = (currentVal * 2).toFixed(1);
-            if (type === 'max') inputField.value = Math.floor(USER.balance * 10) / 10; // До десятых
+            if (type === 'max') inputField.value = Math.floor(USER.balance * 10) / 10; 
         }
 
         function placeBet(colorSide) {
@@ -1492,7 +1813,6 @@
             if (isNaN(betSize) || betSize <= 0) { pushAlert("Некорректная сумма!", "error"); return; }
             if (betSize > USER.balance) { pushAlert("Недостаточно средств на балансе!", "error"); return; }
 
-            // Списываем баланс СРАЗУ (сохраняем)
             USER.balance -= betSize;
             
             if (colorSide === 'blue') { 
@@ -1539,8 +1859,7 @@
                     return;
                 }
 
-                // Начисляем награду
-                USER.balance += 5.0; // Награда 5 TON
+                USER.balance += 5.0; 
                 USER.usedPromos.push(code);
                 GLOBAL_DB.promoAprilUses++;
                 
@@ -1563,12 +1882,186 @@
             }
             
             USER.balance -= itemObj.price;
-            USER.inventory.push(itemObj); // Добавляем в инвентарь
+            USER.inventory.push(itemObj); 
             saveDB();
             
             pushAlert(`Успешно куплено: ${itemObj.name}!`, "success");
             updateDisplayData();
-            renderProfileData(); // Сразу обновляем инвентарь в профиле
+            renderProfileData(); 
+        }
+
+        // ==========================================
+        // НОВЫЙ ДВИЖОК: СТЕЙКИНГ СИСТЕМА (STAKING EXTREME)
+        // ==========================================
+        function makeStake(poolId, apr, lockDays = 0) {
+            const inputEl = document.getElementById(`input-stake-pool-${poolId}`);
+            const amount = parseFloat(inputEl.value);
+
+            if (isNaN(amount) || amount <= 0) { pushAlert("Введите корректную сумму!", "error"); return; }
+            if (amount > USER.balance) { pushAlert("Недостаточно средств на балансе!", "error"); return; }
+            if (lockDays > 0 && amount < 5) { pushAlert("Минимальная сумма для этого пула 5 TON", "error"); return; }
+
+            // Списываем баланс
+            USER.balance -= amount;
+            
+            // Создаем новый контракт стейкинга
+            const newStake = {
+                id: Date.now(),
+                amount: amount,
+                apr: apr,
+                lockDays: lockDays,
+                startTime: Date.now(),
+                lastClaimTime: Date.now()
+            };
+
+            USER.staking.activeStakes.push(newStake);
+            saveDB();
+            
+            inputEl.value = ''; // Очищаем инпут
+            updateDisplayData();
+            renderStakingDashboard();
+            pushAlert(`Успешно вложено ${amount} TON под ${apr}% APR!`, "success");
+        }
+
+        function unstake(stakeId) {
+            const stakeIndex = USER.staking.activeStakes.findIndex(s => s.id === stakeId);
+            if (stakeIndex === -1) return;
+            
+            const stake = USER.staking.activeStakes[stakeIndex];
+
+            // Проверка на заморозку (локи)
+            if (stake.lockDays > 0) {
+                const daysPassed = (Date.now() - stake.startTime) / (1000 * 60 * 60 * 24);
+                if (daysPassed < stake.lockDays) {
+                    const daysLeft = Math.ceil(stake.lockDays - daysPassed);
+                    pushAlert(`Стейк заморожен! Осталось дней: ${daysLeft}`, "error");
+                    return;
+                }
+            }
+
+            // Выплата тела депозита + остатка наград перед закрытием
+            calculateStakingRewards(); 
+            USER.balance += stake.amount;
+            
+            // Удаляем стейк
+            USER.staking.activeStakes.splice(stakeIndex, 1);
+            saveDB();
+            
+            updateDisplayData();
+            renderStakingDashboard();
+            pushAlert(`Стейк закрыт. ${stake.amount} TON возвращены на баланс.`, "info");
+        }
+
+        function calculateStakingRewards() {
+            let totalNewRewards = 0;
+            const now = Date.now();
+
+            USER.staking.activeStakes.forEach(stake => {
+                const msPassed = now - stake.lastClaimTime;
+                if (msPassed > 0) {
+                    // Формула: Сумма * (APR / 100) / (Милисекунд в году) * Пройденное время
+                    const msInYear = 365 * 24 * 60 * 60 * 1000;
+                    const reward = stake.amount * (stake.apr / 100) * (msPassed / msInYear);
+                    totalNewRewards += reward;
+                    stake.lastClaimTime = now;
+                }
+            });
+
+            if (totalNewRewards > 0) {
+                USER.staking.pendingRewards += totalNewRewards;
+                saveDB();
+            }
+        }
+
+        function claimStakingRewards() {
+            calculateStakingRewards(); // Финализируем расчеты
+            
+            const rewardToClaim = USER.staking.pendingRewards;
+            
+            if (rewardToClaim < 0.001) {
+                pushAlert("Накоплено слишком мало для клейма (мин. 0.001 TON)", "error");
+                return;
+            }
+
+            USER.balance += rewardToClaim;
+            USER.staking.pendingRewards = 0; // Сбрасываем
+            saveDB();
+            
+            updateDisplayData();
+            renderStakingDashboard();
+            pushAlert(`Успешно собрано +${rewardToClaim.toFixed(4)} TON прибыли!`, "success");
+        }
+
+        function renderStakingDashboard() {
+            // Считаем тотал застейкано
+            let totalStaked = USER.staking.activeStakes.reduce((sum, stake) => sum + stake.amount, 0);
+            document.getElementById('st-total-staked').innerHTML = `${totalStaked.toFixed(2)} <span class="ton-svg-icon"></span>`;
+            
+            // Рендер кнопки клейма
+            const btnClaim = document.getElementById('btn-claim-st-rewards');
+            if(USER.staking.pendingRewards > 0) {
+                btnClaim.innerText = `ЗАБРАТЬ ${USER.staking.pendingRewards.toFixed(4)} TON`;
+                btnClaim.disabled = false;
+            } else {
+                btnClaim.innerText = `НЕТ ДОСТУПНЫХ НАГРАД`;
+                btnClaim.disabled = true;
+            }
+
+            // Рендер активных стейков
+            const listContainer = document.getElementById('render-active-stakes');
+            if (USER.staking.activeStakes.length === 0) {
+                listContainer.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 12px; padding: 20px; border: 1px dashed var(--brd); border-radius: 12px;">У вас пока нет активных стейков. Сделайте депозит выше.</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = USER.staking.activeStakes.map(stake => {
+                let statusText = "Активен (Свободный вывод)";
+                let progressPercent = 100;
+                let isLocked = false;
+
+                if (stake.lockDays > 0) {
+                    const daysPassed = (Date.now() - stake.startTime) / (1000 * 60 * 60 * 24);
+                    if (daysPassed < stake.lockDays) {
+                        progressPercent = (daysPassed / stake.lockDays) * 100;
+                        statusText = `В заморозке (Осталось ${Math.ceil(stake.lockDays - daysPassed)} дн.)`;
+                        isLocked = true;
+                    } else {
+                        statusText = "Разморожен (Доступен вывод)";
+                    }
+                }
+
+                return `
+                <div class="active-stake-item">
+                    <div class="active-stake-top">
+                        <div class="staked-amount">${stake.amount.toFixed(2)} ${ICON_TON_SVG} <span style="font-size: 10px; color: var(--orange-main); background: rgba(255,102,0,0.1); padding: 2px 6px; border-radius: 4px;">${stake.apr}% APR</span></div>
+                        <button class="btn-unstake" onclick="unstake(${stake.id})" ${isLocked ? 'style="opacity:0.5; cursor:not-allowed;"' : ''}>UNSTAKE</button>
+                    </div>
+                    ${stake.lockDays > 0 ? `
+                        <div class="stake-progress-bg">
+                            <div class="stake-progress-fill" style="width: ${progressPercent}%;"></div>
+                        </div>
+                    ` : ''}
+                    <div class="stake-footer-info">
+                        <span>${statusText}</span>
+                        <span style="color: var(--green);">В работе ⚡</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            // Обновляем SVG иконки внутри новых элементов
+            document.querySelectorAll('.ton-svg-icon').forEach(el => el.innerHTML = ICON_TON_SVG);
+        }
+
+        // Движок расчета процентов каждую секунду для красоты UI
+        function startStakingEngine() {
+            setInterval(() => {
+                if(USER.staking.activeStakes.length > 0) {
+                    calculateStakingRewards();
+                    // Обновляем чисто визуал цифры ревардов без полного рендера, чтобы не лагало
+                    document.getElementById('st-total-rewards').innerHTML = `${USER.staking.pendingRewards.toFixed(5)} <span class="ton-svg-icon">${ICON_TON_SVG}</span>`;
+                }
+            }, 1000); // Раз в секунду капает прибыль
         }
 
         // ==========================================
@@ -1579,7 +2072,6 @@
             let htmlContent = `<div class="lb-header-row"><div>#</div><div>Игрок</div><div style="text-align:right">Баланс</div></div>`;
             
             htmlContent += LEADERBOARD_ARRAY.map((user) => {
-                // Определяем класс для подсветки топ-3
                 let rankClass = user.rank === 1 ? 'rank-top-1' : (user.rank === 2 ? 'rank-top-2' : (user.rank === 3 ? 'rank-top-3' : ''));
                 
                 return `
@@ -1604,18 +2096,15 @@
         // ПРОФИЛЬ (ЗАДАНИЯ И ИНВЕНТАРЬ)
         // ==========================================
         function renderProfileData() {
-            // Управление кнопкой задания
             const taskBtn = document.getElementById('btn-do-task-id');
             if (USER.tasks.circleGift) {
                 taskBtn.innerText = "Выполнено";
                 taskBtn.disabled = true;
             }
 
-            // Отрисовка купленных подарков
             const invContainer = document.getElementById('render-inventory');
             let slotsHTML = USER.inventory.map(item => `<div class="inv-item-slot" title="${item.name}">${item.icon}</div>`).join('');
             
-            // Добиваем пустые слоты до 8 штук минимум для красоты
             const minSlots = 8;
             const emptySlotsCount = minSlots - USER.inventory.length;
             if(emptySlotsCount > 0) {
@@ -1629,12 +2118,10 @@
         function executeTask() {
             if (USER.tasks.circleGift) return;
 
-            // Переход в канал
             window.open('https://t.me/CircleGift', '_blank');
             
-            // Имитация задержки проверки подписки
             setTimeout(() => {
-                USER.balance += 0.5; // Награда за задание
+                USER.balance += 0.5; 
                 USER.tasks.circleGift = true;
                 saveDB();
                 
@@ -1648,23 +2135,22 @@
         // УТИЛИТЫ: НАВИГАЦИЯ И УВЕДОМЛЕНИЯ
         // ==========================================
         function switchTab(screenId, element) {
-            // Переключаем экраны
             document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + screenId).classList.add('active');
             
-            // Переключаем стили меню
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
             
-            // Скроллим вверх при смене вкладки
             document.querySelector('main').scrollTop = 0;
+            
+            // Если перешли в стейкинг, обновляем его
+            if(screenId === 'staking') renderStakingDashboard();
         }
 
         function pushAlert(text, type = "info") {
             const container = document.getElementById('alert-container');
             const alertEl = document.createElement('div');
             
-            // SVG Иконки для алертов
             let iconSvg = '';
             if(type === 'error') {
                 iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
@@ -1679,7 +2165,6 @@
             
             container.appendChild(alertEl);
             
-            // Удаление через 3.5 секунды
             setTimeout(() => {
                 alertEl.style.opacity = '0';
                 alertEl.style.transform = 'translateY(-20px) scale(0.9)';
@@ -1688,10 +2173,9 @@
             }, 3500);
         }
 
-        // Запуск при загрузке документа
+        // Запуск при загрузке
         window.onload = initApp;
 
     </script>
 </body>
 </html>
-
