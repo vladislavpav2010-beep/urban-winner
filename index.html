@@ -14,11 +14,13 @@
            1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ (РАСШИРЕННЫЕ)
            ================================================================ */
         :root {
+            /* Базовая палитра (Черно-оранжевая) */
             --bg-black: #050505;
             --bg-dark: #0a0a0c;
             --bg-light: #121215;
             --bg-overlay: rgba(5, 5, 5, 0.95);
             
+            /* Цвета рулетки (Blue / Red) */
             --cyan: #0088cc;
             --cyan-glow: rgba(0, 136, 204, 0.6);
             --cyan-dark: #005580;
@@ -27,6 +29,7 @@
             --pink-glow: rgba(255, 59, 92, 0.6);
             --pink-dark: #99001a;
             
+            /* Оранжевые акценты (Замена золота/прочего на фирменный оранжевый) */
             --orange-main: #ff6600;
             --orange-glow: rgba(255, 102, 0, 0.5);
             --orange-dark: #cc5200;
@@ -35,6 +38,7 @@
             --green: #20c976;
             --green-glow: rgba(32, 201, 118, 0.3);
             
+            /* Текста и бордеры */
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
             --text-dark: #52525b;
@@ -43,17 +47,20 @@
             --brd-light: #3f3f46;
             --brd-orange: rgba(255, 102, 0, 0.3);
             
+            /* Размеры и радиусы */
             --rad-xs: 6px;
             --rad-s: 12px;
             --rad-m: 20px;
             --rad-l: 30px;
             --rad-round: 50%;
             
+            /* Безопасные зоны для мобилок */
             --safe-t: env(safe-area-inset-top, 0px);
             --safe-b: env(safe-area-inset-bottom, 0px);
             --safe-l: env(safe-area-inset-left, 0px);
             --safe-r: env(safe-area-inset-right, 0px);
             
+            /* Тени */
             --shadow-orange: 0 4px 15px rgba(255, 102, 0, 0.3);
             --shadow-base: 0 8px 30px rgba(0, 0, 0, 0.8);
         }
@@ -92,6 +99,7 @@
             color: inherit;
         }
 
+        /* SVG Иконки TON Глобальные */
         svg.ton-logo {
             width: 16px;
             height: 16px;
@@ -143,7 +151,7 @@
         }
 
         /* ================================================================
-           4. ШАПКА ПРИЛОЖЕНИЯ
+           4. ШАПКА ПРИЛОЖЕНИЯ (HEADER EXTREME)
            ================================================================ */
         header {
             padding: calc(var(--safe-t) + 15px) 20px 15px;
@@ -157,204 +165,1148 @@
             box-shadow: var(--shadow-base);
         }
 
-        .user-block { display: flex; align-items: center; gap: 12px; }
+        .user-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
         .user-avatar-circle {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: var(--rad-round);
             background: linear-gradient(135deg, var(--orange-main), var(--orange-dark));
             border: 2px solid var(--bg-black);
             box-shadow: 0 0 10px var(--orange-glow);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px;
-            color: var(--text-primary); position: relative; text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--text-primary);
+            position: relative;
+            text-transform: uppercase;
         }
 
-        .user-meta-data { display: flex; flex-direction: column; justify-content: center; }
-        .user-meta-data .name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
-        .user-meta-data .status { font-size: 10px; color: var(--orange-main); font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
-        .user-meta-data .status::before { content: ''; display: block; width: 6px; height: 6px; background-color: var(--orange-main); border-radius: 50%; box-shadow: 0 0 5px var(--orange-main); }
+        .user-meta-data {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .user-meta-data .name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+        }
+
+        .user-meta-data .status {
+            font-size: 10px;
+            color: var(--orange-main);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .user-meta-data .status::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            background-color: var(--orange-main);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--orange-main);
+        }
 
         .wallet-pill {
-            background: var(--bg-light); border: 1px solid var(--brd-orange); padding: 8px 16px; border-radius: 100px;
-            display: flex; align-items: center; gap: 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); transition: all 0.3s ease;
+            background: var(--bg-light);
+            border: 1px solid var(--brd-orange);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
-        .wallet-pill:active { transform: scale(0.95); }
-        .wallet-pill .amount { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 18px; color: var(--text-primary); letter-spacing: -0.5px; }
+
+        .wallet-pill:active {
+            transform: scale(0.95);
+        }
+
+        .wallet-pill .amount {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 18px;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
 
         /* ================================================================
-           5. КАРКАС КОНТЕНТА
+           5. КАРКАС КОНТЕНТА (SCREENS)
            ================================================================ */
         main {
-            flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px; padding-bottom: 120px;
-            scrollbar-width: none; position: relative; height: calc(100vh - 80px);
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            padding-bottom: 120px; /* Отступ для навигации */
+            scrollbar-width: none;
+            position: relative;
+            height: calc(100vh - 80px); /* Примерно минус хедер */
         }
         main::-webkit-scrollbar { display: none; }
 
-        .game-screen { display: none; animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; width: 100%; height: 100%; }
-        .game-screen.active { display: block; }
-        .screen-header { text-align: center; margin-bottom: 25px; }
-        .screen-title { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 900; color: var(--text-primary); text-transform: uppercase; letter-spacing: -1px; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .screen-subtitle { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+        .game-screen {
+            display: none;
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            width: 100%;
+            height: 100%;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        /* Общие заголовки экранов */
+        .screen-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .screen-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .screen-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
 
         /* ================================================================
-           6. ИГРОВОЙ ЭКРАН (РУЛЕТКА)
+           6. ИГРОВОЙ ЭКРАН (РУЛЕТКА - BLACK/ORANGE СТИЛЬ)
            ================================================================ */
-        .roulette-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; position: relative; }
-        .wheel-outer-ring { position: relative; width: 300px; height: 300px; border-radius: 50%; padding: 10px; background: linear-gradient(180deg, var(--brd-light) 0%, var(--bg-black) 100%); box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; }
-        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 30px; height: 40px; background: var(--text-primary); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
-        .wheel-disk { width: 100%; height: 100%; border-radius: 50%; border: 8px solid var(--bg-dark); background: conic-gradient(var(--pink) 0% 50%, var(--cyan) 50% 100%); transition: transform 6s cubic-bezier(0.2, 0.8, 0.1, 1); position: relative; overflow: hidden; }
-        .wheel-disk::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); pointer-events: none; }
-        .wheel-center-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; background: var(--bg-black); border: 4px solid var(--brd); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 0 20px rgba(0,0,0,0.9); }
-        .timer-value { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; color: var(--text-primary); line-height: 1; text-shadow: 0 0 10px var(--orange-glow); }
-        .timer-label { font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
-        .history-panel { background: var(--bg-light); border: 1px solid var(--brd); border-radius: var(--rad-m); padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; width: 100%; }
-        .history-title { font-size: 11px; font-weight: 800; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
-        .history-dots { display: flex; gap: 6px; }
-        .h-dot { width: 22px; height: 22px; border-radius: var(--rad-xs); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.8); text-transform: uppercase; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .roulette-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .wheel-outer-ring {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            padding: 10px;
+            background: linear-gradient(180deg, var(--brd-light) 0%, var(--bg-black) 100%);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 40px;
+            background: var(--text-primary);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 20;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+        }
+
+        .wheel-disk {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid var(--bg-dark);
+            /* Начальный градиент: 50/50 Blue/Red */
+            background: conic-gradient(var(--pink) 0% 50%, var(--cyan) 50% 100%);
+            transition: transform 6s cubic-bezier(0.2, 0.8, 0.1, 1); /* Очень плавная остановка */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Внутреннее свечение диска */
+        .wheel-disk::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        .wheel-center-hole {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: var(--bg-black);
+            border: 4px solid var(--brd);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0,0,0,0.9);
+        }
+
+        .timer-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1;
+            text-shadow: 0 0 10px var(--orange-glow);
+        }
+
+        .timer-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* ИСТОРИЯ РАУНДОВ */
+        .history-panel {
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .history-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .history-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .h-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: var(--rad-xs);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.8);
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
         .h-dot.blue { background: linear-gradient(135deg, var(--cyan), var(--cyan-dark)); border: 1px solid var(--cyan); }
         .h-dot.red { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); border: 1px solid var(--pink); }
-        .pools-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-bottom: 25px; }
-        .pool-box { background: var(--bg-light); border: 1px solid var(--brd); border-radius: var(--rad-m); padding: 15px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; }
+
+        /* ИНФОРМАЦИЯ О ПУЛАХ */
+        .pools-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .pool-box {
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .pool-box.blue { border-top: 3px solid var(--cyan); }
         .pool-box.red { border-top: 3px solid var(--pink); }
-        .pool-header { font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; width: 100%; }
-        .pool-amount { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 5px; }
+
+        .pool-header {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .pool-amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .pool-box.blue .pool-amount { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
         .pool-box.red .pool-amount { color: var(--pink); text-shadow: 0 0 10px var(--pink-glow); }
-        .betting-panel { background: var(--bg-dark); border: 1px solid var(--brd); padding: 20px; border-radius: var(--rad-l); width: 100%; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .bet-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 12px; font-weight: 800; color: var(--text-dark); text-transform: uppercase; }
-        .bet-max-btn { color: var(--orange-main); cursor: pointer; transition: 0.2s; }
+
+        /* ПАНЕЛЬ СТАВОК */
+        .betting-panel {
+            background: var(--bg-dark);
+            border: 1px solid var(--brd);
+            padding: 20px;
+            border-radius: var(--rad-l);
+            width: 100%;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .bet-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-transform: uppercase;
+        }
+
+        .bet-max-btn {
+            color: var(--orange-main);
+            cursor: pointer;
+            transition: 0.2s;
+        }
         .bet-max-btn:active { transform: scale(0.9); }
-        .bet-input-wrapper { display: flex; align-items: center; background: var(--bg-black); border: 1px solid var(--brd-light); border-radius: var(--rad-s); margin-bottom: 20px; height: 60px; overflow: hidden; }
-        .bet-modifier { flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-weight: 900; font-size: 16px; cursor: pointer; background: rgba(255,255,255,0.02); transition: 0.2s; }
+
+        .bet-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-black);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-s);
+            margin-bottom: 20px;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .bet-modifier {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            transition: 0.2s;
+        }
         .bet-modifier:active { background: rgba(255,255,255,0.05); }
-        .bet-input-field { flex: 2; height: 100%; background: transparent; border: none; border-left: 1px solid var(--brd); border-right: 1px solid var(--brd); color: var(--text-primary); text-align: center; font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 900; }
-        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-bet { position: relative; height: 65px; border: none; border-radius: var(--rad-m); color: var(--text-primary); font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px; cursor: pointer; transition: transform 0.1s, filter 0.2s; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+        .bet-input-field {
+            flex: 2;
+            height: 100%;
+            background: transparent;
+            border: none;
+            border-left: 1px solid var(--brd);
+            border-right: 1px solid var(--brd);
+            color: var(--text-primary);
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-bet {
+            position: relative;
+            height: 65px;
+            border: none;
+            border-radius: var(--rad-m);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .btn-bet:active { transform: scale(0.95); filter: brightness(1.2); }
-        .btn-bet.blue { background: linear-gradient(180deg, var(--cyan), var(--cyan-dark)); box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
-        .btn-bet.red { background: linear-gradient(180deg, var(--pink), var(--pink-dark)); box-shadow: 0 10px 20px rgba(255, 59, 92, 0.3), inset 0 2px 0 rgba(255,255,255,0.2); }
-        .my-bet-indicator { position: absolute; top: 5px; right: 5px; background: var(--bg-black); color: var(--text-primary); font-size: 10px; padding: 3px 8px; border-radius: 100px; font-family: 'Manrope', sans-serif; font-weight: 800; display: none; border: 1px solid rgba(255,255,255,0.2); }
+
+        .btn-bet.blue {
+            background: linear-gradient(180deg, var(--cyan), var(--cyan-dark));
+            box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+        }
+        
+        .btn-bet.red {
+            background: linear-gradient(180deg, var(--pink), var(--pink-dark));
+            box-shadow: 0 10px 20px rgba(255, 59, 92, 0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+        }
+
+        .my-bet-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--bg-black);
+            color: var(--text-primary);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            display: none; /* Hidden by default */
+            border: 1px solid rgba(255,255,255,0.2);
+        }
 
         /* ================================================================
-           7. МАГАЗИН И ПРОМОКОДЫ
+           7. МАГАЗИН И ПРОМОКОДЫ (СТРОГО ПОДАРКИ, БЕЗ ВКЛАДОК)
            ================================================================ */
-        .promo-section { background: var(--bg-light); border: 1px solid var(--brd-orange); border-radius: var(--rad-m); padding: 15px; margin-bottom: 30px; display: flex; gap: 10px; box-shadow: var(--shadow-orange); }
-        .input-promo { flex: 1; background: var(--bg-black); border: 1px solid var(--brd); border-radius: var(--rad-s); padding: 0 15px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 14px; text-transform: uppercase; }
-        .btn-activate { background: var(--orange-main); color: var(--bg-black); border: none; border-radius: var(--rad-s); padding: 0 20px; font-weight: 900; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .promo-section {
+            background: var(--bg-light);
+            border: 1px solid var(--brd-orange);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            box-shadow: var(--shadow-orange);
+        }
+
+        .input-promo {
+            flex: 1;
+            background: var(--bg-black);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-s);
+            padding: 0 15px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .btn-activate {
+            background: var(--orange-main);
+            color: var(--bg-black);
+            border: none;
+            border-radius: var(--rad-s);
+            padding: 0 20px;
+            font-weight: 900;
+            font-size: 13px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+        }
         .btn-activate:active { transform: scale(0.95); }
-        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .gift-card { background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-dark) 100%); border: 1px solid var(--brd); border-radius: var(--rad-m); padding: 20px 15px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; transition: transform 0.2s; }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .gift-card {
+            background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
         .gift-card:active { transform: translateY(2px); }
-        .gift-icon { font-size: 55px; margin-bottom: 15px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6)); animation: floatUpDown 4s ease-in-out infinite; }
-        .gift-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; margin-bottom: 4px; color: var(--text-primary); }
-        .gift-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.2; height: 26px; }
-        .gift-price { font-family: 'Outfit', sans-serif; font-weight: 900; color: var(--orange-main); font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; background: rgba(255, 102, 0, 0.1); padding: 4px 12px; border-radius: 100px; border: 1px solid rgba(255, 102, 0, 0.2); }
-        .btn-purchase { width: 100%; background: var(--bg-black); border: 1px solid var(--brd-light); border-radius: var(--rad-s); color: var(--text-primary); padding: 12px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; }
+
+        .gift-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
+            animation: floatUpDown 4s ease-in-out infinite;
+        }
+
+        .gift-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .gift-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.2;
+            height: 26px; /* Фикс высота */
+        }
+
+        .gift-price {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            color: var(--orange-main);
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 102, 0, 0.1);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 102, 0, 0.2);
+        }
+
+        .btn-purchase {
+            width: 100%;
+            background: var(--bg-black);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-s);
+            color: var(--text-primary);
+            padding: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
         .btn-purchase:active { background: var(--orange-main); color: var(--bg-black); }
 
         /* ================================================================
-           8. ТАБЛИЦА ЛИДЕРОВ
+           8. ТАБЛИЦА ЛИДЕРОВ (TOP 100 С НОВЫМ БАЛАНСОМ)
            ================================================================ */
-        .season-timer-panel { background: linear-gradient(135deg, rgba(255, 102, 0, 0.15), rgba(255, 102, 0, 0.05)); border: 1px solid var(--orange-main); border-radius: var(--rad-m); padding: 15px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(255, 102, 0, 0.1); }
-        .s-timer-label { color: var(--orange-main); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .s-timer-value { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 900; color: var(--text-primary); letter-spacing: -0.5px; }
-        .lb-container { background: var(--bg-dark); border-radius: var(--rad-l); border: 1px solid var(--brd); overflow: hidden; box-shadow: var(--shadow-base); }
-        .lb-header-row { display: grid; grid-template-columns: 50px 1fr 110px; padding: 15px 20px; background: var(--bg-light); border-bottom: 1px solid var(--brd); font-size: 11px; font-weight: 800; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1px; }
-        .lb-item { display: grid; grid-template-columns: 50px 1fr 110px; padding: 16px 20px; align-items: center; border-bottom: 1px solid var(--brd); transition: background 0.2s; }
+        .season-timer-panel {
+            background: linear-gradient(135deg, rgba(255, 102, 0, 0.15), rgba(255, 102, 0, 0.05));
+            border: 1px solid var(--orange-main);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 20px rgba(255, 102, 0, 0.1);
+        }
+        
+        .s-timer-label {
+            color: var(--orange-main);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .s-timer-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .lb-container {
+            background: var(--bg-dark);
+            border-radius: var(--rad-l);
+            border: 1px solid var(--brd);
+            overflow: hidden;
+            box-shadow: var(--shadow-base);
+        }
+
+        .lb-header-row {
+            display: grid;
+            grid-template-columns: 50px 1fr 110px;
+            padding: 15px 20px;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--brd);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lb-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 110px;
+            padding: 16px 20px;
+            align-items: center;
+            border-bottom: 1px solid var(--brd);
+            transition: background 0.2s;
+        }
         .lb-item:hover { background: rgba(255,255,255,0.02); }
+
         .lb-rank-num { font-family: 'Outfit', sans-serif; font-weight: 900; color: var(--text-dark); font-size: 16px; }
+        
         .lb-player { display: flex; align-items: center; gap: 12px; }
-        .lb-ava-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 900; color: var(--text-secondary); border: 1px solid var(--brd-light); }
+        
+        .lb-ava-circle { 
+            width: 36px; height: 36px; 
+            border-radius: 50%; 
+            background: var(--bg-light); 
+            display: flex; align-items: center; justify-content: center; 
+            font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 900; color: var(--text-secondary);
+            border: 1px solid var(--brd-light);
+        }
+        
         .lb-info { display: flex; flex-direction: column; }
         .lb-name-text { font-weight: 700; font-size: 14px; color: var(--text-primary); }
         .lb-reward-text { font-size: 10px; color: var(--orange-main); font-weight: 800; display: flex; align-items: center; gap: 3px; margin-top: 2px;}
+        
         .lb-score { text-align: right; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--text-primary);}
+
+        /* Стили для ТОП-3 */
         .rank-top-1 { background: rgba(255, 102, 0, 0.05); }
         .rank-top-1 .lb-rank-num { color: var(--orange-main); font-size: 24px; text-shadow: 0 0 10px var(--orange-glow); }
         .rank-top-1 .lb-ava-circle { background: var(--orange-main); color: var(--bg-black); border-color: var(--orange-main); box-shadow: 0 0 10px var(--orange-glow);}
+        
         .rank-top-2 .lb-rank-num { color: #e2e8f0; font-size: 20px; }
         .rank-top-3 .lb-rank-num { color: #b45309; font-size: 20px; }
 
         /* ================================================================
            9. ПРОФИЛЬ, ЗАДАНИЯ И ИНВЕНТАРЬ
            ================================================================ */
-        .profile-header-card { background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-black) 100%); border: 1px solid var(--brd); border-radius: var(--rad-l); padding: 30px 20px; text-align: center; margin-bottom: 25px; position: relative; overflow: hidden; }
-        .profile-header-card::before { content: ''; position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: var(--orange-main); filter: blur(80px); opacity: 0.2; border-radius: 50%; }
-        .prof-ava-huge { width: 110px; height: 110px; border-radius: 35px; background: linear-gradient(135deg, var(--orange-main), var(--orange-dark)); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-size: 48px; font-weight: 900; color: var(--bg-black); transform: rotate(-5deg); box-shadow: 0 15px 35px rgba(255, 102, 0, 0.3); border: 4px solid var(--bg-black); text-transform: uppercase; }
-        .prof-name-huge { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 900; margin-bottom: 20px; letter-spacing: -0.5px; }
-        .prof-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-prof-action { height: 50px; border: none; border-radius: var(--rad-s); font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        .profile-header-card {
+            background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-black) 100%);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-l);
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header-card::before {
+            content: '';
+            position: absolute;
+            top: -50px; left: -50px;
+            width: 150px; height: 150px;
+            background: var(--orange-main);
+            filter: blur(80px);
+            opacity: 0.2;
+            border-radius: 50%;
+        }
+
+        .prof-ava-huge {
+            width: 110px;
+            height: 110px;
+            border-radius: 35px;
+            background: linear-gradient(135deg, var(--orange-main), var(--orange-dark));
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--bg-black);
+            transform: rotate(-5deg);
+            box-shadow: 0 15px 35px rgba(255, 102, 0, 0.3);
+            border: 4px solid var(--bg-black);
+            text-transform: uppercase;
+        }
+
+        .prof-name-huge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .prof-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-prof-action {
+            height: 50px;
+            border: none;
+            border-radius: var(--rad-s);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
         .btn-deposit { background: var(--orange-main); color: var(--bg-black); }
         .btn-deposit:active { transform: scale(0.95); }
+        
         .btn-withdraw { background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--brd-light); }
         .btn-withdraw:active { background: var(--brd-light); }
-        .section-heading { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 15px; color: var(--text-primary); }
-        .task-container { background: var(--bg-light); border: 1px solid var(--brd); border-radius: var(--rad-m); padding: 20px; margin-bottom: 30px; }
-        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-black); border: 1px solid var(--brd-light); border-radius: var(--rad-s); }
-        .task-details { display: flex; flex-direction: column; gap: 6px; }
+
+        /* БЛОК ЗАДАНИЙ */
+        .section-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .task-container {
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-black);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-s);
+        }
+
+        .task-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         .task-title-text { font-size: 14px; font-weight: 800; color: var(--text-primary); }
-        .task-reward-badge { font-size: 12px; color: var(--orange-main); font-weight: 800; display: flex; align-items: center; gap: 4px; background: rgba(255,102,0,0.1); padding: 2px 8px; border-radius: 100px; width: fit-content; }
-        .btn-do-task { background: var(--text-primary); border: none; color: var(--bg-black); padding: 10px 20px; border-radius: var(--rad-xs); font-weight: 800; font-size: 12px; text-transform: uppercase; cursor: pointer; }
-        .btn-do-task:disabled { background: var(--bg-dark); color: var(--text-secondary); border: 1px solid var(--brd); cursor: not-allowed; }
-        .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .inv-item-slot { aspect-ratio: 1; background: var(--bg-light); border: 1px solid var(--brd-light); border-radius: var(--rad-s); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        
+        .task-reward-badge {
+            font-size: 12px;
+            color: var(--orange-main);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,102,0,0.1);
+            padding: 2px 8px;
+            border-radius: 100px;
+            width: fit-content;
+        }
+
+        .btn-do-task {
+            background: var(--text-primary);
+            border: none;
+            color: var(--bg-black);
+            padding: 10px 20px;
+            border-radius: var(--rad-xs);
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .btn-do-task:disabled {
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            border: 1px solid var(--brd);
+            cursor: not-allowed;
+        }
+
+        /* ИНВЕНТАРЬ */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .inv-item-slot {
+            aspect-ratio: 1;
+            background: var(--bg-light);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-s);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
 
         /* ================================================================
-           10. НОВЫЙ БЛОК: СТЕЙКИНГ (ОБНОВЛЕННЫЙ ТЗ - 150% APR)
+           10. НОВЫЙ БЛОК: СТЕЙКИНГ (STAKING EXTREME)
            ================================================================ */
-        .staking-overview { background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%); border: 1px solid var(--brd-orange); border-radius: var(--rad-l); padding: 25px 20px; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: var(--shadow-orange); }
-        .staking-overview::after { content: ''; position: absolute; right: -30px; bottom: -30px; width: 120px; height: 120px; background: var(--orange-main); filter: blur(60px); opacity: 0.15; border-radius: 50%; }
-        .stake-stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .stake-stat-block { display: flex; flex-direction: column; }
-        .stake-stat-label { font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
-        .stake-stat-value { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
-        .stake-reward-highlight { color: var(--green); animation: glowReward 2s infinite ease-in-out; }
-        .btn-claim-rewards { width: 100%; background: var(--green); color: var(--bg-black); border: none; padding: 16px; border-radius: var(--rad-m); font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 15px var(--green-glow); transition: all 0.2s; }
+        .staking-overview {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+            border: 1px solid var(--brd-orange);
+            border-radius: var(--rad-l);
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-orange);
+        }
+
+        .staking-overview::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 120px;
+            height: 120px;
+            background: var(--orange-main);
+            filter: blur(60px);
+            opacity: 0.15;
+            border-radius: 50%;
+        }
+
+        .stake-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stake-stat-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stake-stat-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stake-stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stake-reward-highlight {
+            color: var(--green);
+            animation: glowReward 2s infinite ease-in-out;
+        }
+
+        .btn-claim-rewards {
+            width: 100%;
+            background: var(--green);
+            color: var(--bg-black);
+            border: none;
+            padding: 16px;
+            border-radius: var(--rad-m);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--green-glow);
+            transition: all 0.2s;
+        }
+
         .btn-claim-rewards:active { transform: scale(0.96); }
-        .btn-claim-rewards:disabled { background: var(--bg-dark); color: var(--text-secondary); box-shadow: none; border: 1px solid var(--brd); cursor: not-allowed; }
-        .staking-plans { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-        .stake-plan-card { background: var(--bg-black); border: 1px solid var(--brd-light); border-radius: var(--rad-m); padding: 20px; transition: border-color 0.3s, box-shadow 0.3s; }
-        .stake-plan-card.active-plan { border-color: var(--orange-main); box-shadow: inset 0 0 15px rgba(255,102,0,0.1); }
-        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .plan-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
-        .apr-badge { background: rgba(255, 102, 0, 0.15); color: var(--orange-main); padding: 4px 10px; border-radius: 100px; font-size: 12px; font-weight: 900; border: 1px solid rgba(255, 102, 0, 0.3); }
-        .plan-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+        .btn-claim-rewards:disabled { 
+            background: var(--bg-dark); 
+            color: var(--text-secondary); 
+            box-shadow: none; 
+            border: 1px solid var(--brd);
+            cursor: not-allowed;
+        }
+
+        /* Карточки планов стейкинга */
+        .staking-plans {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stake-plan-card {
+            background: var(--bg-black);
+            border: 1px solid var(--brd-light);
+            border-radius: var(--rad-m);
+            padding: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .stake-plan-card.active-plan {
+            border-color: var(--orange-main);
+            box-shadow: inset 0 0 15px rgba(255,102,0,0.1);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .plan-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .apr-badge {
+            background: rgba(255, 102, 0, 0.15);
+            color: var(--orange-main);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 900;
+            border: 1px solid rgba(255, 102, 0, 0.3);
+        }
+
+        .plan-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
         .plan-details span { color: var(--text-primary); font-weight: 800; }
-        .stake-action-area { display: flex; gap: 10px; margin-top: 15px; }
-        .stake-input { flex: 1; background: var(--bg-light); border: 1px solid var(--brd); border-radius: var(--rad-s); padding: 0 15px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; }
-        .btn-do-stake { background: var(--orange-main); color: var(--bg-black); border: none; border-radius: var(--rad-s); padding: 0 20px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.2s; }
+
+        .stake-action-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stake-input {
+            flex: 1;
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-s);
+            padding: 0 15px;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .btn-do-stake {
+            background: var(--orange-main);
+            color: var(--bg-black);
+            border: none;
+            border-radius: var(--rad-s);
+            padding: 0 20px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
         .btn-do-stake:active { transform: scale(0.95); }
-        .active-stakes-list { display: flex; flex-direction: column; gap: 12px; }
-        .active-stake-item { background: var(--bg-light); border: 1px solid var(--brd); border-radius: var(--rad-m); padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .active-stake-top { display: flex; justify-content: space-between; align-items: center; }
-        .staked-amount { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 5px; }
-        .stake-progress-bg { width: 100%; height: 6px; background: var(--bg-black); border-radius: 10px; overflow: hidden; border: 1px solid var(--brd); }
-        .stake-progress-fill { height: 100%; background: linear-gradient(90deg, var(--orange-dark), var(--orange-main)); border-radius: 10px; transition: width 1s linear; }
-        .stake-footer-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); font-weight: 700; }
-        .btn-unstake { background: transparent; border: 1px solid var(--brd-light); color: var(--text-primary); padding: 6px 12px; border-radius: var(--rad-s); font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+
+        /* Активные стейки (Инвентарь стейкинга) */
+        .active-stakes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .active-stake-item {
+            background: var(--bg-light);
+            border: 1px solid var(--brd);
+            border-radius: var(--rad-m);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .active-stake-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .staked-amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stake-progress-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-black);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--brd);
+        }
+
+        .stake-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange-dark), var(--orange-main));
+            border-radius: 10px;
+            transition: width 1s linear;
+        }
+
+        .stake-footer-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .btn-unstake {
+            background: transparent;
+            border: 1px solid var(--brd-light);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: var(--rad-s);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
         .btn-unstake:hover { border-color: var(--pink); color: var(--pink); }
 
         /* ================================================================
            11. BOTTOM NAVIGATION BAR
            ================================================================ */
-        nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--brd); padding: 12px 10px calc(var(--safe-b) + 12px); display: flex; justify-content: space-between; z-index: 2000; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-dark); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; flex: 1; transition: 0.3s; cursor: pointer; }
-        .nav-icon { width: 24px; height: 24px; fill: currentColor; transition: 0.3s; }
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 12, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--brd);
+            padding: 12px 10px calc(var(--safe-b) + 12px);
+            display: flex;
+            justify-content: space-between;
+            z-index: 2000;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-dark);
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-icon { 
+            width: 24px; 
+            height: 24px; 
+            fill: currentColor; 
+            transition: 0.3s;
+        }
+
         .nav-btn.active { color: var(--orange-main); }
         .nav-btn.active .nav-icon { filter: drop-shadow(0 0 5px var(--orange-glow)); transform: translateY(-2px); }
 
         /* ================================================================
-           12. СИСТЕМА УВЕДОМЛЕНИЙ
+           12. СИСТЕМА УВЕДОМЛЕНИЙ (CUSTOM TOASTS)
            ================================================================ */
-        #alert-container { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .alert-msg { background: var(--text-primary); color: var(--bg-black); padding: 14px 24px; border-radius: 100px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 900; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; display: flex; align-items: center; gap: 8px; }
-        .alert-msg.error { background: var(--pink); color: white; }
-        .alert-msg.success { background: var(--green); color: black; }
+        #alert-container {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-msg {
+            background: var(--text-primary);
+            color: var(--bg-black);
+            padding: 14px 24px;
+            border-radius: 100px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-msg.error {
+            background: var(--pink);
+            color: white;
+        }
+
+        .alert-msg.success {
+            background: var(--green);
+            color: black;
+        }
+
     </style>
 </head>
 <body>
+
     <div id="alert-container"></div>
 
     <header>
@@ -373,6 +1325,7 @@
 
     <main>
         <div id="screen-game" class="game-screen active">
+            
             <div class="roulette-container">
                 <div class="wheel-outer-ring">
                     <div class="wheel-pointer"></div>
@@ -386,17 +1339,30 @@
             
             <div class="history-panel">
                 <div class="history-title">История:</div>
-                <div class="history-dots" id="history-dots-box"></div>
+                <div class="history-dots" id="history-dots-box">
+                    </div>
             </div>
 
             <div class="pools-container">
                 <div class="pool-box blue">
-                    <div class="pool-header"><span>Blue Pool</span><span id="perc-blue">50%</span></div>
-                    <div class="pool-amount"><span id="val-blue">0.00</span><span class="ton-svg-icon"></span></div>
+                    <div class="pool-header">
+                        <span>Blue Pool</span>
+                        <span id="perc-blue">50%</span>
+                    </div>
+                    <div class="pool-amount">
+                        <span id="val-blue">0.00</span>
+                        <span class="ton-svg-icon"></span>
+                    </div>
                 </div>
                 <div class="pool-box red">
-                    <div class="pool-header"><span>Red Pool</span><span id="perc-red">50%</span></div>
-                    <div class="pool-amount"><span id="val-red">0.00</span><span class="ton-svg-icon"></span></div>
+                    <div class="pool-header">
+                        <span>Red Pool</span>
+                        <span id="perc-red">50%</span>
+                    </div>
+                    <div class="pool-amount">
+                        <span id="val-red">0.00</span>
+                        <span class="ton-svg-icon"></span>
+                    </div>
                 </div>
             </div>
 
@@ -434,8 +1400,9 @@
                 <button class="btn-activate" onclick="applyPromoCode()">Активация</button>
             </div>
 
-            <h3 class="section-heading">Эксклюзивные Подарки (+10% наценка)</h3>
-            <div class="shop-grid" id="render-shop-grid"></div>
+            <h3 class="section-heading">Эксклюзивные Подарки</h3>
+            <div class="shop-grid" id="render-shop-grid">
+                </div>
         </div>
 
         <div id="screen-staking" class="game-screen">
@@ -463,8 +1430,8 @@
                 
                 <div class="stake-plan-card">
                     <div class="plan-header">
-                        <div class="plan-title">CircleGift Pool <span class="ton-svg-icon"></span></div>
-                        <div class="apr-badge">150% APR</div>
+                        <div class="plan-title">Flexible Pool <span class="ton-svg-icon"></span></div>
+                        <div class="apr-badge">120% APR</div>
                     </div>
                     <div class="plan-details">
                         <div>Период: <span>Свободный</span></div>
@@ -472,7 +1439,22 @@
                     </div>
                     <div class="stake-action-area">
                         <input type="number" id="input-stake-pool-1" class="stake-input" placeholder="Сумма TON">
-                        <button class="btn-do-stake" onclick="makeStake(1, 150)">STAKE</button>
+                        <button class="btn-do-stake" onclick="makeStake(1, 120)">STAKE</button>
+                    </div>
+                </div>
+
+                <div class="stake-plan-card">
+                    <div class="plan-header">
+                        <div class="plan-title">Diamond Lock <span class="ton-svg-icon"></span></div>
+                        <div class="apr-badge">365% APR</div>
+                    </div>
+                    <div class="plan-details">
+                        <div>Период: <span>14 Дней</span></div>
+                        <div>Мин. сумма: <span>5 TON</span></div>
+                    </div>
+                    <div class="stake-action-area">
+                        <input type="number" id="input-stake-pool-2" class="stake-input" placeholder="Сумма TON">
+                        <button class="btn-do-stake" onclick="makeStake(2, 365, 14)">STAKE</button>
                     </div>
                 </div>
             </div>
@@ -482,7 +1464,6 @@
                 <div style="text-align: center; color: var(--text-secondary); font-size: 12px; padding: 20px;">У вас пока нет активных стейков.</div>
             </div>
         </div>
-
         <div id="screen-top" class="game-screen">
             <div class="screen-header">
                 <h1 class="screen-title">Лидеры Сезона</h1>
@@ -494,7 +1475,8 @@
                 <div class="s-timer-value">47 ДН 12 ЧАСОВ</div>
             </div>
             
-            <div class="lb-container" id="render-leaderboard"></div>
+            <div class="lb-container" id="render-leaderboard">
+                </div>
         </div>
 
         <div id="screen-profile" class="game-screen">
@@ -514,14 +1496,15 @@
                 <div class="task-item">
                     <div class="task-details">
                         <span class="task-title-text">Подписка на спонсора (CircleGift)</span>
-                        <span class="task-reward-badge" id="prof-task-svg">+ 0.25</span>
+                        <span class="task-reward-badge" id="prof-task-svg">+ 0.50</span>
                     </div>
                     <button class="btn-do-task" id="btn-do-task-id" onclick="executeTask()">Выполнить</button>
                 </div>
             </div>
 
             <h3 class="section-heading" style="margin-bottom: 15px;">Мой Инвентарь (Подарки)</h3>
-            <div class="inventory-grid" id="render-inventory"></div>
+            <div class="inventory-grid" id="render-inventory">
+                </div>
         </div>
     </main>
 
@@ -551,11 +1534,14 @@
     </nav>
 
     <script>
+        // 1. Векторная иконка TON для интеграции
         const ICON_TON_SVG = `<svg class="ton-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#ff6600"/><path d="M16.4883 8.32422L12.0001 14.8524L7.51184 8.32422H16.4883Z" fill="#050505"/></svg>`;
         
+        // Вставляем иконку во все подготовленные места
         document.querySelectorAll('.ton-svg-icon').forEach(el => el.innerHTML = ICON_TON_SVG);
-        document.getElementById('prof-task-svg').innerHTML = `+ 0.25 ${ICON_TON_SVG}`;
+        document.getElementById('prof-task-svg').innerHTML = `+ 0.50 ${ICON_TON_SVG}`;
 
+        // 2. Инициализация Telegram SDK и получение реального имени
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
@@ -574,18 +1560,20 @@
             return "Владислав Павленко"; 
         }
 
-        const DB_KEY = 'tonBattle_user_v3_staking_upd'; 
+        // 3. База данных Пользователя (localStorage ключ V3_STAKING)
+        const DB_KEY = 'tonBattle_user_v3_staking'; // Изменил ключ, чтобы обновить БД с новой структурой
         const GLOBAL_KEY = 'tonBattle_globals_v3';
         
         let initialUser = {
             id: tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 99999),
             name: getRealUserName(),
-            balance: 50.00, 
+            balance: 50.00, // Дадим стартовый баланс для теста стейкинга
             inventory: [],
             usedPromos: [],
             tasks: { circleGift: false },
+            // НОВАЯ СТРУКТУРА ДЛЯ СТЕЙКИНГА
             staking: {
-                activeStakes: [], 
+                activeStakes: [], // { id, amount, apr, lockDays, startTime, lastClaimTime }
                 pendingRewards: 0.00
             }
         };
@@ -593,6 +1581,7 @@
         let dbData = localStorage.getItem(DB_KEY);
         let USER = dbData ? JSON.parse(dbData) : initialUser;
 
+        // Если старый юзер без структуры стейкинга (миграция)
         if(!USER.staking) {
             USER.staking = { activeStakes: [], pendingRewards: 0.00 };
         }
@@ -609,6 +1598,7 @@
             localStorage.setItem(GLOBAL_KEY, JSON.stringify(GLOBAL_DB));
         }
 
+        // 4. Движок рулетки (Game Engine)
         const ENGINE = {
             timeRemaining: 15,
             poolB: 0,
@@ -619,15 +1609,17 @@
             history: JSON.parse(localStorage.getItem('tb_hist_v3_s')) || ['blue', 'red', 'red', 'blue', 'red', 'blue']
         };
 
+        // 5. База данных магазина (ТОЛЬКО ПОДАРКИ)
         const SHOP_DATABASE = [
-            { id: 201, name: "Крипто Роза", icon: "🌹", price: 5 * 1.1, desc: "Романтика блокчейна" },
-            { id: 202, name: "Ламба", icon: "🏎️", price: 50 * 1.1, desc: "Мечта каждого" },
-            { id: 203, name: "Биткоин", icon: "₿", price: 100 * 1.1, desc: "Цифровое золото" },
-            { id: 204, name: "Корона", icon: "👑", price: 250 * 1.1, desc: "Для королей топа" },
-            { id: 205, name: "Ракета", icon: "🚀", price: 500 * 1.1, desc: "Туземун!" },
-            { id: 206, name: "Бриллиант", icon: "💎", price: 1000 * 1.1, desc: "Diamond hands" }
+            { id: 201, name: "Крипто Роза", icon: "🌹", price: 5, desc: "Романтика блокчейна" },
+            { id: 202, name: "Ламба", icon: "🏎️", price: 50, desc: "Мечта каждого" },
+            { id: 203, name: "Биткоин", icon: "₿", price: 100, desc: "Цифровое золото" },
+            { id: 204, name: "Корона", icon: "👑", price: 250, desc: "Для королей топа" },
+            { id: 205, name: "Ракета", icon: "🚀", price: 500, desc: "Туземун!" },
+            { id: 206, name: "Бриллиант", icon: "💎", price: 1000, desc: "Diamond hands" }
         ];
 
+        // 6. ГЕНЕРАТОР ТОП 100 (АЛГОРИТМ С БАЛАНСОМ ДО 100 TON)
         const LEADERBOARD_ARRAY = [];
         const botPrefixes = ["Crypto", "TON_", "Whale_", "Sniper", "Gamer", "Lucky_", "Pro_"];
         const botNames = ["Alex", "Dmitry", "Ivan", "Oleg", "Anna", "Max", "Igor", "Sergey"];
@@ -663,6 +1655,9 @@
             if(currentBotBal < 0.1) currentBotBal = 0.1;
         }
 
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ И РЕНДЕРИНГ
+        // ==========================================
         function initApp() {
             const firstLetter = USER.name.charAt(0).toUpperCase();
             document.getElementById('hdr-name').innerText = USER.name;
@@ -676,6 +1671,7 @@
             renderTop100();
             renderProfileData();
             
+            // Инициализация Стейкинга
             renderStakingDashboard();
             startStakingEngine();
             
@@ -714,6 +1710,9 @@
             localStorage.setItem('tb_hist_v3_s', JSON.stringify(ENGINE.history));
         }
 
+        // ==========================================
+        // ЯДРО РУЛЕТКИ И СТАВОК (ЛОГИКА ПОБЕД/ПОРАЖЕНИЙ)
+        // ==========================================
         function startCoreLoop() {
             setInterval(() => {
                 if (ENGINE.spinning) return;
@@ -829,6 +1828,9 @@
             pushAlert(`Ставка ${betSize} TON на ${colorSide.toUpperCase()} принята!`, "info");
         }
 
+        // ==========================================
+        // МАГАЗИН И ПРОМОКОДЫ
+        // ==========================================
         function renderShopCatalog() {
             const grid = document.getElementById('render-shop-grid');
             grid.innerHTML = SHOP_DATABASE.map(item => `
@@ -836,7 +1838,7 @@
                     <div class="gift-icon">${item.icon}</div>
                     <div class="gift-name">${item.name}</div>
                     <div class="gift-desc">${item.desc}</div>
-                    <div class="gift-price">${item.price.toFixed(1)} ${ICON_TON_SVG}</div>
+                    <div class="gift-price">${item.price} ${ICON_TON_SVG}</div>
                     <button class="btn-purchase" onclick="buyGift(${item.id})">Купить</button>
                 </div>
             `).join('');
@@ -888,6 +1890,9 @@
             renderProfileData(); 
         }
 
+        // ==========================================
+        // НОВЫЙ ДВИЖОК: СТЕЙКИНГ СИСТЕМА (STAKING EXTREME)
+        // ==========================================
         function makeStake(poolId, apr, lockDays = 0) {
             const inputEl = document.getElementById(`input-stake-pool-${poolId}`);
             const amount = parseFloat(inputEl.value);
@@ -896,8 +1901,10 @@
             if (amount > USER.balance) { pushAlert("Недостаточно средств на балансе!", "error"); return; }
             if (lockDays > 0 && amount < 5) { pushAlert("Минимальная сумма для этого пула 5 TON", "error"); return; }
 
+            // Списываем баланс
             USER.balance -= amount;
             
+            // Создаем новый контракт стейкинга
             const newStake = {
                 id: Date.now(),
                 amount: amount,
@@ -910,7 +1917,7 @@
             USER.staking.activeStakes.push(newStake);
             saveDB();
             
-            inputEl.value = ''; 
+            inputEl.value = ''; // Очищаем инпут
             updateDisplayData();
             renderStakingDashboard();
             pushAlert(`Успешно вложено ${amount} TON под ${apr}% APR!`, "success");
@@ -922,6 +1929,7 @@
             
             const stake = USER.staking.activeStakes[stakeIndex];
 
+            // Проверка на заморозку (локи)
             if (stake.lockDays > 0) {
                 const daysPassed = (Date.now() - stake.startTime) / (1000 * 60 * 60 * 24);
                 if (daysPassed < stake.lockDays) {
@@ -931,9 +1939,11 @@
                 }
             }
 
+            // Выплата тела депозита + остатка наград перед закрытием
             calculateStakingRewards(); 
             USER.balance += stake.amount;
             
+            // Удаляем стейк
             USER.staking.activeStakes.splice(stakeIndex, 1);
             saveDB();
             
@@ -949,6 +1959,7 @@
             USER.staking.activeStakes.forEach(stake => {
                 const msPassed = now - stake.lastClaimTime;
                 if (msPassed > 0) {
+                    // Формула: Сумма * (APR / 100) / (Милисекунд в году) * Пройденное время
                     const msInYear = 365 * 24 * 60 * 60 * 1000;
                     const reward = stake.amount * (stake.apr / 100) * (msPassed / msInYear);
                     totalNewRewards += reward;
@@ -963,7 +1974,7 @@
         }
 
         function claimStakingRewards() {
-            calculateStakingRewards(); 
+            calculateStakingRewards(); // Финализируем расчеты
             
             const rewardToClaim = USER.staking.pendingRewards;
             
@@ -973,7 +1984,7 @@
             }
 
             USER.balance += rewardToClaim;
-            USER.staking.pendingRewards = 0; 
+            USER.staking.pendingRewards = 0; // Сбрасываем
             saveDB();
             
             updateDisplayData();
@@ -982,9 +1993,11 @@
         }
 
         function renderStakingDashboard() {
+            // Считаем тотал застейкано
             let totalStaked = USER.staking.activeStakes.reduce((sum, stake) => sum + stake.amount, 0);
             document.getElementById('st-total-staked').innerHTML = `${totalStaked.toFixed(2)} <span class="ton-svg-icon"></span>`;
             
+            // Рендер кнопки клейма
             const btnClaim = document.getElementById('btn-claim-st-rewards');
             if(USER.staking.pendingRewards > 0) {
                 btnClaim.innerText = `ЗАБРАТЬ ${USER.staking.pendingRewards.toFixed(4)} TON`;
@@ -994,6 +2007,7 @@
                 btnClaim.disabled = true;
             }
 
+            // Рендер активных стейков
             const listContainer = document.getElementById('render-active-stakes');
             if (USER.staking.activeStakes.length === 0) {
                 listContainer.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 12px; padding: 20px; border: 1px dashed var(--brd); border-radius: 12px;">У вас пока нет активных стейков. Сделайте депозит выше.</div>`;
@@ -1035,18 +2049,24 @@
                 `;
             }).join('');
             
+            // Обновляем SVG иконки внутри новых элементов
             document.querySelectorAll('.ton-svg-icon').forEach(el => el.innerHTML = ICON_TON_SVG);
         }
 
+        // Движок расчета процентов каждую секунду для красоты UI
         function startStakingEngine() {
             setInterval(() => {
                 if(USER.staking.activeStakes.length > 0) {
                     calculateStakingRewards();
+                    // Обновляем чисто визуал цифры ревардов без полного рендера, чтобы не лагало
                     document.getElementById('st-total-rewards').innerHTML = `${USER.staking.pendingRewards.toFixed(5)} <span class="ton-svg-icon">${ICON_TON_SVG}</span>`;
                 }
-            }, 1000); 
+            }, 1000); // Раз в секунду капает прибыль
         }
 
+        // ==========================================
+        // ТАБЛИЦА ЛИДЕРОВ (РЕНДЕР)
+        // ==========================================
         function renderTop100() {
             const listContainer = document.getElementById('render-leaderboard');
             let htmlContent = `<div class="lb-header-row"><div>#</div><div>Игрок</div><div style="text-align:right">Баланс</div></div>`;
@@ -1072,6 +2092,9 @@
             listContainer.innerHTML = htmlContent;
         }
 
+        // ==========================================
+        // ПРОФИЛЬ (ЗАДАНИЯ И ИНВЕНТАРЬ)
+        // ==========================================
         function renderProfileData() {
             const taskBtn = document.getElementById('btn-do-task-id');
             if (USER.tasks.circleGift) {
@@ -1098,16 +2121,19 @@
             window.open('https://t.me/CircleGift', '_blank');
             
             setTimeout(() => {
-                USER.balance += 0.25; 
+                USER.balance += 0.5; 
                 USER.tasks.circleGift = true;
                 saveDB();
                 
                 updateDisplayData();
                 renderProfileData();
-                pushAlert("Задание успешно проверено! +0.25 TON", "success");
+                pushAlert("Задание успешно проверено! +0.5 TON", "success");
             }, 3500);
         }
 
+        // ==========================================
+        // УТИЛИТЫ: НАВИГАЦИЯ И УВЕДОМЛЕНИЯ
+        // ==========================================
         function switchTab(screenId, element) {
             document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + screenId).classList.add('active');
@@ -1117,6 +2143,7 @@
             
             document.querySelector('main').scrollTop = 0;
             
+            // Если перешли в стейкинг, обновляем его
             if(screenId === 'staking') renderStakingDashboard();
         }
 
@@ -1146,8 +2173,10 @@
             }, 3500);
         }
 
+        // Запуск при загрузке
         window.onload = initApp;
 
     </script>
 </body>
 </html>
+
