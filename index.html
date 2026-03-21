@@ -969,182 +969,165 @@
         /* ================================================================
            10. НОВЫЙ БЛОК: СТЕЙКИНГ (STAKING EXTREME)
            ================================================================ */
-        .staking-overview {
-            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
-            border: 1px solid var(--brd-orange);
-            border-radius: var(--rad-l);
-            padding: 25px 20px;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-orange);
-        }
+ import uuid
+import hashlib
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 
-        .staking-overview::after {
-            content: '';
-            position: absolute;
-            right: -30px;
-            bottom: -30px;
-            width: 120px;
-            height: 120px;
-            background: var(--orange-main);
-            filter: blur(60px);
-            opacity: 0.15;
-            border-radius: 50%;
-        }
+# =================================================================
+# ЭКСКЛЮЗИВНЫЕ ТИПЫ ДАННЫХ И ИНТЕРФЕЙСЫ
+# ==========================================
 
-        .stake-stats-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+@dataclass
+class StakePosition:
+    """Объект позиции стейкинга для оперативной памяти"""
+    stake_id: str
+    user_id: int
+    asset_type: str  # 'TON' or 'GIFT'
+    amount: float
+    entry_price: float
+    current_apr: float
+    start_time: int
+    is_locked: bool = False
+    metadata: dict = field(default_factory=dict)
 
-        .stake-stat-block {
-            display: flex;
-            flex-direction: column;
-        }
+class IStakingValidator(ABC):
+    """Интерфейс для валидации транзакций перед записью в БД"""
+    @abstractmethod
+    def validate_deposit(self, user_id: int, amount: float) -> bool:
+        pass
 
-        .stake-stat-label {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
+# =================================================================
+# ПРОДВИНУТАЯ МАТЕМАТИКА И ОРАКУЛ ЦЕН
+# =================================================================
 
-        .stake-stat-value {
-            font-family: 'Outfit', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+class PriceOracle:
+    """
+    Система управления ценами (имитация внешнего API).
+    Нужна для динамического изменения Floor Price
+    """
+    def __init__(self):
+        # Начальные цены для коллекции "Whip Cupcake"
+        self._floor_prices = {
+            "whip_cupcake": 4.5,
+            "star_donut": 12.0,
+            "ton_crystal": 1.0
         }
+        self.price_history = []
 
-        .stake-reward-highlight {
-            color: var(--green);
-            animation: glowReward 2s infinite ease-in-out;
-        }
+    def get_floor(self, collection: str) -> float:
+        return self._floor_prices.get(collection.lower(), 0.0)
 
-        .btn-claim-rewards {
-            width: 100%;
-            background: var(--green);
-            color: var(--bg-black);
-            border: none;
-            padding: 16px;
-            border-radius: var(--rad-m);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 16px;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 5px 15px var(--green-glow);
-            transition: all 0.2s;
-        }
+    def update_floor(self, collection: str, new_price: float):
+        """Админ-функция для изменения порога входа"""
+        if new_price <= 0: return
+        self._floor_prices[collection.lower()] = new_price
+        self.price_history.append({
+            "asset": collection,
+            "price": new_price,
+            "time": int(time.time())
+        })
 
-        .btn-claim-rewards:active { transform: scale(0.96); }
-        .btn-claim-rewards:disabled { 
-            background: var(--bg-dark); 
-            color: var(--text-secondary); 
-            box-shadow: none; 
-            border: 1px solid var(--brd);
-            cursor: not-allowed;
-        }
+# =================================================================
+# CORE STAKING LOGIC (EXPANDED)
+# =================================================================
 
-        /* Карточки планов стейкинга */
-        .staking-plans {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+class AdvancedStakingManager(StakingService, IStakingValidator):
+    """
+    Расширенный менеджер. 
+    Включает в себя реферальные бонусы и систему штрафов.
+    """
+    
+    def __init__(self, db: StakingDatabase, oracle: PriceOracle):
+        super().__init__(db)
+        self.oracle = oracle
+        self.min_withdraw_threshold = 0.05 # Минималка на сбор наград
 
-        .stake-plan-card {
-            background: var(--bg-black);
-            border: 1px solid var(--brd-light);
-            border-radius: var(--rad-m);
-            padding: 20px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
+    def validate_deposit(self, user_id: int, amount: float) -> bool:
+        # Проверка на фрод и минимальные лимиты
+        if amount <= 0: return False
+        # Тут можно добавить проверку на черные списки (Blacklist)
+        return True
 
-        .stake-plan-card.active-plan {
-            border-color: var(--orange-main);
-            box-shadow: inset 0 0 15px rgba(255,102,0,0.1);
-        }
+    def calculate_early_withdrawal_penalty(self, amount: float, days_left: int) -> float:
+        """
+        Штраф за досрочный выход из Diamond Lock
+        Если забираешь раньше 14 дней — теряешь 15% от суммы стейка.
+        """
+        if days_left <= 0: return 0.0
+        penalty_rate = 0.15 # 15%
+        return round(amount * penalty_rate, 4)
 
-        .plan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    # --- СИСТЕМА СОБЫТИЙ ---
 
-        .plan-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    def _trigger_event(self, event_type: str, data: dict):
+        """Внутренняя система логов для аналитики CircleGift"""
+        event_id = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]
+        logger.info(f"EVENT [{event_id}] | Type: {event_type} | Data: {data}")
 
-        .apr-badge {
-            background: rgba(255, 102, 0, 0.15);
-            color: var(--orange-main);
-            padding: 4px 10px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 900;
-            border: 1px solid rgba(255, 102, 0, 0.3);
-        }
+    # --- УПРАВЛЕНИЕ ПОДАРКАМИ (NFT) ---
 
-        .plan-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        .plan-details span { color: var(--text-primary); font-weight: 800; }
-
-        .stake-action-area {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .stake-input {
-            flex: 1;
-            background: var(--bg-light);
-            border: 1px solid var(--brd);
-            border-radius: var(--rad-s);
-            padding: 0 15px;
-            color: var(--text-primary);
-            font-family: 'Outfit', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .btn-do-stake {
-            background: var(--orange-main);
-            color: var(--bg-black);
-            border: none;
-            border-radius: var(--rad-s);
-            padding: 0 20px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+    def process_gift_staking_v2(self, user_id: int, gift_type: str, user_price: float):
+        """
+        Версия 2.0: Автоматически берет Floor из Оракула и проверяет лимиты.
+        """
+        floor = self.oracle.get_floor(gift_type)
         
-        .btn-do-stake:active { transform: scale(0.95); }
+        # Если цена юзера в 2 раза выше Floor — блокируем
+        if user_price > (floor * 2):
+            self._trigger_event("STAKE_REJECTED", {"reason": "Overpriced", "user": user_id})
+            return {"status": "error", "msg": "Price is too far from Floor!"}
+
+        apr = self.calculate_dynamic_gift_apr(user_price, floor)
+        
+        # Генерация уникального ID стейка
+        internal_id = f"GIFT-{uuid.uuid4().hex[:6].upper()}"
+        
+        self.stake_gift(user_id, internal_id, user_price, floor)
+        self._trigger_event("GIFT_STAKED", {"id": internal_id, "apr": apr})
+        
+        return {"status": "success", "stake_id": internal_id, "apr": apr}
+
+    # --- АНАЛИТИКА ДЛЯ АДМИН-ПАНЕЛИ ---
+
+    def get_global_stats(self) -> dict:
+        """Возвращает общие данные по всему проекту для админа"""
+        with self.db._get_conn() as conn:
+            total_ton = conn.execute('SELECT SUM(amount) FROM ton_stakes WHERE status="active"').fetchone()[0] or 0
+            active_users = conn.execute('SELECT COUNT(DISTINCT user_id) FROM ton_stakes').fetchone()[0] or 0
+            gift_count = conn.execute('SELECT COUNT(*) FROM gift_stakes WHERE is_active=1').fetchone()[0] or 0
+            
+        return {
+            "tvl_ton": round(total_ton, 2),
+            "users_active": active_users,
+            "gifts_in_work": gift_count,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+# =================================================================
+# ТЕСТИРОВАНИЕ КОМПОНЕНТОВ (UNIT TESTING)
+# =================================================================
+
+def run_stress_test():
+    """Тест на 1000 операций для проверки стабильности БД"""
+    oracle = PriceOracle()
+    db = StakingDatabase("test_stress.db")
+    manager = AdvancedStakingManager(db, oracle)
+    
+    print("🚀 Запуск стресс-теста системы стейкинга...")
+    start = time.time()
+    
+    for i in range(100):
+        manager.open_ton_stake(user_id=i, amount=random.uniform(1, 50), pool_key="flexible")
+        manager.process_gift_staking_v2(user_id=i, gift_type="whip_cupcake", user_price=5.0)
+        
+    end = time.time()
+    print(f"✅ Тест завершен. Обработано 200 транзакций за {round(end-start, 4)} сек.")
+    print(f"Статистика проекта: {manager.get_global_stats()}")
+
+if __name__ == "__main__":
+    run_stress_test()
+
 
         /* Активные стейки (Инвентарь стейкинга) */
         .active-stakes-list {
