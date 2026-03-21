@@ -969,236 +969,361 @@
         /* ================================================================
            10. НОВЫЙ БЛОК: СТЕЙКИНГ (STAKING EXTREME)
            ================================================================ */
- import uuid
-import hashlib
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-
-# =================================================================
-# ЭКСКЛЮЗИВНЫЕ ТИПЫ ДАННЫХ И ИНТЕРФЕЙСЫ
-# ==========================================
-
-@dataclass
-class StakePosition:
-    """Объект позиции стейкинга для оперативной памяти"""
-    stake_id: str
-    user_id: int
-    asset_type: str  # 'TON' or 'GIFT'
-    amount: float
-    entry_price: float
-    current_apr: float
-    start_time: int
-    is_locked: bool = False
-    metadata: dict = field(default_factory=dict)
-
-class IStakingValidator(ABC):
-    """Интерфейс для валидации транзакций перед записью в БД"""
-    @abstractmethod
-    def validate_deposit(self, user_id: int, amount: float) -> bool:
-        pass
-
-# =================================================================
-# ПРОДВИНУТАЯ МАТЕМАТИКА И ОРАКУЛ ЦЕН
-# =================================================================
-
-class PriceOracle:
-    """
-    Система управления ценами (имитация внешнего API).
-    Нужна для динамического изменения Floor Price
-    """
-    def __init__(self):
-        # Начальные цены для коллекции "Whip Cupcake"
-        self._floor_prices = {
-            "whip_cupcake": 4.5,
-            "star_donut": 12.0,
-            "ton_crystal": 1.0
-        }
-        self.price_history = []
-
-    def get_floor(self, collection: str) -> float:
-        return self._floor_prices.get(collection.lower(), 0.0)
-
-    def update_floor(self, collection: str, new_price: float):
-        """Админ-функция для изменения порога входа"""
-        if new_price <= 0: return
-        self._floor_prices[collection.lower()] = new_price
-        self.price_history.append({
-            "asset": collection,
-            "price": new_price,
-            "time": int(time.time())
-        })
-
-# =================================================================
-# CORE STAKING LOGIC (EXPANDED)
-# =================================================================
-
-class AdvancedStakingManager(StakingService, IStakingValidator):
-    """
-    Расширенный менеджер. 
-    Включает в себя реферальные бонусы и систему штрафов.
-    """
+            <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>TON BATTLE ULTIMATE V3 + COMBO</title>
     
-    def __init__(self, db: StakingDatabase, oracle: PriceOracle):
-        super().__init__(db)
-        self.oracle = oracle
-        self.min_withdraw_threshold = 0.05 # Минималка на сбор наград
-
-    def validate_deposit(self, user_id: int, amount: float) -> bool:
-        # Проверка на фрод и минимальные лимиты
-        if amount <= 0: return False
-        # Тут можно добавить проверку на черные списки (Blacklist)
-        return True
-
-    def calculate_early_withdrawal_penalty(self, amount: float, days_left: int) -> float:
-        """
-        Штраф за досрочный выход из Diamond Lock
-        Если забираешь раньше 14 дней — теряешь 15% от суммы стейка.
-        """
-        if days_left <= 0: return 0.0
-        penalty_rate = 0.15 # 15%
-        return round(amount * penalty_rate, 4)
-
-    # --- СИСТЕМА СОБЫТИЙ ---
-
-    def _trigger_event(self, event_type: str, data: dict):
-        """Внутренняя система логов для аналитики CircleGift"""
-        event_id = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]
-        logger.info(f"EVENT [{event_id}] | Type: {event_type} | Data: {data}")
-
-    # --- УПРАВЛЕНИЕ ПОДАРКАМИ (NFT) ---
-
-    def process_gift_staking_v2(self, user_id: int, gift_type: str, user_price: float):
-        """
-        Версия 2.0: Автоматически берет Floor из Оракула и проверяет лимиты.
-        """
-        floor = self.oracle.get_floor(gift_type)
-        
-        # Если цена юзера в 2 раза выше Floor — блокируем
-        if user_price > (floor * 2):
-            self._trigger_event("STAKE_REJECTED", {"reason": "Overpriced", "user": user_id})
-            return {"status": "error", "msg": "Price is too far from Floor!"}
-
-        apr = self.calculate_dynamic_gift_apr(user_price, floor)
-        
-        # Генерация уникального ID стейка
-        internal_id = f"GIFT-{uuid.uuid4().hex[:6].upper()}"
-        
-        self.stake_gift(user_id, internal_id, user_price, floor)
-        self._trigger_event("GIFT_STAKED", {"id": internal_id, "apr": apr})
-        
-        return {"status": "success", "stake_id": internal_id, "apr": apr}
-
-    # --- АНАЛИТИКА ДЛЯ АДМИН-ПАНЕЛИ ---
-
-    def get_global_stats(self) -> dict:
-        """Возвращает общие данные по всему проекту для админа"""
-        with self.db._get_conn() as conn:
-            total_ton = conn.execute('SELECT SUM(amount) FROM ton_stakes WHERE status="active"').fetchone()[0] or 0
-            active_users = conn.execute('SELECT COUNT(DISTINCT user_id) FROM ton_stakes').fetchone()[0] or 0
-            gift_count = conn.execute('SELECT COUNT(*) FROM gift_stakes WHERE is_active=1').fetchone()[0] or 0
-            
-        return {
-            "tvl_ton": round(total_ton, 2),
-            "users_active": active_users,
-            "gifts_in_work": gift_count,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-
-# =================================================================
-# ТЕСТИРОВАНИЕ КОМПОНЕНТОВ (UNIT TESTING)
-# =================================================================
-
-def run_stress_test():
-    """Тест на 1000 операций для проверки стабильности БД"""
-    oracle = PriceOracle()
-    db = StakingDatabase("test_stress.db")
-    manager = AdvancedStakingManager(db, oracle)
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Outfit:wght@700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     
-    print("🚀 Запуск стресс-теста системы стейкинга...")
-    start = time.time()
-    
-    for i in range(100):
-        manager.open_ton_stake(user_id=i, amount=random.uniform(1, 50), pool_key="flexible")
-        manager.process_gift_staking_v2(user_id=i, gift_type="whip_cupcake", user_price=5.0)
-        
-    end = time.time()
-    print(f"✅ Тест завершен. Обработано 200 транзакций за {round(end-start, 4)} сек.")
-    print(f"Статистика проекта: {manager.get_global_stats()}")
-
-if __name__ == "__main__":
-    run_stress_test()
-
-
-        /* Активные стейки (Инвентарь стейкинга) */
-        .active-stakes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+    <style>
+        :root {
+            --bg-black: #050505;
+            --bg-dark: #0a0a0c;
+            --bg-light: #121215;
+            --cyan: #0088cc;
+            --pink: #ff3b5c;
+            --orange-main: #ff6600;
+            --orange-glow: rgba(255, 102, 0, 0.5);
+            --green: #20c976;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --brd: #27272a;
+            --rad-m: 20px;
+            --safe-t: env(safe-area-inset-top, 0px);
+            --safe-b: env(safe-area-inset-bottom, 0px);
         }
 
-        .active-stake-item {
-            background: var(--bg-light);
-            border: 1px solid var(--brd);
-            border-radius: var(--rad-m);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .active-stake-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .staked-amount {
-            font-family: 'Outfit', sans-serif;
-            font-size: 18px;
-            font-weight: 900;
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: var(--bg-black);
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .stake-progress-bg {
-            width: 100%;
-            height: 6px;
-            background: var(--bg-black);
-            border-radius: 10px;
+            font-family: 'Manrope', sans-serif;
             overflow: hidden;
-            border: 1px solid var(--brd);
+            height: 100vh;
         }
 
-        .stake-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--orange-dark), var(--orange-main));
-            border-radius: 10px;
-            transition: width 1s linear;
+        /* --- Анимации --- */
+        @keyframes combo-glow {
+            0% { filter: drop-shadow(0 0 5px var(--orange-main)); }
+            50% { filter: drop-shadow(0 0 20px var(--orange-main)); }
+            100% { filter: drop-shadow(0 0 5px var(--orange-main)); }
         }
 
-        .stake-footer-info {
+        /* --- Header --- */
+        header {
+            padding: calc(var(--safe-t) + 15px) 20px 15px;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--brd);
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            color: var(--text-secondary);
-            font-weight: 700;
+            align-items: center;
         }
 
-        .btn-unstake {
-            background: transparent;
-            border: 1px solid var(--brd-light);
-            color: var(--text-primary);
-            padding: 6px 12px;
-            border-radius: var(--rad-s);
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
+        .user-avatar {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange-main), #ff3300);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px;
+            border: 2px solid var(--bg-black);
+            box-shadow: 0 0 10px var(--orange-glow);
         }
-        
-        .btn-unstake:hover { border-color: var(--pink); color: var(--pink); }
+
+        .wallet-pill {
+            background: var(--bg-light);
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid var(--orange-main);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+        }
+
+        /* --- Main Content --- */
+        main {
+            height: calc(100vh - 150px);
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .game-screen { display: none; animation: fadeIn 0.3s ease; }
+        .game-screen.active { display: block; }
+
+        /* --- Roulette --- */
+        .wheel-container {
+            position: relative;
+            width: 280px; height: 280px;
+            margin: 20px auto;
+        }
+        .wheel-disk {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 10px solid var(--bg-dark);
+            background: conic-gradient(var(--cyan) 0% 50%, var(--pink) 50% 100%);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+            position: relative;
+        }
+        .wheel-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            background: var(--bg-black);
+            border-radius: 50%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 10;
+            border: 3px solid var(--brd);
+        }
+
+        /* --- Betting Panel --- */
+        .bet-box {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: var(--rad-m);
+            border: 1px solid var(--brd);
+        }
+        .bet-input-row {
+            display: flex; gap: 10px; margin-bottom: 15px;
+        }
+        .bet-input-row input {
+            flex: 1; background: var(--bg-black);
+            border: 1px solid var(--brd);
+            border-radius: 10px; color: #fff;
+            text-align: center; font-size: 20px; font-weight: 800;
+        }
+        .btn-bet {
+            padding: 15px; border-radius: 12px;
+            border: none; color: #fff;
+            font-weight: 900; font-size: 18px;
+            width: 48%; cursor: pointer;
+        }
+        .btn-blue { background: var(--cyan); box-shadow: 0 4px 15px var(--cyan); }
+        .btn-red { background: var(--pink); box-shadow: 0 4px 15px var(--pink); }
+
+        /* --- Shop & Inventory --- */
+        .shop-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .item-card {
+            background: var(--bg-light);
+            padding: 15px; border-radius: 15px;
+            text-align: center; border: 1px solid var(--brd);
+        }
+        .item-emoji { font-size: 40px; margin-bottom: 10px; }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10,10,12,0.95);
+            display: flex; justify-content: space-around;
+            padding: 15px 0 calc(var(--safe-b) + 10px);
+            border-top: 1px solid var(--brd);
+        }
+        .nav-item { color: var(--text-secondary); font-size: 12px; text-align: center; }
+        .nav-item.active { color: var(--orange-main); }
+
+        /* --- Alerts --- */
+        #notif-container {
+            position: fixed; top: 20px; left: 5%; width: 90%; z-index: 10000;
+        }
+        .toast {
+            background: #fff; color: #000; padding: 15px;
+            border-radius: 12px; margin-bottom: 10px;
+            font-weight: 800; animation: slideIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notif-container"></div>
+
+    <header>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="user-avatar" id="u-ava">V</div>
+            <div>
+                <div id="u-name" style="font-weight: 800; font-size: 14px;">Vladislav</div>
+                <div style="color: var(--orange-main); font-size: 10px; font-weight: 800;">VIP LEVEL 1</div>
+            </div>
+        </div>
+        <div class="wallet-pill">
+            <span id="u-bal">50.00</span> <span id="ton-icon"></span>
+        </div>
+    </header>
+
+    <main>
+        <div id="s-battle" class="game-screen active">
+            <div class="wheel-container">
+                <div class="wheel-disk" id="wheel"></div>
+                <div class="wheel-center">
+                    <span id="timer" style="font-size: 24px; font-weight: 900;">15</span>
+                    <span style="font-size: 10px; opacity: 0.6;">СЕК</span>
+                </div>
+            </div>
+
+            <div class="bet-box">
+                <div class="bet-input-row">
+                    <button onclick="multBet(0.5)" style="width: 40px; background: #222; border: none; color: #fff; border-radius: 5px;">/2</button>
+                    <input type="number" id="bet-amount" value="1.0">
+                    <button onclick="multBet(2)" style="width: 40px; background: #222; border: none; color: #fff; border-radius: 5px;">x2</button>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn-bet btn-blue" onclick="placeBet('blue')">BLUE</button>
+                    <button class="btn-bet btn-red" onclick="placeBet('red')">RED</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="s-staking" class="game-screen">
+            <h2 style="margin-bottom: 15px;">Стейкинг Контракты</h2>
+            <div class="bet-box" style="margin-bottom: 15px; border-left: 4px solid var(--green);">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Flexible Pool</span>
+                    <span style="color: var(--green);">120% APR</span>
+                </div>
+                <input type="number" id="stake-amt" placeholder="Сумма TON" style="width: 100%; margin: 10px 0; padding: 10px; background: #000; border: 1px solid #333; color: #fff;">
+                <button onclick="startStake()" style="width: 100%; padding: 10px; background: var(--green); border: none; border-radius: 8px; font-weight: 900;">СТАВИТЬ</button>
+            </div>
+            <div id="active-stakes"></div>
+        </div>
+
+        <div id="s-shop" class="game-screen">
+            <h2 style="margin-bottom: 15px;">Магазин Подарков</h2>
+            <div class="shop-grid" id="shop-render"></div>
+        </div>
+    </main>
+
+    <nav>
+        <div class="nav-item active" onclick="tab('battle', this)"><span>Батл</span></div>
+        <div class="nav-item" onclick="tab('staking', this)"><span>Стейкинг</span></div>
+        <div class="nav-item" onclick="tab('shop', this)"><span>Магазин</span></div>
+    </nav>
+
+    <script>
+        const ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#ff6600"/><path d="M16 9L12 15L8 9H16Z" fill="black"/></svg>`;
+        document.getElementById('ton-icon').innerHTML = ICON;
+
+        let USER = JSON.parse(localStorage.getItem('v3_combo_db')) || {
+            bal: 100.0,
+            stakes: [],
+            inv: []
+        };
+
+        const SHOP = [
+            {id: 1, name: "Crypto Rose", price: 10, e: "🌹"},
+            {id: 2, name: "TON Car", price: 150, e: "🏎️"},
+            {id: 3, name: "Diamond", price: 500, e: "💎"}
+        ];
+
+        function save() {
+            localStorage.setItem('v3_combo_db', JSON.stringify(USER));
+            document.getElementById('u-bal').innerText = USER.bal.toFixed(2);
+        }
+
+        function tab(s, el) {
+            document.querySelectorAll('.game-screen').forEach(x => x.classList.remove('active'));
+            document.getElementById('s-'+s).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // --- Battle Logic ---
+        let timer = 15;
+        let isSpinning = false;
+        let myBet = { side: null, amt: 0 };
+
+        setInterval(() => {
+            if(isSpinning) return;
+            timer--;
+            document.getElementById('timer').innerText = timer;
+            if(timer <= 0) spin();
+        }, 1000);
+
+        function spin() {
+            isSpinning = true;
+            const wheel = document.getElementById('wheel');
+            const winSide = Math.random() > 0.5 ? 'blue' : 'red';
+            const deg = winSide === 'blue' ? 1800 : 1980; // 5 оборотов + угол
+
+            wheel.style.transform = `rotate(${deg}deg)`;
+
+            setTimeout(() => {
+                if(myBet.side === winSide) {
+                    let win = myBet.amt * 1.95;
+                    USER.bal += win;
+                    showToast(`ПОБЕДА! +${win.toFixed(2)} TON`, "success");
+                } else if(myBet.amt > 0) {
+                    showToast("ПРОИГРЫШ", "error");
+                }
+                
+                // Reset
+                wheel.style.transition = 'none';
+                wheel.style.transform = 'rotate(0deg)';
+                setTimeout(() => { wheel.style.transition = 'transform 5s cubic-bezier(0.15, 0, 0.15, 1)'; }, 50);
+                
+                timer = 15;
+                isSpinning = false;
+                myBet = { side: null, amt: 0 };
+                save();
+            }, 5500);
+        }
+
+        function placeBet(side) {
+            const amt = parseFloat(document.getElementById('bet-amount').value);
+            if(amt > USER.bal || isSpinning) return;
+            USER.bal -= amt;
+            myBet = { side, amt };
+            save();
+            showToast(`Ставка ${amt} TON принята`);
+        }
+
+        function multBet(m) {
+            let el = document.getElementById('bet-amount');
+            el.value = (parseFloat(el.value) * m).toFixed(1);
+        }
+
+        // --- Shop ---
+        function renderShop() {
+            const root = document.getElementById('shop-render');
+            root.innerHTML = SHOP.map(i => `
+                <div class="item-card">
+                    <div class="item-emoji">${i.e}</div>
+                    <div style="font-weight: 800;">${i.name}</div>
+                    <button onclick="buy(${i.id})" style="margin-top:10px; border:none; background:var(--orange-main); color:#000; padding:5px 10px; border-radius:5px; font-weight:900;">${i.price} TON</button>
+                </div>
+            `).join('');
+        }
+
+        function buy(id) {
+            const item = SHOP.find(x => x.id === id);
+            if(USER.bal >= item.price) {
+                USER.bal -= item.price;
+                USER.inv.push(item);
+                save();
+                showToast("Покупка успешна!");
+            }
+        }
+
+        function showToast(txt) {
+            const c = document.getElementById('notif-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = txt;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        window.onload = () => {
+            save();
+            renderShop();
+        };
+    </script>
+</body>
+</html>
 
         /* ================================================================
            11. BOTTOM NAVIGATION BAR
